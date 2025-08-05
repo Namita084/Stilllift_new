@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
@@ -15,11 +15,11 @@ interface MessageData {
 
 export default function Option2Page() {
   const router = useRouter();
-  const [currentMood, setCurrentMood] = useState<string | null>(null);
-  const [currentContext, setCurrentContext] = useState<string | null>(null);
+  const [, setCurrentMood] = useState<string | null>(null);
+  const [, setCurrentContext] = useState<string | null>(null);
   const [selectedMessage, setSelectedMessage] = useState<MessageData | null>(null);
   const [isScratching, setIsScratching] = useState(false);
-  const [scratchPercentage, setScratchPercentage] = useState(0);
+  const [, setScratchPercentage] = useState(0);
   const [isRevealed, setIsRevealed] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -33,7 +33,7 @@ export default function Option2Page() {
     toggleScreenless,
   } = useUserPreferences();
 
-  const messages = {
+  const messages = useMemo(() => ({
     good: {
       safe: [
         {
@@ -186,7 +186,7 @@ export default function Option2Page() {
         }
       ]
     }
-  };
+  }), []);
 
   useEffect(() => {
     // Load user preferences and current mood/context
@@ -208,7 +208,7 @@ export default function Option2Page() {
       router.push('/');
       return;
     }
-  }, [router]);
+  }, [router, messages]);
 
   useEffect(() => {
     if (selectedMessage) {
@@ -359,9 +359,7 @@ export default function Option2Page() {
     }
   };
 
-  const handleGiveMeAnother = () => {
-    router.push('/context');
-  };
+
 
   const handleRevealMessage = () => {
     // Validate that we have a valid message before proceeding

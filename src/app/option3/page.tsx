@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
@@ -11,6 +11,10 @@ import Background from '@/components/Background';
 interface MessageData {
   title: string;
   message: string;
+}
+
+interface WindowWithWebkitAudioContext extends Window {
+  webkitAudioContext: typeof AudioContext;
 }
 
 export default function Option3Page() {
@@ -31,7 +35,7 @@ export default function Option3Page() {
     toggleScreenless,
   } = useUserPreferences();
 
-  const messages = {
+  const messages = useMemo(() => ({
     good: {
       safe: [
         {
@@ -184,7 +188,7 @@ export default function Option3Page() {
         }
       ]
     }
-  };
+  }), []);
 
   useEffect(() => {
     // Load user preferences and current mood/context
@@ -206,7 +210,7 @@ export default function Option3Page() {
       router.push('/');
       return;
     }
-  }, [router]);
+  }, [router, messages]);
 
   const openCookie = () => {
     if (isOpened) return;
@@ -214,7 +218,7 @@ export default function Option3Page() {
     setIsCracking(true);
     
     // Play crack sound
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioContext = new (window.AudioContext || (window as unknown as WindowWithWebkitAudioContext).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     oscillator.connect(gainNode);
@@ -251,23 +255,7 @@ export default function Option3Page() {
     }
   };
 
-  const handleRevealMessage = () => {
-    // Validate that we have a valid message before proceeding
-    if (!selectedMessage || !selectedMessage.title || !selectedMessage.message) {
-      console.error('Invalid message selected:', selectedMessage);
-      return;
-    }
-    
-    localStorage.setItem('selectedMessage', JSON.stringify(selectedMessage));
-    router.push('/message-fortune');
-  };
 
-  const handleStartOver = () => {
-    localStorage.removeItem('currentMood');
-    localStorage.removeItem('currentContext');
-    localStorage.removeItem('selectedMessage');
-    router.push('/');
-  };
 
   const handleGiveMeAnother = () => {
     // Reset cookie state

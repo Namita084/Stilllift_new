@@ -115,7 +115,7 @@ export default function MessageTarotPage() {
                           </div>
                           <div className="message-card-actions">
                             <button 
-                              className="action-btn primary glass-btn"
+                              className="action-btn primary text-black glass-btn"
                               onClick={handleGiveMeAnother}
                             >
                               Another Card

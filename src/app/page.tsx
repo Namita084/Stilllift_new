@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -102,7 +101,7 @@ export default function Home() {
                 Select your mood above to begin your journey
               </h3>
               <p className="font-inter text-sm text-slate-500 dark:text-slate-400 text-center mt-2">
-                You'll choose your experience type in the next step
+                You&apos;ll choose your experience type in the next step
               </p>
             </div>
           </div>

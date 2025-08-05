@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
@@ -15,8 +15,8 @@ interface MessageData {
 
 export default function CardsPage() {
   const router = useRouter();
-  const [currentMood, setCurrentMood] = useState<string | null>(null);
-  const [currentContext, setCurrentContext] = useState<string | null>(null);
+  const [, setCurrentMood] = useState<string | null>(null);
+  const [, setCurrentContext] = useState<string | null>(null);
   const [cardMessages, setCardMessages] = useState<MessageData[]>([]);
   const {
     isDarkMode,
@@ -27,7 +27,7 @@ export default function CardsPage() {
     toggleScreenless,
   } = useUserPreferences();
 
-  const messages = {
+  const messages = useMemo(() => ({
     good: {
       safe: [
         {
@@ -180,7 +180,7 @@ export default function CardsPage() {
         }
       ]
     }
-  };
+  }), []);
 
   useEffect(() => {
     // Load user preferences and current mood/context
@@ -210,7 +210,7 @@ export default function CardsPage() {
       router.push('/');
       return;
     }
-  }, [router]);
+  }, [router, messages]);
 
   const handleCardSelection = (cardIndex: number) => {
     console.log('Card selection:', { cardIndex, cardMessages, cardMessagesLength: cardMessages.length });
@@ -282,14 +282,14 @@ export default function CardsPage() {
                         {cardIndex === 0 ? '✨' : cardIndex === 1 ? '🌟' : '💫'}
                       </div>
                     </div>
-                    {/* <div className="card-content-overlay">
+                    <div className="card-content-overlay">
                       {cardMessages[cardIndex] && (
                         <>
                           <h4 className="card-title">{cardMessages[cardIndex].title}</h4>
                           <p className="card-message">{cardMessages[cardIndex].message.substring(0, 100)}...</p>
                         </>
                       )}
-                    </div> */}
+                    </div>
                   </div>
                 </div>
               ))}

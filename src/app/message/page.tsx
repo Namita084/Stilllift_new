@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import Header from '@/components/Header';
@@ -15,7 +15,7 @@ interface MessageData {
 export default function MessagePage() {
   const router = useRouter();
   const [selectedMessage, setSelectedMessage] = useState<MessageData | null>(null);
-  const [currentMood, setCurrentMood] = useState<string | null>(null);
+  const [, setCurrentMood] = useState<string | null>(null);
   const [microTips, setMicroTips] = useState<string[]>([]);
   const {
     isDarkMode,
@@ -26,7 +26,7 @@ export default function MessagePage() {
     toggleScreenless,
   } = useUserPreferences();
 
-  const microTipsData = {
+  const microTipsData = useMemo(() => ({
     good: [
       "Practice gratitude by naming three things you appreciate right now",
       "Share your positive energy with someone who might need it",
@@ -47,7 +47,7 @@ export default function MessagePage() {
       "Try to find a quiet, safe space to sit and breathe",
       "Remember that this feeling is temporary, even if it doesn't feel that way"
     ]
-  };
+  }), []);
 
   useEffect(() => {
     // Load user preferences and selected message
@@ -71,7 +71,7 @@ export default function MessagePage() {
         setMicroTips(shuffledTips);
       }
     }
-  }, [router]);
+  }, [router, microTipsData]);
 
   const handleGiveMeAnother = () => {
     router.push('/cards');

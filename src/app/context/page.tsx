@@ -10,7 +10,7 @@ import Background from '@/components/Background';
 
 export default function ContextPage() {
   const router = useRouter();
-  const [currentMood, setCurrentMood] = useState<string | null>(null);
+  const [, setCurrentMood] = useState<string | null>(null);
   const [showExperienceOptions, setShowExperienceOptions] = useState(false);
   const {
     isDarkMode,

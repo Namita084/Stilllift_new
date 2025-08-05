@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
@@ -30,7 +30,7 @@ export default function Option4Page() {
     toggleScreenless,
   } = useUserPreferences();
 
-  const messages = {
+  const messages = useMemo(() => ({
     good: {
       safe: [
         {
@@ -183,7 +183,7 @@ export default function Option4Page() {
         }
       ]
     }
-  };
+  }), []);
 
   useEffect(() => {
     // Load user preferences and current mood/context
@@ -205,7 +205,7 @@ export default function Option4Page() {
       router.push('/');
       return;
     }
-  }, [router]);
+  }, [router, messages]);
 
   const flipCard = () => {
     if (isFlipped) return;
@@ -240,16 +240,7 @@ export default function Option4Page() {
     }
   };
 
-  const handleRevealMessage = () => {
-    // Validate that we have a valid message before proceeding
-    if (!selectedMessage || !selectedMessage.title || !selectedMessage.message) {
-      console.error('Invalid message selected:', selectedMessage);
-      return;
-    }
-    
-    localStorage.setItem('selectedMessage', JSON.stringify(selectedMessage));
-    router.push('/message-glassmorphic');
-  };
+
 
   const handleStartOver = () => {
     localStorage.removeItem('currentMood');
