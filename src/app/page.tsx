@@ -1,103 +1,115 @@
-import Image from "next/image";
+'use client';
+
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useUserPreferences } from '@/hooks/useUserPreferences';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import Background from '@/components/Background';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const router = useRouter();
+  const {
+    isDarkMode,
+    audioEnabled,
+    screenlessMode,
+    toggleTheme,
+    toggleReadAloud,
+    toggleScreenless,
+  } = useUserPreferences();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  const handleMoodSelection = (mood: string) => {
+    localStorage.setItem('currentMood', mood);
+    router.push('/context');
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      <Background />
+      
+
+      
+      <Header
+        isDarkMode={isDarkMode}
+        audioEnabled={audioEnabled}
+        screenlessMode={screenlessMode}
+        onToggleTheme={toggleTheme}
+        onToggleReadAloud={toggleReadAloud}
+        onToggleScreenless={toggleScreenless}
+      />
+
+      <main className="flex-1 flex flex-col">
+        <section className="screen active">
+          <div className="container">
+            <div className="mood-question">
+              <h2 
+                className="font-inter font-semibold" 
+                style={{ fontFamily: 'var(--font-inter), Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}
+              >
+                How are you feeling today?
+              </h2>
+            </div>
+            <div className="mood-buttons">
+              <button 
+                className="mood-btn glass-card good" 
+                onClick={() => handleMoodSelection('good')}
+                data-mood="good"
+              >
+                <div className="mood-content">
+                  <span className="mood-emoji">😊</span>
+                  <span className="mood-text font-inter">Good</span>
+                </div>
+                <div className="accent-blob good-blob"></div>
+              </button>
+              <button 
+                className="mood-btn glass-card okay" 
+                onClick={() => handleMoodSelection('okay')}
+                data-mood="okay"
+              >
+                <div className="mood-content">
+                  <span className="mood-emoji">😐</span>
+                  <span className="mood-text font-inter">Okay</span>
+                </div>
+                <div className="accent-blob okay-blob"></div>
+              </button>
+              <button 
+                className="mood-btn glass-card bad" 
+                onClick={() => handleMoodSelection('bad')}
+                data-mood="bad"
+              >
+                <div className="mood-content">
+                  <span className="mood-emoji">😔</span>
+                  <span className="mood-text font-inter">Bad</span>
+                </div>
+                <div className="accent-blob bad-blob"></div>
+              </button>
+              <button 
+                className="mood-btn glass-card awful" 
+                onClick={() => handleMoodSelection('awful')}
+                data-mood="awful"
+              >
+                <div className="mood-content">
+                  <span className="mood-emoji">😢</span>
+                  <span className="mood-text font-inter">Awful</span>
+                </div>
+                <div className="accent-blob awful-blob"></div>
+              </button>
+            </div>
+            
+            {/* Instructions */}
+            <div className="instructions-section">
+              <h3 className="font-inter font-medium text-slate-700 dark:text-slate-300 text-center mt-8">
+                Select your mood above to begin your journey
+              </h3>
+              <p className="font-inter text-sm text-slate-500 dark:text-slate-400 text-center mt-2">
+                You'll choose your experience type in the next step
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      <Footer />
     </div>
   );
 }

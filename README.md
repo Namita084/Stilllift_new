@@ -1,36 +1,131 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# StillLift - Next.js + shadcn/ui + Tailwind CSS
 
-## Getting Started
+A modern, beautiful web application built with Next.js 15, shadcn/ui components, and Tailwind CSS.
 
-First, run the development server:
+## 🚀 Tech Stack
 
+- **Next.js 15** - React framework with App Router and Server Components
+- **shadcn/ui** - Beautiful, accessible component library
+- **Tailwind CSS** - Utility-first CSS framework
+- **TypeScript** - Type-safe JavaScript
+- **ESLint** - Code linting and formatting
+
+## ✨ Features
+
+- 🎨 Modern, responsive design with dark mode support
+- 🧩 Pre-built shadcn/ui components (Button, Card, Input, Label)
+- 📱 Mobile-first responsive layout
+- 🌙 Dark/light theme support
+- ⚡ Fast development with hot reload
+- 🔧 TypeScript for better developer experience
+
+## 🛠️ Getting Started
+
+### Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <your-repo-url>
+cd stilllift_new
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Start the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Learn More
+## 📁 Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+stilllift_new/
+├── src/
+│   ├── app/                 # Next.js App Router
+│   │   ├── globals.css      # Global styles
+│   │   ├── layout.tsx       # Root layout
+│   │   └── page.tsx         # Home page
+│   ├── components/          # React components
+│   │   └── ui/             # shadcn/ui components
+│   └── lib/                # Utility functions
+├── public/                 # Static assets
+├── components.json         # shadcn/ui configuration
+├── tailwind.config.ts      # Tailwind CSS configuration
+└── package.json           # Dependencies and scripts
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🎨 Available Components
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The project includes these shadcn/ui components:
 
-## Deploy on Vercel
+- **Button** - Various button styles and variants
+- **Card** - Content containers with header, content, and footer
+- **Input** - Form input fields
+- **Label** - Form labels with accessibility features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Adding More Components
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+To add more shadcn/ui components:
+
+```bash
+npx shadcn@latest add <component-name>
+```
+
+For example:
+```bash
+npx shadcn@latest add dialog dropdown-menu
+```
+
+## 🎯 Customization
+
+### Colors and Themes
+
+The project uses Tailwind CSS with a neutral color palette. You can customize colors in:
+
+- `src/app/globals.css` - CSS variables for theming
+- `tailwind.config.ts` - Tailwind configuration
+
+### Styling
+
+- Use Tailwind CSS utility classes for styling
+- shadcn/ui components are styled with CSS variables
+- Dark mode is automatically supported
+
+## 📝 Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+
+## 🔗 Useful Links
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [shadcn/ui Documentation](https://ui.shadcn.com)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Radix UI](https://www.radix-ui.com) - Headless UI primitives
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+Built with ❤️ using Next.js, shadcn/ui, and Tailwind CSS
