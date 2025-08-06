@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Lottie, { LottieRefCurrentProps } from 'lottie-react';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
+import fortuneCookieAnimation from '../../../public/fortune-cookie.json';
 
 interface MessageData {
   title: string;
@@ -25,6 +27,8 @@ export default function Option3Page() {
   const [isOpened, setIsOpened] = useState(false);
   const [isCracking, setIsCracking] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [animationComplete, setAnimationComplete] = useState(false);
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
   
   const {
     isDarkMode,
@@ -213,29 +217,38 @@ export default function Option3Page() {
   }, [router, messages]);
 
   const openCookie = () => {
-    if (isOpened) return;
-    setIsOpened(true);
+    if (isOpened || isCracking) return;
     setIsCracking(true);
     
-    // Play crack sound
-    const audioContext = new (window.AudioContext || (window as unknown as WindowWithWebkitAudioContext).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.1);
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.1);
+    // Play the Lottie animation
+    if (lottieRef.current) {
+      lottieRef.current.play();
+    }
     
-    // After crack animation, open cookie
+    // Play crack sound
+    if (audioEnabled) {
+      const audioContext = new (window.AudioContext || (window as unknown as WindowWithWebkitAudioContext).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.1);
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.1);
+    }
+  };
+
+  const onAnimationComplete = () => {
+    setAnimationComplete(true);
+    setIsOpened(true);
+    setIsCracking(false);
+    
+    // Wait a moment then reveal the fortune
     setTimeout(() => {
-      setIsCracking(false);
-      setTimeout(() => {
-        revealFortune();
-      }, 400);
+      revealFortune();
     }, 500);
   };
 
@@ -262,6 +275,12 @@ export default function Option3Page() {
     setIsOpened(false);
     setIsCracking(false);
     setIsExpanded(false);
+    setAnimationComplete(false);
+    
+    // Reset Lottie animation
+    if (lottieRef.current) {
+      lottieRef.current.stop();
+    }
     
     // Get new random message
     const availableMessages = messages[currentMood as keyof typeof messages]?.[currentContext as keyof typeof messages.good];
@@ -323,93 +342,20 @@ export default function Option3Page() {
               <div 
                 className={`cookie-wrapper ${isCracking ? 'cracking' : ''} ${isOpened ? 'opened' : ''}`}
                 onClick={openCookie}
+                style={{ cursor: isCracking ? 'default' : 'pointer' }}
               >
-                {/* Realistic Fortune Cookie SVG */}
-                <svg 
-                  width="240" 
-                  height="180" 
-                  viewBox="0 0 240 180" 
-                  className="fortune-cookie-svg"
-                >
-                  {/* Cookie Base - More realistic shape */}
-                  <path 
-                    d="M 20 90 Q 20 60 40 50 Q 60 40 120 40 Q 180 40 200 50 Q 220 60 220 90 Q 220 120 200 130 Q 180 140 120 140 Q 60 140 40 130 Q 20 120 20 90 Z" 
-                    fill="#D4A574" 
-                    stroke="#C19A6B" 
-                    strokeWidth="2"
-                  />
-                  
-                  {/* Cookie Texture and Shading */}
-                  <path 
-                    d="M 25 90 Q 25 65 42 55 Q 60 45 120 45 Q 180 45 198 55 Q 215 65 215 90 Q 215 115 198 125 Q 180 135 120 135 Q 60 135 42 125 Q 25 115 25 90 Z" 
-                    fill="url(#cookieGradient)"
-                    opacity="0.9"
-                  />
-                  
-                  {/* Cookie Cracks - More realistic */}
-                  <path 
-                    d="M 60 90 Q 120 75 180 90" 
-                    stroke="#8B7355" 
-                    strokeWidth="2" 
-                    fill="none" 
-                    opacity="0.7"
-                  />
-                  <path 
-                    d="M 70 70 Q 120 80 170 70" 
-                    stroke="#8B7355" 
-                    strokeWidth="1.5" 
-                    fill="none" 
-                    opacity="0.5"
-                  />
-                  <path 
-                    d="M 70 110 Q 120 100 170 110" 
-                    stroke="#8B7355" 
-                    strokeWidth="1.5" 
-                    fill="none" 
-                    opacity="0.5"
-                  />
-                  
-                  {/* Cookie Highlights - More realistic */}
-                  <ellipse 
-                    cx="90" 
-                    cy="70" 
-                    rx="12" 
-                    ry="8" 
-                    fill="rgba(255,255,255,0.4)"
-                  />
-                  <ellipse 
-                    cx="150" 
-                    cy="110" 
-                    rx="10" 
-                    ry="6" 
-                    fill="rgba(255,255,255,0.3)"
-                  />
-                  <ellipse 
-                    cx="120" 
-                    cy="50" 
-                    rx="8" 
-                    ry="5" 
-                    fill="rgba(255,255,255,0.2)"
-                  />
-                  
-                  {/* Cookie Surface Texture */}
-                  <circle cx="80" cy="85" r="2" fill="#8B7355" opacity="0.3" />
-                  <circle cx="160" cy="95" r="1.5" fill="#8B7355" opacity="0.3" />
-                  <circle cx="100" cy="60" r="1" fill="#8B7355" opacity="0.3" />
-                  <circle cx="140" cy="120" r="1" fill="#8B7355" opacity="0.3" />
-                  
-                  {/* Gradients */}
-                  <defs>
-                    <radialGradient id="cookieGradient">
-                      <stop offset="0%" stopColor="#F4D03F" />
-                      <stop offset="30%" stopColor="#E6B566" />
-                      <stop offset="70%" stopColor="#D4A574" />
-                      <stop offset="100%" stopColor="#C19A6B" />
-                    </radialGradient>
-                  </defs>
-                </svg>
-                
-                <div className="cookie-crack" id="cookie-crack"></div>
+                <Lottie
+                  lottieRef={lottieRef}
+                  animationData={fortuneCookieAnimation}
+                  autoplay={false}
+                  loop={false}
+                  onComplete={onAnimationComplete}
+                  style={{
+                    width: '240px',
+                    height: '180px',
+                    pointerEvents: 'none',
+                  }}
+                />
               </div>
               
               <div className={`fortune-slip ${isOpened ? 'revealed' : ''} ${isExpanded ? 'expanded' : ''}`}>

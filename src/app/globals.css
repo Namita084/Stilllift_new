@@ -1917,8 +1917,8 @@ a:focus {
 /* Cookie Wrapper */
 .cookie-wrapper {
     position: relative;
-    width: 200px;
-    height: 150px;
+    width: 240px;
+    height: 180px;
     cursor: pointer;
     transition: var(--transition-smooth);
     animation: cookieFloat 4s ease-in-out infinite;
@@ -1935,6 +1935,17 @@ a:focus {
 
 .cookie-wrapper.opened {
     transform: scale(1.1);
+}
+
+/* Lottie Animation Specific Styles */
+.cookie-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cookie-wrapper.cracking {
+    animation: none; /* Disable shake when using Lottie animation */
 }
 
 /* Cookie Halves */
@@ -3069,8 +3080,8 @@ a:focus {
 /* Cookie Wrapper */
 .cookie-wrapper {
     position: relative;
-    width: 200px;
-    height: 150px;
+    width: 240px;
+    height: 180px;
     cursor: pointer;
     transition: var(--transition-smooth);
     animation: cookieFloat 4s ease-in-out infinite;
@@ -4152,8 +4163,8 @@ a:focus {
 /* Cookie Wrapper */
 .cookie-wrapper {
     position: relative;
-    width: 200px;
-    height: 150px;
+    width: 240px;
+    height: 180px;
     cursor: pointer;
     transition: var(--transition-smooth);
     animation: cookieFloat 4s ease-in-out infinite;
@@ -5235,8 +5246,8 @@ a:focus {
 /* Cookie Wrapper */
 .cookie-wrapper {
     position: relative;
-    width: 200px;
-    height: 150px;
+    width: 240px;
+    height: 180px;
     cursor: pointer;
     transition: var(--transition-smooth);
     animation: cookieFloat 4s ease-in-out infinite;
@@ -6318,8 +6329,8 @@ a:focus {
 /* Cookie Wrapper */
 .cookie-wrapper {
     position: relative;
-    width: 200px;
-    height: 150px;
+    width: 240px;
+    height: 180px;
     cursor: pointer;
     transition: var(--transition-smooth);
     animation: cookieFloat 4s ease-in-out infinite;
