@@ -241,9 +241,21 @@ export default function CardsPage() {
       }
     });
     
-    // Navigate after animation
+    // Get current mood and context to determine which page to navigate to
+    const savedMood = localStorage.getItem('currentMood');
+    const savedContext = localStorage.getItem('currentContext');
+    
+    // Navigate after animation - balloon animation for "good and safe" (on the move but safe)
     setTimeout(() => {
-      router.push('/message-tarot');
+      if (savedMood === 'good' && savedContext === 'safe') {
+        // Special case: "good and safe" gets the balloon animation
+        console.log('Navigating to balloon animation for good + safe');
+        router.push('/message-balloon');
+      } else {
+        // All other combinations get the regular message page
+        console.log('Navigating to regular message page for', { savedMood, savedContext });
+        router.push('/message');
+      }
     }, 1500);
   };
 

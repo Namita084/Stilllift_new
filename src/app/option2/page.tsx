@@ -435,23 +435,23 @@ export default function Option2Page() {
                 <div className="scratch-hint">Scratch here to reveal</div>
               </div>
             </div>
-                         <div className="message-actions">
-               <button 
-                 className="action-btn primary glass-btn neubrutalism-btn"
-                 onClick={handleRevealMessage}
-               >
-                 Reveal Message
-               </button>
-               <button 
-                 className="action-btn secondary glass-btn neubrutalism-btn"
-                 onClick={handleStartOver}
-               >
-                 Start Over
-               </button>
-             </div>
-            <Link href="/context" className="back-btn glass-btn">
-              ← Back
-            </Link>
+            <div className="message-action-buttons">
+              <button 
+                className="action-btn primary glass-btn neubrutalism-btn"
+                onClick={handleRevealMessage}
+              >
+                Reveal Message
+              </button>
+              <button 
+                className="action-btn secondary glass-btn neubrutalism-btn"
+                onClick={handleStartOver}
+              >
+                Start Over
+              </button>
+              <Link href="/context" className="action-btn secondary glass-btn neubrutalism-btn">
+                ← Back
+              </Link>
+            </div>
           </div>
         </section>
       </main>
