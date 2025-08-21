@@ -20,6 +20,11 @@ interface RevealElementProps {
   onReveal: () => void;
   accentColor: string;
   animationSpeed: 'rich' | 'quick' | 'gentle' | 'instant';
+  message?: string;
+  action?: string;
+  actionType?: string;
+  onStartOver?: () => void;
+  onTryAnother?: () => void;
 }
 
 export default function RevealElement({ 
@@ -27,7 +32,13 @@ export default function RevealElement({
   isRevealed, 
   onReveal, 
   accentColor, 
-  animationSpeed 
+  animationSpeed,
+  message,
+  action,
+  actionType,
+  onStartOver,
+  onTryAnother,
+
 }: RevealElementProps) {
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -46,6 +57,11 @@ export default function RevealElement({
             onReveal={handleReveal}
             accentColor={accentColor}
             animationSpeed={animationSpeed}
+            message={message}
+            action={action}
+            actionType={actionType}
+            onStartOver={onStartOver}
+            onTryAnother={onTryAnother}
           />
         );
       

@@ -2494,7 +2494,7 @@ a:focus {
     gap: 1.5rem;
     height: 100%;
     justify-content: space-between;
-    transform: rotateY(180deg); /* Counter-rotate to fix mirrored text */
+    transform: rotateY(0deg); /* Counter-rotate to fix mirrored text */
 }
 
 .card-title {

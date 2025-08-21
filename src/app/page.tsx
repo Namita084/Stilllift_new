@@ -377,7 +377,7 @@ export default function Home() {
                 {canShowReveal && (
                   <div className="continue-section">
                     <button 
-                      className="continue-btn glass-btn neubrutalism-btn"
+                      className="continue-btn"
                       onClick={handleContinue}
                     >
                       Continue
@@ -421,8 +421,15 @@ export default function Home() {
                         onReveal={handleReveal}
                         accentColor={selectedMicroHabit?.accentColor || '#3B82F6'}
                         animationSpeed={selectedMicroHabit?.animationSpeed || 'rich'}
+                        message={selectedMicroHabit?.message}
+                        action={selectedMicroHabit?.action}
+                        actionType={selectedMicroHabit?.actionType}
+                        onStartOver={handleStartOver}
+                        onTryAnother={handleTryAnother}
                       />
                     </div>
+                  ) : selectedMicroHabit?.revealType === 'treasure-chest' ? (
+                    <div></div>
                   ) : (
                     <div className="micro-habit-revealed glass-card">
                       <div className="action-type-badge" style={{ 
