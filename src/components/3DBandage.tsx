@@ -9,11 +9,30 @@ interface BandageProps {
   animationSpeed: 'rich' | 'quick' | 'gentle' | 'instant';
 }
 
+const prescriptionMessages = [
+  {
+    id: 1,
+    text: "Practice square breathing (Inhale 4s, Hold 4s, Exhale 4s, Hold 4s)",
+    type: "[ACTION]"
+  },
+  {
+    id: 2,
+    text: "Repeat: 'I'm doing just fine' (1 min)",
+    type: "[REPEAT/RECITE]"
+  },
+  {
+    id: 3,
+    text: "Visualise your favourite quiet place (2 min)",
+    type: "[VISUALIZE]"
+  }
+];
+
 export default function Bandage({ isRevealed, onReveal, accentColor, animationSpeed }: BandageProps) {
   const [showBandage, setShowBandage] = useState(false);
   const [isPasting, setIsPasting] = useState(false);
   const [isPasted, setIsPasted] = useState(false);
   const [showPrescription, setShowPrescription] = useState(false);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
 
   const getAnimationDuration = useCallback(() => {
     switch (animationSpeed) {
@@ -64,6 +83,13 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
     setIsPasted(false);
     setShowPrescription(false);
   };
+
+  const handleGiveAnother = () => {
+    console.log('📝 Getting another prescription...');
+    setCurrentMessageIndex((prev) => (prev + 1) % prescriptionMessages.length);
+  };
+
+  const getCurrentMessage = () => prescriptionMessages[currentMessageIndex];
 
 
 
@@ -146,41 +172,26 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
       {/* Prescription Message Card */}
       {showPrescription && (
         <div className={`prescription-card visible`}>
-        <div className="prescription-header">
-          <div className="rx-symbol">℞</div>
-          <div className="doctor-info">
-            <div className="doctor-name">Dr. Self-Care</div>
-            <div className="prescription-date">{new Date().toLocaleDateString()}</div>
+        {/* Letterhead */}
+        <div className="prescription-letterhead">
+          <div className="letterhead-logo">💚</div>
+          <div className="letterhead-title">Stillift Wellness</div>
+          <div className="letterhead-subtitle">Mindful Care & Emotional Support</div>
+        </div>
+        
+        {/* Main Content */}
+        <div className="prescription-body">
+          <div className="prescription-message">
+            <div className="message-content">
+              {getCurrentMessage().text}
+            </div>
+            <div className="message-type">
+              {getCurrentMessage().type}
+            </div>
           </div>
         </div>
         
-        <div className="prescription-content">
-          <div className="prescription-title">RX FOR EMOTIONAL WELLNESS</div>
-          
-          <div className="prescription-instructions">
-            <div className="instruction-line">
-              <span className="med-name">Self-Compassion Therapy</span>
-              <span className="dosage">Take 1 dose generously PRN (as needed)</span>
-            </div>
-            <div className="instruction-line">
-              <span className="med-name">Deep Breathing Exercise</span>
-              <span className="dosage">Inhale 4 sec, exhale 6 sec, repeat 3-4x</span>
-            </div>
-            <div className="instruction-line">
-              <span className="med-name">Mindful Rest Period</span>
-              <span className="dosage">Continue until symptoms improve</span>
-            </div>
-            <div className="instruction-line">
-              <span className="med-name">Professional Support</span>
-              <span className="dosage">Consult if symptoms persist</span>
-            </div>
-          </div>
-          
-          <div className="prescription-note">
-            Healing is a gradual process. Practice patience and self-kindness during recovery.
-          </div>
-        </div>
-        
+        {/* Actions */}
         <div className="prescription-actions">
           <button 
             className="prescription-button start-over-button"
@@ -190,7 +201,7 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
           </button>
           <button 
             className="prescription-button another-button"
-            onClick={() => console.log('Getting another prescription')}
+            onClick={handleGiveAnother}
           >
             📝 Give Me Another
           </button>
@@ -1171,51 +1182,35 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
           opacity: 1;
         }
 
-        /* Prescription Card */
+        /* Prescription Card - Blank Paper Style */
         .prescription-card {
           position: fixed;
           top: 50%;
           left: 50%;
           width: 480px;
-          min-height: 520px;
-          background: #FFFEF7;
-          border: 2px solid #004851;
-          border-radius: 8px;
+          min-height: 400px;
+          background: #FEFEFE;
+          border: none;
+          border-radius: 0;
           transform: translate(-50%, -50%) scale(0.8);
           opacity: 0;
           transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
           box-shadow: 
             0 8px 32px rgba(0, 0, 0, 0.15),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            0 0 0 1px rgba(0, 0, 0, 0.1);
           z-index: 1000;
           max-height: 80vh;
           overflow-y: auto;
           pointer-events: none;
-          background-image: 
-            linear-gradient(90deg, transparent 24px, rgba(0, 72, 81, 0.1) 25px, rgba(0, 72, 81, 0.1) 26px, transparent 27px),
-            repeating-linear-gradient(
-              transparent,
-              transparent 29px,
-              rgba(0, 72, 81, 0.15) 30px,
-              rgba(0, 72, 81, 0.15) 31px
-            );
+          font-family: var(--font-cursive), cursive;
         }
 
         /* Dark theme prescription card */
         .dark-mode .prescription-card {
           background: #1F2937;
-          border-color: #006B7A;
           box-shadow: 
             0 8px 32px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-          background-image: 
-            linear-gradient(90deg, transparent 24px, rgba(0, 107, 122, 0.2) 25px, rgba(0, 107, 122, 0.2) 26px, transparent 27px),
-            repeating-linear-gradient(
-              transparent,
-              transparent 29px,
-              rgba(0, 107, 122, 0.25) 30px,
-              rgba(0, 107, 122, 0.25) 31px
-            );
+            0 0 0 1px rgba(255, 255, 255, 0.1);
         }
 
         .prescription-card.visible {
@@ -1224,164 +1219,99 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
           pointer-events: all;
         }
 
-        /* Prescription Header */
-        .prescription-header {
+        /* Letterhead */
+        .prescription-letterhead {
+          text-align: center;
+          padding: 30px 40px 20px;
+          border-bottom: 2px solid #333;
+          margin-bottom: 40px;
+        }
+
+        .letterhead-logo {
+          font-size: 48px;
+          margin-bottom: 10px;
+        }
+
+        .letterhead-title {
+          font-family: 'Georgia', serif;
+          font-size: 24px;
+          font-weight: bold;
+          color: #333;
+          margin-bottom: 5px;
+        }
+
+        .letterhead-subtitle {
+          font-family: 'Georgia', serif;
+          font-size: 14px;
+          color: #666;
+          font-style: italic;
+        }
+
+        .dark-mode .letterhead-title {
+          color: #E5E7EB;
+        }
+
+        .dark-mode .letterhead-subtitle {
+          color: #9CA3AF;
+        }
+
+        .dark-mode .prescription-letterhead {
+          border-bottom-color: #E5E7EB;
+        }
+
+        /* Prescription Body */
+        .prescription-body {
+          padding: 20px 40px 40px;
+          min-height: 200px;
           display: flex;
           align-items: center;
-          padding: 20px 30px 16px;
-          border-bottom: 3px double #004851;
-          background: linear-gradient(135deg, #F0F8F8 0%, #E6F3F3 100%);
-          border-radius: 8px 8px 0 0;
-          position: relative;
+          justify-content: center;
         }
 
-        .dark-mode .prescription-header {
-          border-bottom-color: #006B7A;
-          background: linear-gradient(135deg, #374151 0%, #1F2937 100%);
+        .prescription-message {
+          text-align: center;
+          max-width: 100%;
         }
 
-        .prescription-header::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 4px;
-          background: linear-gradient(90deg, #004851 0%, #003A40 100%);
+        .message-content {
+          font-family: var(--font-cursive), cursive;
+          font-size: 28px;
+          font-weight: 500;
+          color: #333;
+          line-height: 1.4;
+          margin-bottom: 20px;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
-        .rx-symbol {
-          font-size: 52px;
-          font-weight: bold;
-          color: #004851;
-          margin-right: 24px;
-          text-shadow: 2px 2px 4px rgba(0, 72, 81, 0.2);
-          font-family: 'Times New Roman', serif;
-        }
-
-        .dark-mode .rx-symbol {
-          color: #006B7A;
-          text-shadow: 2px 2px 4px rgba(0, 107, 122, 0.2);
-        }
-
-        .doctor-info {
-          flex-grow: 1;
-        }
-
-        .doctor-name {
-          font-family: 'Times New Roman', serif;
-          font-size: 22px;
-          font-weight: 700;
-          color: #004851;
-          margin-bottom: 4px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .dark-mode .doctor-name {
-          color: #006B7A;
-        }
-
-        .prescription-date {
+        .message-type {
           font-family: 'Inter', sans-serif;
           font-size: 14px;
-          color: #6B7280;
-        }
-
-        /* Prescription Content */
-        .prescription-content {
-          padding: 30px 35px;
-          margin-left: 25px;
-        }
-
-        .prescription-title {
-          font-family: 'Times New Roman', serif;
-          font-size: 18px;
-          font-weight: 700;
-          color: #004851;
-          text-align: left;
-          margin-bottom: 28px;
+          font-weight: 600;
+          color: #666;
+          letter-spacing: 1px;
           text-transform: uppercase;
-          letter-spacing: 1.5px;
-          border-bottom: 1px solid #004851;
-          padding-bottom: 8px;
         }
 
-        .prescription-instructions {
-          margin-bottom: 32px;
+        .dark-mode .message-content {
+          color: #E5E7EB;
         }
 
-        .instruction-line {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          padding: 14px 0;
-          border-bottom: 1px solid rgba(0, 72, 81, 0.2);
-          font-family: 'Times New Roman', serif;
-          position: relative;
-        }
-
-        .instruction-line:last-child {
-          border-bottom: none;
-        }
-
-        .instruction-line::before {
-          content: "•";
-          position: absolute;
-          left: -15px;
-          color: #004851;
-          font-weight: bold;
-          font-size: 16px;
-        }
-
-        .med-name {
-          font-size: 16px;
-          font-weight: 700;
-          color: #000000;
-          text-transform: capitalize;
-          flex: 1;
-        }
-
-        .dosage {
-          font-size: 14px;
-          color: #333333;
-          font-style: normal;
-          text-align: right;
-          font-weight: 500;
-          max-width: 200px;
-        }
-
-        .prescription-note {
-          background: linear-gradient(135deg, #F0F8F8 0%, #E6F3F3 100%);
-          border: 1px solid #004851;
-          border-left: 4px solid #004851;
-          padding: 18px;
-          border-radius: 4px;
-          font-family: 'Times New Roman', serif;
-          font-size: 14px;
-          color: #000000;
-          line-height: 1.5;
-          text-align: left;
-          font-style: italic;
-          margin-top: 20px;
-        }
-
-        .prescription-note::before {
-          content: "Note: ";
-          font-weight: bold;
-          font-style: normal;
-          color: #004851;
+        .dark-mode .message-type {
+          color: #9CA3AF;
         }
 
         /* Prescription Actions */
         .prescription-actions {
-          padding: 20px 30px;
+          padding: 20px 40px 30px;
           display: flex;
           gap: 16px;
           justify-content: center;
-          border-top: 2px solid #004851;
-          background: linear-gradient(135deg, #F0F8F8 0%, #E6F3F3 100%);
-          border-radius: 0 0 8px 8px;
+          border-top: 1px solid #E5E7EB;
+          margin-top: 20px;
+        }
+
+        .dark-mode .prescription-actions {
+          border-top-color: #4B5563;
         }
 
         .prescription-button {

@@ -88,7 +88,7 @@ export default function TreasureChest({
     // Message becomes permanent - never disappears
     setTimeout(() => {
       setMessageStaysPermanent(true);
-      onReveal();
+      // Don't call onReveal() to prevent message from disappearing
       console.log('TreasureChest: Animation complete, message permanent and static');
     }, duration * 1.5);
     
@@ -113,6 +113,8 @@ export default function TreasureChest({
       setChestHidden(false);
       setCanClick(true);
       // Keep message visible permanently
+      setShowMessage(true);
+      setMessageEmerging(true);
     }
   };
 

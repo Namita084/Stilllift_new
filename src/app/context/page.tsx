@@ -96,7 +96,7 @@ export default function ContextPage() {
                         <span className="context-subtitle font-inter text-sm text-slate-600 dark:text-slate-300">(seated, able to interact physically)</span>
                       </div>
                     </div>
-                    <div className="accent-blob safe-blob"></div>
+
                   </button>
                   <button 
                     className="context-btn glass-card moving" 
@@ -110,7 +110,7 @@ export default function ContextPage() {
                         <span className="context-subtitle font-inter text-sm text-slate-600 dark:text-slate-300">(walking, commuting, etc.)</span>
                       </div>
                     </div>
-                    <div className="accent-blob moving-blob"></div>
+
                   </button>
                 </div>
                 <Link href="/" className="back-btn glass-btn">

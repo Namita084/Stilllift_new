@@ -15,6 +15,7 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
   const [showConfetti, setShowConfetti] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [canClick, setCanClick] = useState(true);
+  const [messageLocked, setMessageLocked] = useState(false);
 
   // Animation duration based on speed
   const getAnimationDuration = useCallback(() => {
@@ -46,30 +47,61 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
       setShowConfetti(true);
     }, duration * 0.2);
     
-    // Message appears after confetti settles
+    // Message appears after confetti settles and gets locked permanently
     setTimeout(() => {
-      console.log('📝 Showing message...');
+      console.log('📝 Showing message and locking it permanently...');
       setShowMessage(true);
-      onReveal();
+      setMessageLocked(true); // Lock the message permanently
+      // Don't call onReveal() - keep message visible
     }, duration * 0.6);
     
   }, [canClick, isPopping, isRevealed, onReveal, getAnimationDuration]);
 
-  const handleReplay = () => {
-    console.log('🔄 Replaying balloon animation...');
-    setIsPopping(false);
-    setShowConfetti(false);
-    setShowMessage(false);
-    setCanClick(true);
+  const handleStartOver = () => {
+    console.log('🏠 Going back to home screen...');
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
   };
 
-  // Reset states when revealed
+  const handleGiveAnother = () => {
+    console.log('📝 Getting another message...');
+    // For now, just show the same message since we're keeping it static
+    // In the future, this could cycle through different messages
+  };
+
+  // Keep message locked and visible permanently
   useEffect(() => {
-    if (isRevealed) {
-      setIsPopping(false);
-      setShowConfetti(false);
+    if (messageLocked) {
+      console.log('🔒 Message is now locked permanently - it will never disappear');
+      // Force message to stay visible
+      setShowMessage(true);
+      setCanClick(false);
+      
+      // Set up permanent visibility lock
+      const lockInterval = setInterval(() => {
+        setShowMessage(true);
+        console.log('🔒 Maintaining message visibility...');
+      }, 100); // Check every 100ms to ensure message stays visible
+      
+      return () => clearInterval(lockInterval);
     }
-  }, [isRevealed]);
+  }, [messageLocked]);
+
+  // Additional safeguard - prevent message from being hidden by parent component
+  useEffect(() => {
+    if (showMessage && messageLocked) {
+      // If message is shown and locked, it should never disappear
+      const safeguardInterval = setInterval(() => {
+        if (!showMessage) {
+          console.log('🛡️ Message was hidden - restoring it immediately');
+          setShowMessage(true);
+        }
+      }, 50); // Check every 50ms
+      
+      return () => clearInterval(safeguardInterval);
+    }
+  }, [showMessage, messageLocked]);
 
   return (
     <div className="balloon-experience-container">
@@ -173,7 +205,7 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
       )}
 
       {/* Message Card */}
-      <div className={`message-card-balloon ${showMessage ? 'visible' : ''}`}>
+      <div className={`message-card-balloon ${(showMessage || messageLocked) ? 'visible' : ''}`}>
         <div className="card-content-balloon">
           <div className="card-icon-balloon">🎉</div>
           <div className="card-title-balloon">You&apos;re Doing Just Fine!</div>
@@ -184,16 +216,16 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
           {/* Action Buttons */}
           <div className="card-actions-balloon">
             <button 
-              className="action-button-balloon replay-button-balloon"
-              onClick={handleReplay}
+              className="action-button-balloon start-over-button"
+              onClick={handleStartOver}
             >
-              🔄 Pop Again
+              🔄 Start Over
             </button>
             <button 
-              className="action-button-balloon next-button-balloon"
-              onClick={() => console.log('Next action')}
+              className="action-button-balloon give-another-button"
+              onClick={handleGiveAnother}
             >
-              ➡️ Continue
+              📝 Give Me Another
             </button>
           </div>
         </div>
@@ -641,23 +673,23 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .replay-button-balloon {
+        .start-over-button {
           background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
           color: #475569;
         }
 
-        .replay-button-balloon:hover {
+        .start-over-button:hover {
           background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
           transform: translateY(-2px);
           box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         }
 
-        .next-button-balloon {
+        .give-another-button {
           background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
           color: white;
         }
 
-        .next-button-balloon:hover {
+        .give-another-button:hover {
           background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
           transform: translateY(-2px);
           box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);

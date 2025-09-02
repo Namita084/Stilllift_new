@@ -122,6 +122,11 @@ export default function RevealElement({
             onReveal={handleReveal}
             accentColor={accentColor}
             animationSpeed={animationSpeed}
+            message={message}
+            action={action}
+            actionType={actionType as 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE'}
+            onStartOver={onStartOver}
+            onTryAnother={onTryAnother}
           />
         );
       

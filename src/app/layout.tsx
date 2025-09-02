@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Dancing_Script } from "next/font/google";
 import "./globals.css";
 import "@/components/3DComponents.css";
 import ThemeProvider from "@/components/ThemeProvider";
@@ -22,6 +22,15 @@ const jetbrainsMono = JetBrains_Mono({
   fallback: ['monospace'],
 });
 
+const dancingScript = Dancing_Script({
+  variable: "--font-cursive",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+  preload: true,
+  fallback: ['cursive'],
+});
+
 export const metadata: Metadata = {
   title: "StillLift - How are you feeling today?",
   description: "A mental health platform providing personalized wellness messages and micro-habits for immediate support.",
@@ -39,10 +48,11 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased font-inter`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${dancingScript.variable} antialiased font-inter`}
         style={{
           '--font-inter': inter.style.fontFamily,
           '--font-mono': jetbrainsMono.style.fontFamily,
+          '--font-cursive': dancingScript.style.fontFamily,
         } as React.CSSProperties}
       >
         <ThemeProvider>

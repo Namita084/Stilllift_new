@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -20,7 +20,6 @@ interface MicroHabitData {
 }
 
 export default function Home() {
-  const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedContext, setSelectedContext] = useState<string | null>(null);
   const [showReveal, setShowReveal] = useState(false);
@@ -45,9 +44,19 @@ export default function Home() {
     localStorage.setItem('currentContext', context);
   };
 
-  const handleContinue = () => {
-    setShowReveal(true);
-  };
+  // Auto-navigate to reveal when both mood and context are selected
+  useEffect(() => {
+    if (selectedMood && selectedContext) {
+      // Small delay to show the selection state before revealing
+      const timer = setTimeout(() => {
+        setShowReveal(true);
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [selectedMood, selectedContext]);
+
+
 
   const handleReveal = () => {
     const tokenElement = document.querySelector('.reveal-token');
@@ -138,8 +147,8 @@ export default function Home() {
           action: "Share your positive energy with someone who might need it",
           actionType: "ACTION" as const,
           message: "Your positive energy is contagious! Share a smile with someone today - it might be exactly what they need.",
-          revealToken: "🎀",
-          revealType: "ribbon-slide",
+          revealToken: "🎴",
+          revealType: "auto-flip",
           accentColor: "#3B82F6", // Blue for ACTION
           animationSpeed: "quick" as const // Quick animation for On the Move
         },
@@ -167,8 +176,8 @@ export default function Home() {
           action: "Listen to a favorite song or podcast",
           actionType: "REPEAT/RECITE" as const,
           message: "Okay is a perfectly valid feeling. As you move, let the rhythm of your steps help you find your center.",
-          revealToken: "🎀",
-          revealType: "ribbon-slide",
+          revealToken: "🎴",
+          revealType: "auto-flip",
           accentColor: "#8B5CF6", // Purple for RECITE
           animationSpeed: "quick" as const // Quick animation for On the Move
         },
@@ -196,8 +205,8 @@ export default function Home() {
           action: "Try the 5-4-3-2-1 grounding technique",
           actionType: "REPEAT/RECITE" as const,
           message: "I understand this is hard. Sometimes movement can help shift our energy. Focus on putting one foot in front of the other.",
-          revealToken: "✨",
-          revealType: "glow-patch",
+          revealToken: "🎴",
+          revealType: "auto-flip",
           accentColor: "#84CC16", // Lime for RECITE
           animationSpeed: "quick" as const // Quick animation for On the Move
         },
@@ -225,8 +234,8 @@ export default function Home() {
           action: "Find a quiet, safe space to sit and breathe",
           actionType: "ACTION" as const,
           message: "I know this is incredibly difficult. If you're safe to do so, try to find a quiet place to sit and breathe for a moment.",
-          revealToken: "✨",
-          revealType: "glow-patch",
+          revealToken: "🎴",
+          revealType: "auto-flip",
           accentColor: "#A855F7", // Purple for ACTION
           animationSpeed: "instant" as const // Instant for Awful + On the Move
         },
@@ -246,7 +255,6 @@ export default function Home() {
   };
 
   const selectedMicroHabit = getMicroHabit();
-  const canShowReveal = selectedMood && selectedContext;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -266,6 +274,16 @@ export default function Home() {
           <div className="container">
             {!showReveal ? (
               <>
+                {/* Instructions */}
+                <div className="instructions-section">
+                  <p className="instruction-text">
+                    Select both your mood and current situation to continue
+                  </p>
+                  <p className="instruction-subtext">
+                    We&apos;ll automatically create a personalized experience just for you
+                  </p>
+                </div>
+
                 {/* Main Questions Section */}
                 <div className="main-questions-container">
                   {/* Mood Question */}
@@ -283,7 +301,7 @@ export default function Home() {
                           <span className="mood-emoji">😊</span>
                           <span className="mood-text font-inter">Good</span>
                         </div>
-                        <div className="accent-blob good-blob"></div>
+
                       </button>
                       <button 
                         className={`mood-btn glass-card ${selectedMood === 'okay' ? 'selected' : 'okay'}`}
@@ -294,7 +312,7 @@ export default function Home() {
                           <span className="mood-emoji">😐</span>
                           <span className="mood-text font-inter">Okay</span>
                         </div>
-                        <div className="accent-blob okay-blob"></div>
+
                       </button>
                       <button 
                         className={`mood-btn glass-card ${selectedMood === 'bad' ? 'selected' : 'bad'}`}
@@ -305,7 +323,7 @@ export default function Home() {
                           <span className="mood-emoji">😔</span>
                           <span className="mood-text font-inter">Bad</span>
                         </div>
-                        <div className="accent-blob bad-blob"></div>
+
                       </button>
                       <button 
                         className={`mood-btn glass-card ${selectedMood === 'awful' ? 'selected' : 'awful'}`}
@@ -316,7 +334,7 @@ export default function Home() {
                           <span className="mood-emoji">😢</span>
                           <span className="mood-text font-inter">Awful</span>
                         </div>
-                        <div className="accent-blob awful-blob"></div>
+
                       </button>
                     </div>
                   </div>
@@ -334,12 +352,9 @@ export default function Home() {
                       >
                         <div className="context-content">
                           <span className="context-icon">🪑</span>
-                          <div className="context-text-group">
-                            <span className="context-text font-inter font-medium">Still & Safe Place</span>
-                            <span className="context-subtitle font-inter text-sm">(seated, able to interact physically)</span>
-                          </div>
+                          <span className="context-text font-inter font-medium">Still & Safe Place</span>
                         </div>
-                        <div className="accent-blob safe-blob"></div>
+
                       </button>
                       <button 
                         className={`context-btn glass-card ${selectedContext === 'moving' ? 'selected' : 'moving'}`}
@@ -348,12 +363,9 @@ export default function Home() {
                       >
                         <div className="context-content">
                           <span className="context-icon">🚶</span>
-                          <div className="context-text-group">
-                            <span className="context-text font-inter font-medium">On the Move, but Safe</span>
-                            <span className="context-subtitle font-inter text-sm">(walking, commuting, etc.)</span>
-                          </div>
+                          <span className="context-text font-inter font-medium">On the Move, but Safe</span>
                         </div>
-                        <div className="accent-blob moving-blob"></div>
+
                       </button>
                       <button 
                         className={`context-btn glass-card ${selectedContext === 'focussed' ? 'selected' : 'focussed'}`}
@@ -362,56 +374,35 @@ export default function Home() {
                       >
                         <div className="context-content">
                           <span className="context-icon">🎯</span>
-                          <div className="context-text-group">
-                            <span className="context-text font-inter font-medium">On the Move and Focussed</span>
-                            <span className="context-subtitle font-inter text-sm">(working, studying, etc.)</span>
-                          </div>
+                          <span className="context-text font-inter font-medium">On the Move and Focussed</span>
                         </div>
-                        <div className="accent-blob focussed-blob"></div>
+
                       </button>
                     </div>
                   </div>
                 </div>
 
-                {/* Continue Button */}
-                {canShowReveal && (
-                  <div className="continue-section">
-                    <button 
-                      className="continue-btn"
-                      onClick={handleContinue}
-                    >
-                      Continue
-                    </button>
-                  </div>
-                )}
 
-                {/* Instructions */}
-                <div className="instructions-section">
-                  <h3 className="font-inter font-medium text-slate-700 dark:text-slate-300 text-center mt-6">
-                    Select both your mood and current situation to continue
-                  </h3>
-                  <p className="font-inter text-sm text-slate-500 dark:text-slate-400 text-center mt-2">
-                    We&apos;ll automatically create a personalized experience just for you
-                  </p>
-                </div>
               </>
             ) : (
               <>
                 {/* Reveal Experience */}
                 <div className="reveal-container">
-                  <div className="reveal-header">
-                    <h2 className="font-inter font-semibold text-slate-900 dark:text-slate-100">
-                      Your Personalized Experience
-                    </h2>
-                    <p className="reveal-subtitle font-inter text-slate-600 dark:text-slate-300">
-                      Based on your mood: <span className="font-medium capitalize">{selectedMood}</span> • 
-                      Location: <span className="font-medium">
-                        {selectedContext === 'safe' ? 'Still & Safe Place' : 
-                         selectedContext === 'moving' ? 'On the Move, but Safe' : 
-                         'On the Move and Focussed'}
-                      </span>
-                    </p>
-                  </div>
+                  {selectedMicroHabit?.revealType !== 'balloon-pop' && (
+                    <div className="reveal-header">
+                      <h2 className="font-inter font-semibold text-slate-900 dark:text-slate-100">
+                        Your Personalized Experience
+                      </h2>
+                      <p className="reveal-subtitle font-inter text-slate-600 dark:text-slate-300">
+                        Based on your mood: <span className="font-medium capitalize">{selectedMood}</span> • 
+                        Location: <span className="font-medium">
+                          {selectedContext === 'safe' ? 'Still & Safe Place' : 
+                           selectedContext === 'moving' ? 'On the Move, but Safe' : 
+                           'On the Move and Focussed'}
+                        </span>
+                      </p>
+                    </div>
+                  )}
                   
                   {!isRevealed ? (
                     <div className="reveal-token-container">
@@ -429,6 +420,8 @@ export default function Home() {
                       />
                     </div>
                   ) : selectedMicroHabit?.revealType === 'treasure-chest' ? (
+                    <div></div>
+                  ) : selectedMicroHabit?.revealType === 'balloon-pop' ? (
                     <div></div>
                   ) : (
                     <div className="micro-habit-revealed glass-card">
