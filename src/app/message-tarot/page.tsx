@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { playMessageAudio } from '@/lib/audio';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
@@ -15,6 +16,7 @@ interface MessageData {
 
 export default function MessageTarotPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedMessage, setSelectedMessage] = useState<MessageData | null>(null);
   const [isRevealed, setIsRevealed] = useState(false);
   
@@ -40,13 +42,16 @@ export default function MessageTarotPage() {
           setTimeout(() => {
             setIsRevealed(true);
             
-            // Speak the message if audio is enabled
+            // Play pre-generated audio (fallback to TTS) if audio is enabled
             if (audioEnabled && parsedMessage) {
-              const utterance = new SpeechSynthesisUtterance(`${parsedMessage.title}. ${parsedMessage.message}`);
-              utterance.rate = 0.9;
-              utterance.pitch = 1;
-              utterance.volume = 0.8;
-              window.speechSynthesis.speak(utterance);
+              playMessageAudio(parsedMessage.title, parsedMessage.message, {
+                rate: 0.9,
+                pitch: 1,
+                volume: 0.8,
+                voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira'],
+                mood: searchParams.get('mood') || undefined,
+                context: searchParams.get('context') || undefined
+              });
             }
           }, 500);
         } else {

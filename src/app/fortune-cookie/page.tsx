@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { playMessageAudio } from '@/lib/audio';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
@@ -66,11 +67,12 @@ export default function FortuneCookiePage() {
   };
 
   const playCurrentMessage = () => {
-    if (selectedMessage && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(selectedMessage.message);
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-      speechSynthesis.speak(utterance);
+    if (selectedMessage && audioEnabled) {
+      playMessageAudio(selectedMessage.title, selectedMessage.message, {
+        rate: 0.9,
+        pitch: 1,
+        voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira']
+      });
     }
   };
 

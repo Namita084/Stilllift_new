@@ -198,13 +198,27 @@ export default function TreasureChest({
               <div className="action-badge" style={{ 
                 backgroundColor: actionType === 'VISUALIZE' ? '#8B5CF6' : 
                                actionType === 'REPEAT/RECITE' ? '#10B981' : 
-                               '#3B82F6'
+                               '#3B82F6',
+                color: '#ffffff',
+                fontWeight: '600',
+                textShadow: 'none'
               }}>
                 {actionType}
               </div>
               
-              <h2 className="treasure-action">{action}</h2>
-              <p className="treasure-message">{message}</p>
+              <h2 style={{ color: '#1e293b', fontWeight: '600', textShadow: 'none', fontSize: '1.5rem', margin: '1rem 0', zIndex: 999 }}>{action}</h2>
+              <p style={{ 
+                color: '#475569', 
+                fontWeight: '600', 
+                textShadow: 'none', 
+                opacity: '1', 
+                fontSize: '1.2rem', 
+                lineHeight: '1.7', 
+                margin: '1rem 0', 
+                zIndex: 999,
+                fontFamily: 'Inter, sans-serif',
+                letterSpacing: '0.025em'
+              }}>{message}</p>
               
               <div className="treasure-divider">
                 <span>⚜️</span>
@@ -243,13 +257,17 @@ export default function TreasureChest({
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          background: var(--card-bg-strong);
           border-radius: 20px;
+          box-shadow: var(--card-shadow-lg);
+          border: var(--card-border-strong);
         }
 
-        /* Dark theme support */
-        .dark-mode .treasure-chest-container {
-          background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        .dark-mode .hint-text {
+          color: #9ca3af;
+          text-shadow: 
+            0 0 8px rgba(255, 255, 255, 0.3),
+            0 0 16px rgba(255, 255, 255, 0.2);
         }
 
         /* Mobile Responsive Design */
@@ -432,6 +450,15 @@ export default function TreasureChest({
           border: 1px solid #654321;
         }
 
+        .dark-mode .base-rect {
+          background: linear-gradient(145deg, #92741A 0%, #6B3410 50%, #4A2C0A 100%);
+          box-shadow: 
+            0 6px 0 #2A1F14,
+            0 12px 24px rgba(0, 0, 0, 0.6),
+            inset 0 2px 4px rgba(255, 215, 0, 0.15);
+          border: 1px solid #4A2C0A;
+        }
+
         /* Decorative bands */
         .chest-band {
           position: absolute;
@@ -442,6 +469,13 @@ export default function TreasureChest({
           box-shadow: 
             inset 0 1px 2px rgba(0, 0, 0, 0.5),
             0 1px 0 rgba(255, 215, 0, 0.1);
+        }
+
+        .dark-mode .chest-band {
+          background: linear-gradient(145deg, #2A1F14 0%, #1A1209 100%);
+          box-shadow: 
+            inset 0 1px 2px rgba(0, 0, 0, 0.7),
+            0 1px 0 rgba(255, 215, 0, 0.05);
         }
 
         .chest-band-1 {
@@ -462,11 +496,13 @@ export default function TreasureChest({
         }
 
         .lock-body {
-          font-size: 24px;
+          font-size: 32px;
           text-shadow: 
-            0 2px 4px rgba(0, 0, 0, 0.3),
-            0 0 10px rgba(255, 215, 0, 0.5);
+            0 3px 6px rgba(0, 0, 0, 0.4),
+            0 0 15px rgba(255, 215, 0, 0.7),
+            0 0 25px rgba(255, 215, 0, 0.3);
           transition: all 0.3s ease;
+          filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.5));
         }
 
         .treasure-chest.opened .lock-body {
@@ -501,6 +537,15 @@ export default function TreasureChest({
           border: 1px solid #A0522D;
         }
 
+        .dark-mode .lid-rect {
+          background: linear-gradient(145deg, #B8901C 0%, #A86B2F 50%, #7D3F1A 100%);
+          box-shadow: 
+            0 3px 0 #5A2A0A,
+            0 6px 18px rgba(0, 0, 0, 0.4),
+            inset 0 1px 2px rgba(255, 215, 0, 0.2);
+          border: 1px solid #7D3F1A;
+        }
+
         /* Handle - Improved Design */
         .chest-handle {
           position: absolute;
@@ -516,6 +561,15 @@ export default function TreasureChest({
             inset 0 1px 0 rgba(255, 255, 255, 0.4),
             inset 0 -1px 0 rgba(0, 0, 0, 0.2);
           border: 1px solid #CC8400;
+        }
+
+        .dark-mode .chest-handle {
+          background: linear-gradient(145deg, #D4AF37 0%, #DAA520 50%, #B8860B 100%);
+          box-shadow: 
+            0 3px 6px rgba(0, 0, 0, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+            inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+          border: 1px solid #8B6914;
         }
 
         /* Magical Glow Effect */
@@ -548,10 +602,13 @@ export default function TreasureChest({
 
         .coin {
           position: absolute;
-          font-size: 24px;
+          font-size: 32px;
           top: 40%;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-          text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+          filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+          text-shadow: 
+            0 0 15px rgba(255, 215, 0, 0.8),
+            0 0 25px rgba(255, 215, 0, 0.4);
+          animation: coin-glow 2s ease-in-out infinite alternate;
         }
 
         .coin:nth-child(3n+1) {
@@ -578,10 +635,13 @@ export default function TreasureChest({
 
         .hint-text {
           font-family: 'Inter', sans-serif;
-          font-size: 14px;
+          font-size: 16px;
           color: #64748b;
           margin-bottom: 8px;
           animation: pulse 2s ease-in-out infinite;
+          text-shadow: 
+            0 0 8px rgba(255, 255, 255, 0.6),
+            0 0 16px rgba(255, 255, 255, 0.3);
         }
 
         .hint-pulse {
@@ -591,6 +651,10 @@ export default function TreasureChest({
           border-radius: 50%;
           margin: 0 auto;
           animation: ripple 2s ease-in-out infinite;
+        }
+
+        .dark-mode .hint-pulse {
+          background: rgba(139, 92, 246, 0.4);
         }
 
         /* Treasure Message Scroll */
@@ -631,24 +695,24 @@ export default function TreasureChest({
         .scroll-container {
           width: 100%;
           height: 100%;
-          background: linear-gradient(145deg, 
-            #FDFDFC 0%,
-            #FAFAF8 20%, 
-            #F6F5F2 40%,
-            #F1F0ED 60%,
-            #EDEAE5 80%,
-            #E8E4DF 100%
-          );
-          border: 2px solid #C5BDB1;
+          background: #ffffff;
+          border: 2px solid #e2e8f0;
           border-radius: 16px;
-          box-shadow: 
-            0 20px 40px rgba(0, 0, 0, 0.08),
-            inset 0 2px 4px rgba(255, 255, 255, 0.7),
-            inset 0 -1px 2px rgba(197, 189, 177, 0.1),
-            0 0 30px rgba(197, 189, 177, 0.1);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
           position: relative;
           overflow: hidden;
           backdrop-filter: blur(8px);
+        }
+
+        .dark-mode .scroll-container {
+          background: var(--card-bg-strong);
+          border: var(--card-border-strong);
+          box-shadow: var(--card-shadow-lg);
+        }
+
+        .dark-mode .scroll-container h2,
+        .dark-mode .scroll-container p {
+          color: #ffffff !important;
         }
 
         .scroll-container::before {
@@ -658,17 +722,18 @@ export default function TreasureChest({
           left: 0;
           right: 0;
           bottom: 0;
-          background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="paper" patternUnits="userSpaceOnUse" width="20" height="20"><rect width="20" height="20" fill="%23f5f5dc"/><circle cx="10" cy="10" r="0.5" fill="%23deb887" opacity="0.3"/></pattern></defs><rect width="100" height="100" fill="url(%23paper)"/></svg>');
-          opacity: 0.2;
+          background: var(--card-bg);
+          opacity: 0.1;
           pointer-events: none;
         }
 
         .scroll-header {
           text-align: center;
           padding: 20px 20px 15px;
-          border-bottom: 1px solid #D4CFC7;
+          border-bottom: var(--card-border);
           margin-bottom: 20px;
-          background: linear-gradient(90deg, transparent, rgba(212, 207, 199, 0.05), transparent);
+          background: var(--card-bg);
+          opacity: 0.5;
         }
 
         .treasure-gems {
@@ -677,9 +742,14 @@ export default function TreasureChest({
 
         .gem {
           display: inline-block;
-          margin: 0 8px;
-          font-size: 20px;
+          margin: 0 12px;
+          font-size: 28px;
           animation: sparkle 2s ease-in-out infinite;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+          text-shadow: 
+            0 0 10px rgba(255, 255, 255, 0.8),
+            0 0 20px rgba(0, 191, 255, 0.6),
+            0 0 30px rgba(0, 191, 255, 0.4);
         }
 
         .gem:nth-child(2) {
@@ -693,10 +763,20 @@ export default function TreasureChest({
         .scroll-title {
           font-family: 'Inter', sans-serif;
           font-weight: 600;
-          font-size: 20px;
-          color: #6B6055;
-          text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.05);
+          font-size: 22px;
+          color: #1e293b;
+          text-shadow: 
+            0.5px 0.5px 1px rgba(0, 0, 0, 0.05),
+            0 0 10px rgba(255, 255, 255, 0.4);
           letter-spacing: 0.3px;
+        }
+
+        .dark-mode .scroll-title,
+        body.dark-mode .scroll-title {
+          color: #ffffff !important;
+          text-shadow: 
+            0.5px 0.5px 1px rgba(0, 0, 0, 0.3),
+            0 0 10px rgba(255, 255, 255, 0.1);
         }
 
         .scroll-content {
@@ -721,16 +801,21 @@ export default function TreasureChest({
         .treasure-action {
           font-family: 'Inter', sans-serif;
           font-weight: 600;
-          color: #4A453F;
+          color: #1e293b;
           font-size: 22px;
           line-height: 1.4;
           margin-bottom: 16px;
           text-shadow: none;
         }
 
+        .dark-mode .treasure-action,
+        body.dark-mode .treasure-action {
+          color: #ffffff !important;
+        }
+
         .treasure-message {
           font-family: 'Inter', sans-serif;
-          color: #5A5248;
+          color: #475569;
           font-size: 16px;
           line-height: 1.6;
           margin-bottom: 24px;
@@ -741,13 +826,32 @@ export default function TreasureChest({
           margin-right: auto;
         }
 
+        .dark-mode .treasure-message,
+        body.dark-mode .treasure-message {
+          color: #ffffff !important;
+          opacity: 0.9;
+        }
+
         .treasure-divider {
           text-align: center;
           margin: 22px 0;
-          font-size: 18px;
+          font-size: 24px;
           color: #A59A8C;
-          opacity: 0.6;
+          opacity: 0.8;
+          text-shadow: 
+            0 0 8px rgba(255, 215, 0, 0.4),
+            0 0 16px rgba(255, 215, 0, 0.2);
+          animation: divider-glow 3s ease-in-out infinite alternate;
         }
+
+        .dark-mode .treasure-divider {
+          color: #9ca3af;
+          opacity: 0.9;
+          text-shadow: 
+            0 0 8px rgba(255, 215, 0, 0.6),
+            0 0 16px rgba(255, 215, 0, 0.3);
+        }
+
 
         .treasure-buttons {
           display: flex;
@@ -792,7 +896,19 @@ export default function TreasureChest({
         }
 
         .btn-icon {
-          font-size: 16px;
+          font-size: 20px;
+          text-shadow: 
+            0 0 8px rgba(255, 255, 255, 0.6),
+            0 0 16px rgba(255, 255, 255, 0.3);
+          filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+          transition: all 0.3s ease;
+        }
+
+        .treasure-btn:hover .btn-icon {
+          transform: scale(1.1);
+          text-shadow: 
+            0 0 12px rgba(255, 255, 255, 0.8),
+            0 0 24px rgba(255, 255, 255, 0.5);
         }
 
         .treasure-btn.primary {
@@ -812,6 +928,23 @@ export default function TreasureChest({
             inset 0 1px 2px rgba(255, 255, 255, 0.35);
         }
 
+        .dark-mode .treasure-btn.primary {
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+          color: #ffffff;
+          border: 1px solid #2563eb;
+          box-shadow: 
+            0 4px 12px rgba(59, 130, 246, 0.3),
+            inset 0 1px 2px rgba(255, 255, 255, 0.2);
+        }
+
+        .dark-mode .treasure-btn.primary:hover {
+          background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
+          transform: translateY(-1px) scale(1.005);
+          box-shadow: 
+            0 6px 16px rgba(59, 130, 246, 0.4),
+            inset 0 1px 2px rgba(255, 255, 255, 0.25);
+        }
+
         .treasure-btn.secondary {
           background: linear-gradient(135deg, #FAFAF8 0%, #F1F0ED 50%, #EDEAE5 100%);
           color: #4A453F;
@@ -829,17 +962,35 @@ export default function TreasureChest({
             inset 0 1px 2px rgba(255, 255, 255, 0.6);
         }
 
+        .dark-mode .treasure-btn.secondary {
+          background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%);
+          color: #f9fafb;
+          border: 1px solid #4b5563;
+          box-shadow: 
+            0 4px 12px rgba(31, 41, 59, 0.3),
+            inset 0 1px 2px rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .treasure-btn.secondary:hover {
+          background: linear-gradient(135deg, #374151 0%, #4b5563 50%, #6b7280 100%);
+          transform: translateY(-1px) scale(1.005);
+          box-shadow: 
+            0 6px 16px rgba(31, 41, 59, 0.4),
+            inset 0 1px 2px rgba(255, 255, 255, 0.15);
+        }
+
         .scroll-footer {
           padding: 12px;
-          border-top: 1px solid #D4CFC7;
-          background: linear-gradient(90deg, transparent, rgba(212, 207, 199, 0.03), transparent);
+          border-top: var(--card-border);
+          background: var(--card-bg);
+          opacity: 0.3;
         }
 
         .golden-border {
           height: 2px;
-          background: linear-gradient(90deg, transparent, #C5BDB1, transparent);
+          background: var(--card-border);
           border-radius: 1px;
-          box-shadow: 0 0 4px rgba(197, 189, 177, 0.2);
+          box-shadow: var(--card-shadow);
         }
 
         /* Animations */
@@ -954,6 +1105,62 @@ export default function TreasureChest({
             transform: scale(1.2) rotate(180deg);
             opacity: 1;
           }
+        }
+
+        @keyframes coin-glow {
+          0% {
+            text-shadow: 
+              0 0 15px rgba(255, 215, 0, 0.8),
+              0 0 25px rgba(255, 215, 0, 0.4);
+            transform: scale(1);
+          }
+          100% {
+            text-shadow: 
+              0 0 20px rgba(255, 215, 0, 1),
+              0 0 35px rgba(255, 215, 0, 0.6),
+              0 0 45px rgba(255, 215, 0, 0.3);
+            transform: scale(1.05);
+          }
+        }
+
+        @keyframes divider-glow {
+          0% {
+            text-shadow: 
+              0 0 8px rgba(255, 215, 0, 0.4),
+              0 0 16px rgba(255, 215, 0, 0.2);
+            transform: scale(1);
+          }
+          100% {
+            text-shadow: 
+              0 0 12px rgba(255, 215, 0, 0.6),
+              0 0 24px rgba(255, 215, 0, 0.4),
+              0 0 32px rgba(255, 215, 0, 0.2);
+            transform: scale(1.1);
+          }
+        }
+
+        /* AGGRESSIVE DARK MODE OVERRIDES */
+        .dark-mode .treasure-message-scroll .scroll-title,
+        .dark-mode .treasure-message-scroll .treasure-action,
+        .dark-mode .treasure-message-scroll .treasure-message,
+        .dark-mode .treasure-message-scroll h2,
+        .dark-mode .treasure-message-scroll p,
+        body.dark-mode .treasure-message-scroll .scroll-title,
+        body.dark-mode .treasure-message-scroll .treasure-action,
+        body.dark-mode .treasure-message-scroll .treasure-message,
+        body.dark-mode .treasure-message-scroll h2,
+        body.dark-mode .treasure-message-scroll p,
+        html.dark-mode .treasure-message-scroll .scroll-title,
+        html.dark-mode .treasure-message-scroll .treasure-action,
+        html.dark-mode .treasure-message-scroll .treasure-message,
+        html.dark-mode .treasure-message-scroll h2,
+        html.dark-mode .treasure-message-scroll p {
+          color: #ffffff !important;
+        }
+
+        .dark-mode .treasure-message-scroll .treasure-message,
+        .dark-mode .treasure-message-scroll p {
+          opacity: 0.95 !important;
         }
       `}</style>
     </div>

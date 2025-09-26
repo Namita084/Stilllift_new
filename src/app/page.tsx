@@ -7,6 +7,9 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
 import RevealElement from '@/components/3DRevealElement';
+import { initAnalytics, trackMoodSelected, trackContextSelected, trackMoodContextCombination, trackMicroHabitRevealed, trackUserAction } from '@/lib/analytics';
+import { getRandomMessage, type Mood, type Context } from '@/lib/content';
+import { playMessageAudio } from '@/lib/audio';
 import '@/components/3DComponents.css';
 
 interface MicroHabitData {
@@ -37,16 +40,37 @@ export default function Home() {
   const handleMoodSelection = (mood: string) => {
     setSelectedMood(mood);
     localStorage.setItem('currentMood', mood);
+    // Track mood selection
+    trackMoodSelected(mood);
   };
 
   const handleContextSelection = (context: string) => {
     setSelectedContext(context);
     localStorage.setItem('currentContext', context);
+    // Track context selection
+    trackContextSelected(context);
   };
+
+  // Load saved mood and context on component mount
+  useEffect(() => {
+    // Initialize analytics
+    initAnalytics();
+    
+    // Clear any existing selections to start fresh
+    localStorage.removeItem('currentMood');
+    localStorage.removeItem('currentContext');
+    setSelectedMood(null);
+    setSelectedContext(null);
+    setShowReveal(false);
+    setIsRevealed(false);
+  }, []);
 
   // Auto-navigate to reveal when both mood and context are selected
   useEffect(() => {
     if (selectedMood && selectedContext) {
+      // Track mood-context combination
+      trackMoodContextCombination(selectedMood, selectedContext);
+      
       // Small delay to show the selection state before revealing
       const timer = setTimeout(() => {
         setShowReveal(true);
@@ -91,18 +115,32 @@ export default function Home() {
     setTimeout(() => {
       setIsRevealed(true);
       
-      // Auto-speak the message if audio is enabled
+      // Track micro-habit reveal
+      if (selectedMicroHabit && selectedMood && selectedContext) {
+        trackMicroHabitRevealed(selectedMood, selectedContext, selectedMicroHabit.revealType, selectedMicroHabit.actionType);
+      }
+      
+      // Auto-play pre-generated audio (fallback to TTS) if enabled
       if (audioEnabled && selectedMicroHabit) {
-        const utterance = new SpeechSynthesisUtterance(selectedMicroHabit.message);
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
-        utterance.volume = 0.8;
-        window.speechSynthesis.speak(utterance);
+        // Play audio that matches what's displayed on screen
+        const fullMessage = `${selectedMicroHabit.actionType}: ${selectedMicroHabit.action}`;
+        playMessageAudio(undefined, fullMessage, {
+          rate: 0.9,
+          pitch: 1,
+          volume: 0.8,
+          voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira'],
+          mood: selectedMood || undefined,
+          context: selectedContext || undefined,
+          isHomepage: false
+        });
       }
     }, animationDuration);
   };
 
   const handleStartOver = () => {
+    // Track user action
+    trackUserAction('start_over', selectedMood || undefined, selectedContext || undefined);
+    
     localStorage.removeItem('currentMood');
     localStorage.removeItem('currentContext');
     setSelectedMood(null);
@@ -118,6 +156,9 @@ export default function Home() {
   };
 
   const handleTryAnother = () => {
+    // Track user action
+    trackUserAction('try_another', selectedMood || undefined, selectedContext || undefined);
+    
     setShowReveal(false);
     setIsRevealed(false);
     
@@ -132,126 +173,83 @@ export default function Home() {
   const getMicroHabit = (): MicroHabitData | null => {
     if (!selectedMood || !selectedContext) return null;
 
-    const microHabits = {
-      good: {
-        safe: {
-          action: "Practice gratitude by naming three things you appreciate right now",
-          actionType: "VISUALIZE" as const,
-          message: "Take a moment to appreciate this feeling. You're doing well, and that's worth celebrating. Consider writing down one thing that made today special.",
-          revealToken: "🎁",
-          revealType: "treasure-chest",
-          accentColor: "#10B981", // Green for VISUALIZE
-          animationSpeed: "rich" as const // Rich animation for Still & Safe
-        },
-        moving: {
-          action: "Share your positive energy with someone who might need it",
-          actionType: "ACTION" as const,
-          message: "Your positive energy is contagious! Share a smile with someone today - it might be exactly what they need.",
-          revealToken: "🎴",
-          revealType: "auto-flip",
-          accentColor: "#3B82F6", // Blue for ACTION
-          animationSpeed: "quick" as const // Quick animation for On the Move
-        },
-        focussed: {
-          action: "Focus on one task and give it your full attention for 10 minutes",
-          actionType: "ACTION" as const,
-          message: "Your focused energy is powerful! Channel it into one meaningful task. You'll be amazed at what you can accomplish.",
-          revealToken: "🎯",
-          revealType: "auto-flip",
-          accentColor: "#F59E0B", // Amber for ACTION
-          animationSpeed: "instant" as const // Instant animation for Focused state
-        }
-      },
-      okay: {
-        safe: {
-          action: "Try a simple stretching routine to boost your energy",
-          actionType: "ACTION" as const,
-          message: "It's perfectly normal to feel okay. Sometimes 'okay' is exactly where we need to be. Take a few deep breaths and acknowledge this moment.",
-          revealToken: "🎈",
-          revealType: "balloon-pop",
-          accentColor: "#F59E0B", // Amber for ACTION
-          animationSpeed: "rich" as const // Rich animation for Still & Safe
-        },
-        moving: {
-          action: "Listen to a favorite song or podcast",
-          actionType: "REPEAT/RECITE" as const,
-          message: "Okay is a perfectly valid feeling. As you move, let the rhythm of your steps help you find your center.",
-          revealToken: "🎴",
-          revealType: "auto-flip",
-          accentColor: "#8B5CF6", // Purple for RECITE
-          animationSpeed: "quick" as const // Quick animation for On the Move
-        },
-        focussed: {
-          action: "Take a 2-minute break to reset your focus",
-          actionType: "VISUALIZE" as const,
-          message: "Sometimes the best way to stay focused is to take a brief reset. Close your eyes and visualize your goal clearly.",
-          revealToken: "🎯",
-          revealType: "stamp",
-          accentColor: "#8B5CF6", // Purple for VISUALIZE
-          animationSpeed: "gentle" as const // Gentle animation for Focused reset
-        }
-      },
-      bad: {
-        safe: {
-          action: "Take five deep breaths, counting to four on inhale and six on exhale",
-          actionType: "REPEAT/RECITE" as const,
-          message: "I see you're having a tough time. That's okay - difficult feelings are part of being human. You don't have to figure everything out right now.",
-          revealToken: "✉️",
-          revealType: "envelope",
-          accentColor: "#06B6D4", // Cyan for RECITE
-          animationSpeed: "rich" as const // Rich animation for Still & Safe
-        },
-        moving: {
-          action: "Try the 5-4-3-2-1 grounding technique",
-          actionType: "REPEAT/RECITE" as const,
-          message: "I understand this is hard. Sometimes movement can help shift our energy. Focus on putting one foot in front of the other.",
-          revealToken: "🎴",
-          revealType: "auto-flip",
-          accentColor: "#84CC16", // Lime for RECITE
-          animationSpeed: "quick" as const // Quick animation for On the Move
-        },
-        focussed: {
-          action: "Use focused breathing to calm your mind",
-          actionType: "REPEAT/RECITE" as const,
-          message: "When things feel overwhelming, focus can be your anchor. Breathe in for 4, hold for 4, breathe out for 6.",
-          revealToken: "🎯",
-          revealType: "auto-flip",
-          accentColor: "#84CC16", // Lime for RECITE
-          animationSpeed: "instant" as const // Instant animation for Focused breathing
-        }
-      },
-      awful: {
-        safe: {
-          action: "Reach out to someone you trust - you don't have to go through this alone",
-          actionType: "ACTION" as const,
-          message: "I'm so sorry you're feeling this way. You don't have to go through this alone. Is there someone you can call right now?",
-          revealToken: "🩹",
-          revealType: "bandage",
-          accentColor: "#EF4444", // Red for ACTION
-          animationSpeed: "gentle" as const // Gentle animation for Awful mood
-        },
-        moving: {
-          action: "Find a quiet, safe space to sit and breathe",
-          actionType: "ACTION" as const,
-          message: "I know this is incredibly difficult. If you're safe to do so, try to find a quiet place to sit and breathe for a moment.",
-          revealToken: "🎴",
-          revealType: "auto-flip",
-          accentColor: "#A855F7", // Purple for ACTION
-          animationSpeed: "instant" as const // Instant for Awful + On the Move
-        },
-        focussed: {
-          action: "Focus on one small, achievable task",
-          actionType: "ACTION" as const,
-          message: "When everything feels impossible, focus on just one small thing. You don't have to solve everything at once.",
-          revealToken: "🎯",
-          revealType: "auto-flip",
-          accentColor: "#A855F7", // Purple for ACTION
-          animationSpeed: "instant" as const // Instant for Awful + Focused
-        }
-      }
+    // Get random message from content library
+    const contentMessage = getRandomMessage(selectedMood as Mood, selectedContext as Context);
+    if (!contentMessage) return null;
+
+    // Map content to micro-habit format with appropriate styling
+    const getActionType = (mood: string, context: string): 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE' => {
+      if (mood === 'good' && context === 'safe') return 'VISUALIZE';
+      if (mood === 'good' && (context === 'moving' || context === 'focussed')) return 'ACTION';
+      if (mood === 'okay' && context === 'safe') return 'ACTION';
+      if (mood === 'okay' && context === 'moving') return 'REPEAT/RECITE';
+      if (mood === 'okay' && context === 'focussed') return 'VISUALIZE';
+      if (mood === 'bad') return 'REPEAT/RECITE';
+      if (mood === 'awful') return 'ACTION';
+      return 'ACTION';
     };
 
-    return microHabits[selectedMood as keyof typeof microHabits]?.[selectedContext as keyof typeof microHabits.good] || null;
+    const getRevealType = (mood: string, context: string): string => {
+      // Card experience only for moving contexts; safe context uses mood-specific tokens
+      if (context === 'moving' || context === 'focussed') {
+        return 'playing-card';
+      }
+      // Still & Safe Place
+      if (mood === 'good') return 'treasure-chest';
+      if (mood === 'okay') return 'balloon-pop';
+      if (mood === 'bad') return 'envelope';
+      if (mood === 'awful') return 'bandage';
+      return 'treasure-chest';
+    };
+
+  const getRevealToken = (mood: string, context: string): string => {
+    // Card glyph for moving/focussed; emoji tokens for safe context per mood
+    if (context === 'moving' || context === 'focussed') {
+      return '🎴';
+    }
+    if (mood === 'good') return '💎'; // treasure chest theme
+    if (mood === 'okay') return '🎈'; // balloon/confetti theme
+    if (mood === 'bad') return '📩'; // envelope/message theme
+    if (mood === 'awful') return '🩹'; // bandage/prescription theme
+    return '🎴';
+  };
+
+    const getAccentColor = (actionType: string): string => {
+      if (actionType === 'VISUALIZE') return '#8B5CF6'; // Purple
+      if (actionType === 'REPEAT/RECITE') return '#10B981'; // Green
+      return '#3B82F6'; // Blue for ACTION
+    };
+
+    const getAnimationSpeed = (mood: string, context: string): 'rich' | 'quick' | 'gentle' | 'instant' => {
+      if (mood === 'good' && context === 'safe') return 'rich';
+      if (mood === 'good' && context === 'moving') return 'quick';
+      if (mood === 'good' && context === 'focussed') return 'instant';
+      if (mood === 'okay' && context === 'safe') return 'rich';
+      if (mood === 'okay' && context === 'moving') return 'quick';
+      if (mood === 'okay' && context === 'focussed') return 'gentle';
+      if (mood === 'bad' && context === 'safe') return 'rich';
+      if (mood === 'bad' && context === 'moving') return 'quick';
+      if (mood === 'bad' && context === 'focussed') return 'instant';
+      if (mood === 'awful' && context === 'safe') return 'gentle';
+      if (mood === 'awful' && (context === 'moving' || context === 'focussed')) return 'instant';
+      return 'rich';
+    };
+
+    const actionType = getActionType(selectedMood, selectedContext);
+    const revealType = getRevealType(selectedMood, selectedContext);
+    const revealToken = getRevealToken(selectedMood, selectedContext);
+    const accentColor = getAccentColor(actionType);
+    const animationSpeed = getAnimationSpeed(selectedMood, selectedContext);
+
+    return {
+      action: contentMessage.message,
+      actionType: contentMessage.actionType as 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE',
+      message: contentMessage.message,
+      revealToken,
+      revealType,
+      accentColor,
+      animationSpeed: animationSpeed as 'rich' | 'quick' | 'gentle' | 'instant'
+    };
   };
 
   const selectedMicroHabit = getMicroHabit();
@@ -404,56 +402,19 @@ export default function Home() {
                     </div>
                   )}
                   
-                  {!isRevealed ? (
-                    <div className="reveal-token-container">
-                      <RevealElement
-                        revealType={selectedMicroHabit?.revealType || 'treasure-chest'}
-                        isRevealed={isRevealed}
-                        onReveal={handleReveal}
-                        accentColor={selectedMicroHabit?.accentColor || '#3B82F6'}
-                        animationSpeed={selectedMicroHabit?.animationSpeed || 'rich'}
-                        message={selectedMicroHabit?.message}
-                        action={selectedMicroHabit?.action}
-                        actionType={selectedMicroHabit?.actionType}
-                        onStartOver={handleStartOver}
-                        onTryAnother={handleTryAnother}
-                      />
-                    </div>
-                  ) : selectedMicroHabit?.revealType === 'treasure-chest' ? (
-                    <div></div>
-                  ) : selectedMicroHabit?.revealType === 'balloon-pop' ? (
-                    <div></div>
-                  ) : (
-                    <div className="micro-habit-revealed glass-card">
-                      <div className="action-type-badge" style={{ 
-                        backgroundColor: selectedMicroHabit?.actionType === 'VISUALIZE' ? '#8B5CF6' : 
-                                       selectedMicroHabit?.actionType === 'REPEAT/RECITE' ? '#10B981' : 
-                                       '#3B82F6'
-                      }}>
-                        {selectedMicroHabit?.actionType}
-                      </div>
-                      <h3 className="micro-habit-title font-inter font-semibold">
-                        {selectedMicroHabit?.action}
-                      </h3>
-                      <p className="micro-habit-message font-inter">
-                        {selectedMicroHabit?.message}
-                      </p>
-                      <div className="micro-habit-actions">
-                        <button 
-                          className="action-btn primary glass-btn"
-                          onClick={handleTryAnother}
-                        >
-                          Try Another
-                        </button>
-                        <button 
-                          className="action-btn secondary glass-btn"
-                          onClick={handleStartOver}
-                        >
-                          Start Over
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  {/* Render the computed reveal type based on mood/context mapping */}
+                  <RevealElement
+                    revealType={selectedMicroHabit?.revealType || 'playing-card'}
+                    isRevealed={isRevealed}
+                    onReveal={handleReveal}
+                    accentColor={selectedMicroHabit?.accentColor || '#3B82F6'}
+                    animationSpeed={selectedMicroHabit?.animationSpeed || 'rich'}
+                    message={selectedMicroHabit?.message}
+                    action={selectedMicroHabit?.action}
+                    actionType={selectedMicroHabit?.actionType}
+                    onStartOver={handleStartOver}
+                    onTryAnother={handleTryAnother}
+                  />
                 </div>
               </>
             )}

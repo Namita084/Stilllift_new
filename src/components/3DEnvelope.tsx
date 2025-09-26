@@ -180,15 +180,14 @@ export default function Envelope({
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+          background: transparent;
           border-radius: 20px;
           overflow: visible;
           perspective: 1000px;
         }
 
-        /* Dark theme support */
-        .dark-mode .envelope-lottie-container {
-          background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        .dark-mode .hint-text-envelope {
+          color: #9ca3af;
         }
 
         /* Mobile Responsive Design */
@@ -215,6 +214,10 @@ export default function Envelope({
             border-left: 80px solid transparent;
             border-right: 80px solid transparent;
             border-bottom: 60px solid #F3F4F6;
+          }
+          
+          .dark-mode .envelope-flap-lottie {
+            border-bottom-color: #9CA3AF;
           }
 
           .large-message-card {
@@ -292,6 +295,10 @@ export default function Envelope({
             border-left: 70px solid transparent;
             border-right: 70px solid transparent;
             border-bottom: 50px solid #F3F4F6;
+          }
+          
+          .dark-mode .envelope-flap-lottie {
+            border-bottom-color: #9CA3AF;
           }
 
           .large-message-card {
@@ -374,11 +381,17 @@ export default function Envelope({
         .envelope-body-rectangle {
           width: 100%;
           height: 100%;
-          background: #FEFEFE;
+          background: #F5F5F0;
           border: 2px solid #E5E7EB;
           border-radius: 6px;
           position: relative;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .envelope-body-rectangle {
+          background: #A8A29E;
+          border: 2px solid #78716C;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
         }
 
         /* Flat design like Lottie - no 3D sides */
@@ -398,6 +411,11 @@ export default function Envelope({
           transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
           z-index: 5;
           filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+        }
+
+        .dark-mode .envelope-flap-lottie {
+          border-top-color: #9CA3AF;
+          filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
         }
 
         .envelope-flap-lottie.open {
@@ -429,21 +447,15 @@ export default function Envelope({
           left: 50%;
           width: 500px;
           min-height: 400px;
-          background: #FFFFFF;
-          border: 3px solid #E5E7EB;
+          background: var(--card-bg-strong);
+          border: var(--card-border-strong);
           border-radius: 20px;
           transform: translate(-50%, -50%) scale(0.8);
           opacity: 0;
           transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+          box-shadow: var(--card-shadow-lg);
           z-index: 20;
           pointer-events: none;
-        }
-
-        .dark-mode .large-message-card {
-          background: #1F2937;
-          border-color: #4B5563;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
         }
 
         .large-message-card.visible {
@@ -533,11 +545,22 @@ export default function Envelope({
           color: #374151;
           border: 2px solid #D1D5DB;
         }
+
+        .dark-mode .replay-large-button {
+          background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+          color: #f1f5f9;
+          border: 2px solid #6b7280;
+        }
         
         .replay-large-button:hover {
           background: linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%);
           transform: translateY(-2px);
           box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .dark-mode .replay-large-button:hover {
+          background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
         }
         
         .support-large-button {

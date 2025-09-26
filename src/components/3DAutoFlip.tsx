@@ -133,7 +133,11 @@ export default function AutoFlip({
 
   return (
     <div className="auto-flip-container">
-      <div className={`flip-card ${isFlipping ? 'flipping' : ''} ${isFlipped ? 'flipped' : ''} ${isExpanded ? 'expanded' : ''}`}>
+      <div 
+        className={`flip-card ${isFlipping ? 'flipping' : ''} ${isFlipped ? 'flipped' : ''} ${isExpanded ? 'expanded' : ''}`}
+        style={{ '--flip-duration': `${getAnimationDuration()}ms` } as React.CSSProperties}
+        data-speed={animationSpeed}
+      >
         {/* Card Back (shows first) */}
         <div className="card-face card-back">
           <div className="card-back-content">
@@ -232,8 +236,7 @@ export default function AutoFlip({
          }
 
          .flip-card.flipping {
-           transform: rotateY(180deg);
-           transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+           animation: cardFlipAnimation var(--flip-duration, 0.8s) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
          }
 
          .flip-card.flipped {
@@ -289,6 +292,11 @@ export default function AutoFlip({
         .dark-mode .card-front {
           background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
           color: #f1f5f9;
+          border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .card-back {
+          border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .back-pattern {
@@ -459,11 +467,21 @@ export default function AutoFlip({
           color: #475569;
         }
 
+        .dark-mode .start-over {
+          background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+          color: #f1f5f9;
+        }
+
                  .start-over:hover {
            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
            transform: translateY(-2px);
            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
          }
+
+        .dark-mode .start-over:hover {
+          background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
 
          .give-another {
            background: linear-gradient(135deg, #004851 0%, #006B7A 100%);
@@ -480,6 +498,48 @@ export default function AutoFlip({
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.7; }
+        }
+
+        /* Enhanced card flip animation inspired by Lottie reference */
+        @keyframes cardFlipAnimation {
+          0% {
+            transform: rotateY(0deg) scale(1);
+          }
+          15% {
+            transform: rotateY(-8deg) scale(1.015);
+          }
+          35% {
+            transform: rotateY(45deg) scale(0.98);
+          }
+          50% {
+            transform: rotateY(90deg) scale(0.92);
+          }
+          65% {
+            transform: rotateY(135deg) scale(0.96);
+          }
+          85% {
+            transform: rotateY(165deg) scale(0.99);
+          }
+          100% {
+            transform: rotateY(180deg) scale(1);
+          }
+        }
+
+        /* Speed-specific variations */
+        .flip-card[data-speed="instant"].flipping {
+          animation-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .flip-card[data-speed="quick"].flipping {
+          animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .flip-card[data-speed="gentle"].flipping {
+          animation-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .flip-card[data-speed="rich"].flipping {
+          animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
         }
 
                  @keyframes loadingDots {

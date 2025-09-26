@@ -13,6 +13,7 @@ import Envelope from './3DEnvelope';
 import RibbonSlide from './3DRibbonSlide';
 import GlowPatch from './3DGlowPatch';
 import AutoFlip from './3DAutoFlip';
+import PlayingCard from './3DPlayingCard';
 
 interface RevealElementProps {
   revealType: string;
@@ -130,6 +131,21 @@ export default function RevealElement({
           />
         );
       
+      case 'playing-card':
+        return (
+          <PlayingCard
+            isRevealed={isRevealed}
+            onReveal={handleReveal}
+            accentColor={accentColor}
+            animationSpeed={animationSpeed}
+            message={message}
+            action={action}
+            actionType={actionType as 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE'}
+            onStartOver={onStartOver}
+            onTryAnother={onTryAnother}
+          />
+        );
+      
       case 'stamp':
         return (
           <Stamp
@@ -220,6 +236,11 @@ export default function RevealElement({
         );
     }
   };
+
+  // For portalized elements like playing-card, don't render the wrapper to avoid placeholder boxes
+  if (revealType === 'playing-card') {
+    return renderElement();
+  }
 
   return (
     <div className="reveal-element-container">

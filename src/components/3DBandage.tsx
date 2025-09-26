@@ -217,16 +217,17 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+          background: var(--card-bg-strong);
           border-radius: 20px;
           overflow: visible;
           perspective: 1000px;
           padding-bottom: max(16px, env(safe-area-inset-bottom));
+          box-shadow: var(--card-shadow-lg);
+          border: var(--card-border-strong);
         }
 
-        /* Dark theme support */
-        .dark-mode .bandage-wrap-container {
-          background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        .dark-mode .hint-text {
+          color: #9ca3af;
         }
 
         /* Skin Area */
@@ -1332,10 +1333,21 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
           border: 1px solid #D1D5DB;
         }
 
+        .dark-mode .start-over-button {
+          background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+          color: #f1f5f9;
+          border: 1px solid #6b7280;
+        }
+
         .start-over-button:hover {
           background: linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%);
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .dark-mode .start-over-button:hover {
+          background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
 
         .another-button {

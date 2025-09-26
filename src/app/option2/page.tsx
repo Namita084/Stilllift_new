@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { playMessageAudio } from '@/lib/audio';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
@@ -349,13 +350,14 @@ export default function Option2Page() {
       canvasRef.current.style.display = 'none';
     }
     
-    // Speak the message if audio is enabled
+    // Play pre-generated audio (fallback to TTS) if audio is enabled
     if (audioEnabled && selectedMessage) {
-      const utterance = new SpeechSynthesisUtterance(`${selectedMessage.title}. ${selectedMessage.message}`);
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-      utterance.volume = 0.8;
-      window.speechSynthesis.speak(utterance);
+      playMessageAudio(selectedMessage.title, selectedMessage.message, {
+        rate: 0.9,
+        pitch: 1,
+        volume: 0.8,
+        voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira']
+      });
     }
   };
 

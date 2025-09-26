@@ -9,10 +9,17 @@ export default function Footer() {
         
         <div className="footer-card emergency-card">
           <p className="emergency-text">Need emergency support?</p>
-          <a href="tel:988" className="emergency-contact">
+          <div className="emergency-contact-text">
             <span className="phone-icon">📞</span>
-            <span>988</span>
-          </a>
+            <span className="helpline-number">1800-599-0019</span>
+            <button 
+              className="copy-button" 
+              onClick={() => navigator.clipboard.writeText('1800-599-0019')}
+              title="Copy number"
+            >
+              📋
+            </button>
+          </div>
         </div>
         
         <div className="footer-card adsense-card">

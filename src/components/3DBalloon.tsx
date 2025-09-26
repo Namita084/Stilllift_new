@@ -239,14 +239,15 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          background: var(--card-bg-strong);
           border-radius: 24px;
           overflow: hidden;
+          box-shadow: var(--card-shadow-lg);
+          border: var(--card-border-strong);
         }
 
-        /* Dark theme support */
-        .dark-mode .balloon-experience-container {
-          background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        .dark-mode .hint-text-modern {
+          color: #9ca3af;
         }
 
         /* Mobile Responsive Design */
@@ -622,6 +623,14 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
           z-index: 10;
         }
 
+        .dark-mode .message-card-balloon {
+          background: rgba(30, 41, 59, 0.95);
+          border: 1px solid rgba(148, 163, 184, 0.3);
+          box-shadow: 
+            0 12px 48px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
         .message-card-balloon.visible {
           opacity: 1;
           transform: translate(-50%, -50%) scale(1) translateY(0);
@@ -647,12 +656,20 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
           margin-bottom: 16px;
         }
 
+        .dark-mode .card-title-balloon {
+          color: #f1f5f9;
+        }
+
         .card-message-balloon {
           font-family: 'Inter', sans-serif;
           color: #64748b;
           font-size: 16px;
           line-height: 1.6;
           margin-bottom: 28px;
+        }
+
+        .dark-mode .card-message-balloon {
+          color: #cbd5e1;
         }
 
         .card-actions-balloon {
@@ -678,10 +695,20 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
           color: #475569;
         }
 
+        .dark-mode .start-over-button {
+          background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+          color: #f1f5f9;
+        }
+
         .start-over-button:hover {
           background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
           transform: translateY(-2px);
           box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .dark-mode .start-over-button:hover {
+          background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
 
         .give-another-button {

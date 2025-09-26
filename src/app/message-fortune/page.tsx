@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { playMessageAudio } from '@/lib/audio';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
@@ -40,13 +41,13 @@ export default function MessageFortunePage() {
           setTimeout(() => {
             setIsRevealed(true);
             
-            // Speak the message if audio is enabled
+            // Play uploaded audio (or TTS fallback) if audio is enabled
             if (audioEnabled && parsedMessage) {
-              const utterance = new SpeechSynthesisUtterance(`Your fortune: ${parsedMessage.title}. ${parsedMessage.message}`);
-              utterance.rate = 0.9;
-              utterance.pitch = 1;
-              utterance.volume = 0.8;
-              window.speechSynthesis.speak(utterance);
+              playMessageAudio(
+                parsedMessage.title,
+                parsedMessage.message,
+                { rate: 0.9, pitch: 1, volume: 0.8 }
+              );
             }
           }, 500);
         } else {

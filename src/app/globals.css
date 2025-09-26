@@ -158,6 +158,22 @@ body {
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
+/* Smooth page entry animation */
+main {
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Light mode - ensure off-white background */
 .light-mode {
     background: var(--off-white) !important;
@@ -185,6 +201,302 @@ body.dark-mode {
     background: var(--dark-bg) !important;
 }
 
+/* ALL 3D COMPONENTS DARK MODE FIXES */
+
+/* Container backgrounds for all 3D components */
+.dark-mode .balloon-container,
+.dark-mode .bandage-container,
+.dark-mode .autoflip-container,
+.dark-mode .giftbox-container,
+.dark-mode .glow-patch-container,
+.dark-mode .light-switch-container,
+.dark-mode .reveal-element-container,
+.dark-mode .ribbon-slide-container,
+.dark-mode .stamp-container,
+.dark-mode .sticker-container,
+.dark-mode .treasure-chest-container,
+.dark-mode .warm-cup-container,
+.dark-mode .window-container {
+    background: var(--card-bg-strong) !important;
+    box-shadow: var(--card-shadow-lg) !important;
+    border: var(--card-border-strong) !important;
+}
+
+/* Envelope container should be transparent to blend with background */
+.dark-mode .envelope-container,
+.dark-mode .envelope-lottie-container {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* Message scroll containers for all components */
+.dark-mode .message-scroll,
+.dark-mode .balloon-message-scroll,
+.dark-mode .envelope-message-scroll,
+.dark-mode .bandage-message-scroll,
+.dark-mode .autoflip-message-scroll,
+.dark-mode .giftbox-message-scroll,
+.dark-mode .glow-patch-message-scroll,
+.dark-mode .light-switch-message-scroll,
+.dark-mode .reveal-element-message-scroll,
+.dark-mode .ribbon-slide-message-scroll,
+.dark-mode .stamp-message-scroll,
+.dark-mode .sticker-message-scroll,
+.dark-mode .treasure-message-scroll,
+.dark-mode .warm-cup-message-scroll,
+.dark-mode .window-message-scroll {
+    background: var(--card-bg-strong) !important;
+    border: var(--card-border-strong) !important;
+    box-shadow: var(--card-shadow-lg) !important;
+}
+
+/* Scroll containers inside message scrolls */
+.dark-mode .scroll-container {
+    background: var(--card-bg-strong) !important;
+    border: var(--card-border-strong) !important;
+    box-shadow: var(--card-shadow-lg) !important;
+}
+
+/* Text elements for all components - IMPROVED READABILITY */
+.dark-mode .message-scroll .scroll-title,
+.dark-mode .message-scroll .treasure-action,
+.dark-mode .message-scroll .treasure-message,
+.dark-mode .message-scroll .message-title,
+.dark-mode .message-scroll .message-content,
+.dark-mode .balloon-message-scroll .scroll-title,
+.dark-mode .balloon-message-scroll .treasure-action,
+.dark-mode .balloon-message-scroll .treasure-message,
+.dark-mode .envelope-message-scroll .scroll-title,
+.dark-mode .envelope-message-scroll .treasure-action,
+.dark-mode .envelope-message-scroll .treasure-message,
+.dark-mode .bandage-message-scroll .scroll-title,
+.dark-mode .bandage-message-scroll .treasure-action,
+.dark-mode .bandage-message-scroll .treasure-message,
+.dark-mode .autoflip-message-scroll .scroll-title,
+.dark-mode .autoflip-message-scroll .treasure-action,
+.dark-mode .autoflip-message-scroll .treasure-message,
+.dark-mode .treasure-message-scroll .scroll-title,
+.dark-mode .treasure-message-scroll .treasure-action,
+.dark-mode .treasure-message-scroll .treasure-message {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    font-weight: 500 !important;
+    text-shadow: none !important;
+}
+
+.dark-mode .treasure-message-scroll .treasure-message {
+    opacity: 1 !important;
+    font-weight: 400 !important;
+    color: #ffffff !important;
+}
+
+/* Primary buttons for all components - USING CORRECT PRIMARY COLORS */
+.dark-mode .treasure-btn.primary,
+.dark-mode .message-button.primary,
+.dark-mode .action-btn.primary {
+    background: linear-gradient(135deg, #006B7A 0%, #004851 50%, #003A40 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #006B7A !important;
+    box-shadow: 0 4px 12px rgba(0, 72, 81, 0.3) !important;
+}
+
+.dark-mode .treasure-btn.primary:hover,
+.dark-mode .message-button.primary:hover,
+.dark-mode .action-btn.primary:hover {
+    background: linear-gradient(135deg, #10B981 0%, #006B7A 50%, #004851 100%) !important;
+    box-shadow: 0 6px 16px rgba(0, 72, 81, 0.4) !important;
+}
+
+/* Secondary buttons for all components */
+.dark-mode .treasure-btn.secondary,
+.dark-mode .message-button.secondary,
+.dark-mode .action-btn.secondary {
+    background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%) !important;
+    color: #f9fafb !important;
+    border: 1px solid #4b5563 !important;
+}
+
+.dark-mode .treasure-btn.secondary:hover,
+.dark-mode .message-button.secondary:hover,
+.dark-mode .action-btn.secondary:hover {
+    background: linear-gradient(135deg, #374151 0%, #4b5563 50%, #6b7280 100%) !important;
+}
+
+/* Removed overly broad container targeting that was breaking UI */
+
+/* Hint text for all components */
+.dark-mode [class*="hint-text"] {
+    color: #9ca3af !important;
+}
+
+/* MESSAGE CARDS AND MODALS DARK MODE */
+
+/* All card-like elements */
+.dark-mode .message-card,
+.dark-mode .wellness-card,
+.dark-mode .breathing-card,
+.dark-mode .modal-content,
+.dark-mode .card-content,
+.dark-mode [class*="card"],
+.dark-mode [class*="modal"] {
+    background: var(--card-bg-strong) !important;
+    border: var(--card-border-strong) !important;
+    box-shadow: var(--card-shadow-lg) !important;
+    color: var(--text-light) !important;
+}
+
+/* Card headers and titles */
+.dark-mode .message-card h1,
+.dark-mode .message-card h2,
+.dark-mode .message-card h3,
+.dark-mode .wellness-card h1,
+.dark-mode .wellness-card h2,
+.dark-mode .wellness-card h3,
+.dark-mode .breathing-card h1,
+.dark-mode .breathing-card h2,
+.dark-mode .breathing-card h3,
+.dark-mode .card-title,
+.dark-mode .modal-title,
+.dark-mode [class*="card"] h1,
+.dark-mode [class*="card"] h2,
+.dark-mode [class*="card"] h3,
+.dark-mode [class*="modal"] h1,
+.dark-mode [class*="modal"] h2,
+.dark-mode [class*="modal"] h3 {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    font-weight: 600 !important;
+    text-shadow: none !important;
+}
+
+/* Card body text */
+.dark-mode .message-card p,
+.dark-mode .wellness-card p,
+.dark-mode .breathing-card p,
+.dark-mode .card-text,
+.dark-mode .modal-text,
+.dark-mode [class*="card"] p,
+.dark-mode [class*="modal"] p {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    font-weight: 400 !important;
+    text-shadow: none !important;
+}
+
+/* Card buttons */
+.dark-mode .message-card button,
+.dark-mode .wellness-card button,
+.dark-mode .breathing-card button,
+.dark-mode .card-button,
+.dark-mode .modal-button,
+.dark-mode [class*="card"] button,
+.dark-mode [class*="modal"] button {
+    background: linear-gradient(135deg, #006B7A 0%, #004851 50%, #003A40 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #006B7A !important;
+    box-shadow: 0 4px 12px rgba(0, 72, 81, 0.3) !important;
+}
+
+.dark-mode .message-card button:hover,
+.dark-mode .wellness-card button:hover,
+.dark-mode .breathing-card button:hover,
+.dark-mode .card-button:hover,
+.dark-mode .modal-button:hover,
+.dark-mode [class*="card"] button:hover,
+.dark-mode [class*="modal"] button:hover {
+    background: linear-gradient(135deg, #10B981 0%, #006B7A 50%, #004851 100%) !important;
+    box-shadow: 0 6px 16px rgba(0, 72, 81, 0.4) !important;
+}
+
+/* Secondary buttons in cards */
+.dark-mode .message-card button.secondary,
+.dark-mode .wellness-card button.secondary,
+.dark-mode .breathing-card button.secondary,
+.dark-mode .card-button.secondary,
+.dark-mode .modal-button.secondary,
+.dark-mode [class*="card"] button.secondary,
+.dark-mode [class*="modal"] button.secondary {
+    background: linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%) !important;
+    color: #f9fafb !important;
+    border: 1px solid #4b5563 !important;
+}
+
+/* Full screen overlays and modals */
+.dark-mode .modal-overlay,
+.dark-mode .overlay,
+.dark-mode [class*="overlay"] {
+    background: rgba(15, 23, 42, 0.8) !important;
+}
+
+/* Wellness-specific styling */
+.dark-mode .wellness-header {
+    background: var(--card-bg-strong) !important;
+    border-bottom: var(--card-border-strong) !important;
+}
+
+.dark-mode .wellness-content {
+    background: var(--card-bg-strong) !important;
+}
+
+/* Breathing exercise cards */
+.dark-mode .breathing-instruction {
+    color: var(--text-light) !important;
+}
+
+.dark-mode .action-badge,
+.dark-mode .instruction-badge {
+    background: linear-gradient(135deg, #006B7A 0%, #004851 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #006B7A !important;
+}
+
+/* Specific component styling - NO BROAD SELECTORS */
+.dark-mode .message-card,
+.dark-mode .wellness-card,
+.dark-mode .breathing-card {
+    background: var(--card-bg-strong) !important;
+    color: var(--text-light) !important;
+}
+
+/* COMPREHENSIVE READABILITY IMPROVEMENTS */
+.dark-mode .message-card h1,
+.dark-mode .message-card h2,
+.dark-mode .message-card h3,
+.dark-mode .message-card p,
+.dark-mode .wellness-card h1,
+.dark-mode .wellness-card h2,
+.dark-mode .wellness-card h3,
+.dark-mode .wellness-card p,
+.dark-mode .breathing-card h1,
+.dark-mode .breathing-card h2,
+.dark-mode .breathing-card h3,
+.dark-mode .breathing-card p,
+.dark-mode .auto-flip-container h1,
+.dark-mode .auto-flip-container h2,
+.dark-mode .auto-flip-container h3,
+.dark-mode .auto-flip-container p {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
+    font-weight: inherit !important;
+}
+
+/* Ensure all italic/script text is readable */
+.dark-mode .auto-flip-container .card-message,
+.dark-mode .card-front .card-message,
+.dark-mode .card-front p {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
+}
+
+/* Removed overly aggressive text forcing that was breaking UI */
+
+/* Removed overly aggressive text forcing that was breaking UI */
+
+/* Removed problematic style-based selectors that were breaking UI */
+
 .dark-mode .bg-slate-900 {
     background: var(--dark-bg) !important;
 }
@@ -198,10 +510,11 @@ body.dark-mode {
     height: 100%;
     z-index: -1;
     overflow: hidden;
-    background: 
-        radial-gradient(circle at 20% 80%, rgba(0, 72, 81, 0.03) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(0, 72, 81, 0.02) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(0, 72, 81, 0.01) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.dark-mode .background-blobs {
+    display: none; /* Temporarily disable complex backgrounds in dark mode */
 }
 
 /* Professional card components */
@@ -246,6 +559,21 @@ body.dark-mode {
     border-color: var(--primary-blue);
     background: var(--primary-blue);
     color: white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.1),
+        0 8px 16px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark-mode .glass-card:hover {
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .glass-btn:active {
@@ -273,6 +601,15 @@ body.dark-mode {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    min-height: 60px;
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        padding: 0 1rem;
+        min-height: 56px;
+    }
 }
 
 .logo h1 {
@@ -290,6 +627,13 @@ body.dark-mode {
     display: flex;
     gap: var(--spacing-sm);
     align-items: center;
+    flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+    .controls {
+        gap: 0.75rem;
+    }
 }
 
 /* Modern Toggle Switch */
@@ -307,6 +651,19 @@ body.dark-mode {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     /* Ensure proper positioning and prevent conflicts */
     box-sizing: border-box;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+/* Fix dark mode background for toggle */
+.dark-mode .toggle-switch {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(148, 163, 184, 0.3);
+}
+
+.dark-mode .toggle-switch.active {
+    background: #3B82F6;
+    border-color: #3B82F6;
 }
 
 .toggle-switch:hover {
@@ -331,18 +688,19 @@ body.dark-mode {
 .toggle-switch::before {
     content: '';
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 24px;
-    height: 24px;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
     background: white;
     border-radius: 50%;
     transition: var(--transition-smooth);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 2;
 }
 
 .toggle-switch.active::before {
-    transform: translateX(28px);
+    transform: translateX(24px);
 }
 
 /* Toggle Icons */
@@ -499,7 +857,7 @@ main {
 
 .mood-question h2 {
     font-family: var(--font-heading) !important;
-    font-size: 2rem;
+    font-size: 1.75rem !important;
     font-weight: 600;
     color: var(--text-dark);
     margin-bottom: 1rem;
@@ -563,8 +921,9 @@ main {
 }
 
 .mood-emoji {
-    font-size: 3rem;
+    font-size: 3.5rem;
     display: block;
+    line-height: 1;
 }
 
 .mood-text {
@@ -589,7 +948,7 @@ main {
 
 .context-question h2 {
     font-family: var(--font-heading);
-    font-size: 2rem;
+    font-size: 1.75rem !important;
     font-weight: 600;
     color: var(--text-dark);
     margin-bottom: 1rem;
@@ -648,6 +1007,7 @@ main {
 .context-icon {
     font-size: 2.5rem;
     flex-shrink: 0;
+    line-height: 1;
 }
 
 .context-text {
@@ -1110,7 +1470,7 @@ main {
 }
 
 .tarot-card.flipped .card-inner {
-    transform: rotateY(180deg);
+    animation: cardFlipAnimation 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .tarot-card.zoomed .card-inner {
@@ -1357,8 +1717,56 @@ main {
     color: white;
 }
 
+/* Emergency Contact Text (New Style) */
+.emergency-contact-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-family: var(--font-heading);
+    font-weight: 500;
+    font-size: 0.8rem;
+    letter-spacing: -0.025em;
+}
+
+.helpline-number {
+    color: #dc2626;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
 .phone-icon {
     font-size: 1rem;
+    color: #dc2626;
+}
+
+.copy-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #dc2626;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+}
+
+.copy-button:hover {
+    background: rgba(220, 38, 38, 0.1);
+    color: #b91c1c;
+    transform: scale(1.1);
+}
+
+.copy-button:active {
+    transform: scale(0.95);
 }
 
 /* AdSense Card */
@@ -1389,11 +1797,28 @@ main {
     color: var(--text-light);
 }
 
+.dark-mode .helpline-number {
+    color: #fca5a5;
+}
+
+.dark-mode .phone-icon {
+    color: #fca5a5;
+}
+
+.dark-mode .copy-button {
+    color: #fca5a5;
+}
+
+.dark-mode .copy-button:hover {
+    background: rgba(252, 165, 165, 0.1);
+    color: #f87171;
+}
+
 /* Mobile First - Base styles are for mobile */
 .mood-question h2,
 .context-question h2,
 .card-selection-intro h2 {
-    font-size: 1.75rem;
+    font-size: 1.75rem !important;
     line-height: 1.25;
 }
 
@@ -1408,18 +1833,18 @@ main {
     padding: 1rem;
 }
 
-.mood-emoji {
-    font-size: 2.25rem;
-}
+    .mood-emoji {
+        font-size: 2.5rem;
+    }
 
 .context-btn {
     min-height: 80px;
     padding: 1rem;
 }
 
-.context-icon {
-    font-size: 1.75rem;
-}
+    .context-icon {
+        font-size: 2rem;
+    }
 
 .message-title {
     font-size: 1.25rem;
@@ -1497,7 +1922,7 @@ main {
     .mood-question h2,
     .context-question h2,
     .card-selection-intro h2 {
-        font-size: 2rem;
+        font-size: 1.75rem !important;
     }
     
     .mood-buttons {
@@ -1513,7 +1938,7 @@ main {
     }
     
     .mood-emoji {
-        font-size: 2.5rem;
+        font-size: 3rem;
     }
     
     .context-btn {
@@ -1522,7 +1947,7 @@ main {
     }
     
     .context-icon {
-        font-size: 2rem;
+        font-size: 2.5rem;
     }
     
     .message-title {
@@ -1583,7 +2008,7 @@ main {
     .mood-question h2,
     .context-question h2,
     .card-selection-intro h2 {
-        font-size: 2.25rem;
+        font-size: 1.75rem !important;
     }
     
     .mood-btn {
@@ -1592,7 +2017,7 @@ main {
     }
     
     .mood-emoji {
-        font-size: 2.75rem;
+        font-size: 3.25rem;
     }
     
     .context-btn {
@@ -1601,7 +2026,7 @@ main {
     }
     
     .context-icon {
-        font-size: 2.25rem;
+        font-size: 3rem;
     }
     
     .message-title {
@@ -4494,30 +4919,79 @@ a:focus {
     padding: 0 1rem;
 }
 
-/* Instructions Section */
+/* Instructions Section - Modern Ethereal Design */
 .instructions-section {
     text-align: center;
-    margin-bottom: 3rem;
-    padding: 1.5rem;
+    margin-bottom: 5rem;
+    padding: 3rem 2rem;
+    background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%),
+        radial-gradient(ellipse at center, rgba(116, 179, 206, 0.1) 0%, transparent 70%);
+    border-radius: 2rem;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    overflow: hidden;
+    animation: etherealFloat 8s ease-in-out infinite;
+}
+
+.instructions-section::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    width: 300%;
+    height: 300%;
+    background: 
+        radial-gradient(circle at 30% 20%, rgba(173, 216, 230, 0.15) 0%, transparent 30%),
+        radial-gradient(circle at 70% 80%, rgba(221, 160, 221, 0.1) 0%, transparent 30%),
+        radial-gradient(circle at 50% 50%, rgba(255, 182, 193, 0.08) 0%, transparent 40%);
+    animation: cosmicRotate 30s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes etherealFloat {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-8px) scale(1.01); }
+}
+
+@keyframes cosmicRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .instruction-text {
-    font-family: var(--font-body);
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-dark);
-    margin: 0 0 0.5rem 0;
-    line-height: 1.4;
+    font-family: var(--font-heading);
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--text-dark) 0%, #4A90A4 50%, #6B73FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.2;
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 0 30px rgba(116, 179, 206, 0.3);
 }
 
 .instruction-subtext {
     font-family: var(--font-body);
-    font-size: 0.875rem;
+    font-size: 1.3rem;
     font-weight: 400;
     color: var(--text-muted);
     margin: 0;
-    line-height: 1.4;
-    opacity: 0.8;
+    opacity: 0.9;
+    position: relative;
+    z-index: 2;
+    line-height: 1.5;
 }
 
 .dark-mode .instruction-text {
@@ -4551,54 +5025,254 @@ a:focus {
     color: var(--text-light) !important;
 }
 
-/* Mood Section */
+/* Mood Section - Compact Ethereal Cards */
 .mood-section .mood-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    perspective: 1000px;
 }
 
 .mood-section .mood-btn {
     min-height: 100px;
-    padding: 1rem;
+    padding: 1.5rem 1rem;
     position: relative;
+    background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%),
+        radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 1.5rem;
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    animation: moodCardFloat 6s ease-in-out infinite;
+    box-shadow: 
+        0 15px 30px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        0 0 20px rgba(255, 255, 255, 0.1);
     overflow: hidden;
-    transition: all 0.3s ease;
+}
+
+.mood-section .mood-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: cardShimmer 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes moodCardFloat {
+    0%, 100% { transform: translateY(0px) rotateX(0deg); }
+    50% { transform: translateY(-10px) rotateX(2deg); }
+}
+
+@keyframes cardShimmer {
+    0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.3; }
+    50% { transform: rotate(180deg) scale(1.1); opacity: 0.1; }
+}
+
+.mood-section .mood-btn:hover {
+    transform: translateY(-15px) rotateX(5deg) scale(1.02);
+    box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        0 0 40px rgba(116, 179, 206, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    animation-play-state: paused;
 }
 
 .mood-section .mood-btn.selected {
-    transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(0, 72, 81, 0.3);
-    border: 2px solid var(--primary-blue);
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 
+        0 25px 50px rgba(0, 72, 81, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 0 50px rgba(0, 72, 81, 0.4);
+    border: 3px solid var(--primary-blue);
+    background: 
+        linear-gradient(135deg, rgba(0, 72, 81, 0.2) 0%, rgba(0, 72, 81, 0.1) 100%),
+        radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    animation: selectedPulse 2s ease-in-out infinite;
 }
 
-/* Context Section */
+@keyframes selectedPulse {
+    0%, 100% { box-shadow: 0 25px 50px rgba(0, 72, 81, 0.3), 0 0 50px rgba(0, 72, 81, 0.4); }
+    50% { box-shadow: 0 30px 60px rgba(0, 72, 81, 0.4), 0 0 60px rgba(0, 72, 81, 0.6); }
+}
+
+/* Context Section - Compact Ethereal Cards */
 .context-section .context-buttons {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
     width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    perspective: 1000px;
 }
 
 .context-section .context-btn {
-    min-height: 90px;
-    padding: 1rem;
+    min-height: 80px;
+    padding: 1.25rem 1.5rem;
     position: relative;
+    background: 
+        linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%),
+        radial-gradient(ellipse at center, rgba(116, 179, 206, 0.08) 0%, transparent 70%);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 1.5rem;
+    transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1.5rem;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    animation: contextCardFloat 7s ease-in-out infinite;
+    box-shadow: 
+        0 15px 30px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        0 0 20px rgba(255, 255, 255, 0.1);
     overflow: hidden;
-    transition: all 0.3s ease;
+}
+
+.context-section .context-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: 
+        radial-gradient(ellipse at 30% 30%, rgba(173, 216, 230, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 70%, rgba(221, 160, 221, 0.08) 0%, transparent 50%);
+    animation: contextShimmer 10s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes contextCardFloat {
+    0%, 100% { transform: translateY(0px) rotateY(0deg); }
+    50% { transform: translateY(-8px) rotateY(1deg); }
+}
+
+@keyframes contextShimmer {
+    0%, 100% { transform: rotate(0deg) scale(1); opacity: 0.2; }
+    50% { transform: rotate(120deg) scale(1.05); opacity: 0.1; }
+}
+
+.context-section .context-btn:hover {
+    transform: translateY(-12px) rotateY(3deg) scale(1.02);
+    box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        0 0 40px rgba(116, 179, 206, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    animation-play-state: paused;
 }
 
 .context-section .context-btn.selected {
-    transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(0, 72, 81, 0.3);
-    border: 2px solid var(--primary-blue);
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 
+        0 25px 50px rgba(0, 72, 81, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 0 50px rgba(0, 72, 81, 0.4);
+    border: 3px solid var(--primary-blue);
+    background: 
+        linear-gradient(135deg, rgba(0, 72, 81, 0.2) 0%, rgba(0, 72, 81, 0.1) 100%),
+        radial-gradient(ellipse at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    animation: selectedPulse 2s ease-in-out infinite;
 }
 
 /* Ensure text visibility in buttons */
 .mood-text, .context-text, .context-subtitle {
     color: var(--text-dark) !important;
-    font-weight: 500;
+    position: relative;
+    z-index: 3;
+}
+
+/* Dark Mode Adjustments for Ethereal Design */
+.dark-mode .instructions-section {
+    background: 
+        linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(30, 41, 59, 0.1) 100%),
+        radial-gradient(ellipse at center, rgba(116, 179, 206, 0.1) 0%, transparent 70%);
+    border-color: rgba(148, 163, 184, 0.3);
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(148, 163, 184, 0.2);
+}
+
+.dark-mode .instructions-section::before {
+    background: 
+        radial-gradient(circle at 30% 20%, rgba(173, 216, 230, 0.08) 0%, transparent 30%),
+        radial-gradient(circle at 70% 80%, rgba(221, 160, 221, 0.06) 0%, transparent 30%),
+        radial-gradient(circle at 50% 50%, rgba(255, 182, 193, 0.04) 0%, transparent 40%);
+}
+
+.dark-mode .instruction-text {
+    background: linear-gradient(135deg, var(--text-light) 0%, #74B3CE 50%, #A0A8FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.dark-mode .instruction-subtext {
+    color: rgba(148, 163, 184, 0.8);
+}
+
+.dark-mode .mood-section .mood-btn,
+.dark-mode .context-section .context-btn {
+    background: 
+        linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(30, 41, 59, 0.2) 100%),
+        radial-gradient(circle at center, rgba(148, 163, 184, 0.1) 0%, transparent 70%);
+    border-color: rgba(148, 163, 184, 0.3);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(148, 163, 184, 0.3),
+        0 0 30px rgba(148, 163, 184, 0.1);
+}
+
+.dark-mode .mood-section .mood-btn::before,
+.dark-mode .context-section .context-btn::before {
+    background: radial-gradient(circle, rgba(148, 163, 184, 0.08) 0%, transparent 70%);
+}
+
+.dark-mode .mood-text,
+.dark-mode .context-text {
+    color: var(--text-light) !important;
+}
+
+.dark-mode .mood-section .mood-btn:hover,
+.dark-mode .context-section .context-btn:hover {
+    box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(148, 163, 184, 0.4),
+        0 0 40px rgba(116, 179, 206, 0.2);
+    border-color: rgba(148, 163, 184, 0.5);
+}
+
+.dark-mode .mood-section .mood-btn.selected,
+.dark-mode .context-section .context-btn.selected {
+    background: 
+        linear-gradient(135deg, rgba(0, 72, 81, 0.3) 0%, rgba(0, 72, 81, 0.2) 100%),
+        radial-gradient(circle at center, rgba(148, 163, 184, 0.2) 0%, transparent 70%);
+    box-shadow: 
+        0 25px 50px rgba(0, 72, 81, 0.4),
+        inset 0 1px 0 rgba(148, 163, 184, 0.4),
+        0 0 50px rgba(0, 72, 81, 0.5);
 }
 
 .dark-mode .mood-text,
@@ -4759,10 +5433,22 @@ a:focus {
     
     .mood-section .mood-buttons {
         grid-template-columns: 1fr 1fr;
-        gap: 1rem;
+        gap: 1.5rem;
+    }
+    
+    .mood-section .mood-btn {
+        min-height: 90px;
+        padding: 1.25rem 0.75rem;
+        gap: 0.5rem;
     }
     
     .context-section .context-buttons {
+        gap: 1rem;
+    }
+    
+    .context-section .context-btn {
+        min-height: 70px;
+        padding: 1rem 1.25rem;
         gap: 1rem;
     }
     
@@ -4771,7 +5457,7 @@ a:focus {
     }
     
     .question-header h2 {
-        font-size: 1.5rem;
+        font-size: 1.75rem !important;
     }
     
     .experience-header h2 {
@@ -4795,17 +5481,28 @@ a:focus {
     }
     
     .mood-section .mood-buttons {
-        gap: 0.75rem;
+        gap: 1rem;
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
     }
     
     .context-section .context-buttons {
-        gap: 0.75rem;
+        gap: 1rem;
+        max-width: 500px;
+        margin: 0 auto;
     }
     
-    .mood-section .mood-btn,
+    .mood-section .mood-btn {
+        min-height: 85px;
+        padding: 1rem 0.75rem;
+        gap: 0.5rem;
+    }
+    
     .context-section .context-btn {
-        min-height: 80px;
-        padding: 0.75rem;
+        min-height: 65px;
+        padding: 0.875rem 1rem;
+        gap: 1rem;
     }
     
     .experience-btn {
@@ -4814,7 +5511,7 @@ a:focus {
     }
     
     .question-header h2 {
-        font-size: 1.4rem;
+        font-size: 1.75rem !important;
     }
     
     .experience-header h2 {
@@ -6169,3 +6866,39 @@ a:focus {
 }
 
 /* Removed duplicate message-reveal-container styles - using 3DComponents.css instead */
+
+/* ULTIMATE DARK MODE CARD FIXES - HIGHEST PRIORITY */
+.dark-mode .glassmorphic-card .card-front,
+.dark-mode .card-front,
+body.dark-mode .glassmorphic-card .card-front,
+body.dark-mode .card-front,
+html.dark-mode .glassmorphic-card .card-front,
+html.dark-mode .card-front {
+    background: linear-gradient(135deg, 
+        var(--card-bg-strong), 
+        rgba(30, 41, 59, 0.9)
+    ) !important;
+    border-color: var(--primary-blue) !important;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Fix any remaining white backgrounds */
+.dark-mode .glassmorphic-card,
+.dark-mode [class*="card"]:not(.reveal-token),
+body.dark-mode .glassmorphic-card,
+body.dark-mode [class*="card"]:not(.reveal-token) {
+    background: var(--card-bg-strong) !important;
+}
+
+/* ENVELOPE SPECIFIC DARK MODE FIXES */
+.dark-mode .large-message-card {
+    background: var(--card-bg-strong) !important;
+    border-color: var(--card-border-strong) !important;
+    box-shadow: var(--card-shadow-lg) !important;
+}
+
+/* Removed overly broad style attribute targeting that was breaking UI */
+
+/* Removed nuclear option that was breaking the UI */

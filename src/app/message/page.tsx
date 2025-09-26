@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { playMessageAudio } from '@/lib/audio';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
@@ -87,24 +88,11 @@ export default function MessagePage() {
 
   const playCurrentMessage = () => {
     if (selectedMessage && audioEnabled) {
-      const utterance = new SpeechSynthesisUtterance(`${selectedMessage.title}. ${selectedMessage.message}`);
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-      utterance.volume = 0.8;
-      
-      // Try to use a calming voice if available
-      const voices = window.speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice => 
-        voice.name.includes('Samantha') || 
-        voice.name.includes('Google UK English Female') ||
-        voice.name.includes('Microsoft Zira')
+      playMessageAudio(
+        selectedMessage.title,
+        selectedMessage.message,
+        { rate: 0.9, pitch: 1, volume: 0.8, voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira'] }
       );
-      
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-      }
-      
-      window.speechSynthesis.speak(utterance);
     }
   };
 
