@@ -1,30 +1,30 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { createPortal } from 'react-dom';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 
 interface PlayingCardProps {
   isRevealed: boolean;
   onReveal: () => void;
   accentColor: string;
-  animationSpeed: 'rich' | 'quick' | 'gentle' | 'instant';
+  animationSpeed: "rich" | "quick" | "gentle" | "instant";
   message?: string;
   action?: string;
-  actionType?: 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE';
+  actionType?: "ACTION" | "REPEAT/RECITE" | "VISUALIZE";
   onStartOver?: () => void;
   onTryAnother?: () => void;
 }
 
-export default function PlayingCard({ 
-  isRevealed, 
-  onReveal, 
-  accentColor, 
-  animationSpeed, 
-  message, 
-  action, 
+export default function PlayingCard({
+  isRevealed,
+  onReveal,
+  accentColor,
+  animationSpeed,
+  message,
+  action,
   actionType,
   onStartOver,
-  onTryAnother 
+  onTryAnother,
 }: PlayingCardProps) {
   const [isFlipping, setIsFlipping] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -39,28 +39,37 @@ export default function PlayingCard({
   const messages = [
     {
       action: action || "Take a mindful moment",
-      message: message || "Sometimes the smallest pause can create the biggest shift in perspective.",
-      tag: actionType || "VISUALIZE"
+      message:
+        message ||
+        "Sometimes the smallest pause can create the biggest shift in perspective.",
+      tag: actionType || "VISUALIZE",
     },
     {
       action: "Focus on what you can control",
-      message: "Release what's beyond your reach and embrace what's within your power.",
-      tag: "ACTION"
+      message:
+        "Release what's beyond your reach and embrace what's within your power.",
+      tag: "ACTION",
     },
     {
       action: "Repeat: 'I choose peace in this moment'",
-      message: "Every breath is a chance to reset and choose how you want to feel.",
-      tag: "REPEAT/RECITE"
-    }
+      message:
+        "Every breath is a chance to reset and choose how you want to feel.",
+      tag: "REPEAT/RECITE",
+    },
   ];
 
   const getAnimationDuration = useCallback(() => {
     switch (animationSpeed) {
-      case 'instant': return 300;
-      case 'quick': return 800;
-      case 'gentle': return 1200;
-      case 'rich': return 1600;
-      default: return 1000;
+      case "instant":
+        return 300;
+      case "quick":
+        return 800;
+      case "gentle":
+        return 1200;
+      case "rich":
+        return 1600;
+      default:
+        return 1000;
     }
   }, [animationSpeed]);
 
@@ -72,16 +81,16 @@ export default function PlayingCard({
   // Auto-flip after delay using transition-based flip (no keyframes)
   useEffect(() => {
     if (!isRevealed && canClick) {
-      const flipDelay = animationSpeed === 'instant' ? 500 : 1200;
+      const flipDelay = animationSpeed === "instant" ? 500 : 1200;
 
       const flipTimer = setTimeout(() => {
-        console.log('🎴 Starting playing card flip (transition)…');
+        console.log("🎴 Starting playing card flip (transition)…");
         setCanClick(false);
         const duration = getAnimationDuration();
 
         // Trigger flip via CSS transition
         setIsFlipped(true);
-        console.log('🎴 Playing card flipped - showing message…');
+        console.log("🎴 Playing card flipped - showing message…");
 
         // Show message shortly after flip starts
         const showMsgDelay = Math.min(250, Math.floor(duration * 0.3));
@@ -92,7 +101,7 @@ export default function PlayingCard({
           // Expand for readability
           const expandTimer = setTimeout(() => {
             setIsExpanded(true);
-            console.log('🎴 Playing card expanded for better readability');
+            console.log("🎴 Playing card expanded for better readability");
             // Notify reveal after a small delay
             const revealTimer = setTimeout(() => {
               onReveal();
@@ -114,26 +123,33 @@ export default function PlayingCard({
     const el = cardRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    console.log('🎯 Card rect', { top: rect.top, left: rect.left, width: rect.width, height: rect.height, centerX: rect.left + rect.width / 2, centerY: rect.top + rect.height / 2 });
+    console.log("🎯 Card rect", {
+      top: rect.top,
+      left: rect.left,
+      width: rect.width,
+      height: rect.height,
+      centerX: rect.left + rect.width / 2,
+      centerY: rect.top + rect.height / 2,
+    });
   }, [isFlipped, isExpanded]);
 
   const handleStartOver = () => {
-    console.log('🏠 Going back to home screen...');
+    console.log("🏠 Going back to home screen...");
     if (onStartOver) {
       onStartOver();
-    } else if (typeof window !== 'undefined') {
-      window.location.href = '/';
+    } else if (typeof window !== "undefined") {
+      window.location.href = "/";
     }
   };
 
   const handleGiveAnother = () => {
-    console.log('📝 Getting another message...');
+    console.log("📝 Getting another message...");
     if (onTryAnother) {
       onTryAnother();
     } else {
       const nextMessage = (currentMessage + 1) % messages.length;
       setCurrentMessage(nextMessage);
-      
+
       // Reset and re-flip with new message
       setIsFlipping(false);
       setIsFlipped(false);
@@ -145,10 +161,14 @@ export default function PlayingCard({
 
   const getTagColor = (tag: string) => {
     switch (tag) {
-      case 'VISUALIZE': return '#8B5CF6'; // Purple
-      case 'ACTION': return '#3B82F6'; // Blue
-      case 'REPEAT/RECITE': return '#10B981'; // Green
-      default: return accentColor;
+      case "VISUALIZE":
+        return "#8B5CF6"; // Purple
+      case "ACTION":
+        return "#3B82F6"; // Blue
+      case "REPEAT/RECITE":
+        return "#10B981"; // Green
+      default:
+        return accentColor;
     }
   };
 
@@ -156,10 +176,16 @@ export default function PlayingCard({
 
   const cardContent = (
     <div className="playing-card-container">
-      <div 
+      <div
         ref={cardRef}
-        className={`playing-card ${isFlipped ? 'flipped' : ''} ${isExpanded ? 'expanded' : ''}`}
-        style={{ '--flip-duration': `${getAnimationDuration()}ms` } as React.CSSProperties}
+        className={`playing-card ${isFlipped ? "flipped" : ""} ${
+          isExpanded ? "expanded" : ""
+        }`}
+        style={
+          {
+            "--flip-duration": `${getAnimationDuration()}ms`,
+          } as React.CSSProperties
+        }
         data-speed={animationSpeed}
       >
         {/* Card Back (shows first) */}
@@ -191,7 +217,7 @@ export default function PlayingCard({
           {showMessage && (
             <div className="message-content">
               {/* Message Tag */}
-              <div 
+              <div
                 className="message-tag"
                 style={{ backgroundColor: getTagColor(currentMessageData.tag) }}
               >
@@ -199,24 +225,20 @@ export default function PlayingCard({
               </div>
 
               {/* Message Action */}
-              <h3 className="message-action">
-                {currentMessageData.action}
-              </h3>
+              <h3 className="message-action">{currentMessageData.action}</h3>
 
               {/* Message Text */}
-              <p className="message-text">
-                {currentMessageData.message}
-              </p>
+              <p className="message-text">{currentMessageData.message}</p>
 
               {/* Action Buttons */}
               <div className="message-actions">
-                <button 
+                <button
                   className="action-button start-over"
                   onClick={handleStartOver}
                 >
                   🏠 Start Over
                 </button>
-                <button 
+                <button
                   className="action-button give-another primary"
                   onClick={handleGiveAnother}
                 >
@@ -255,7 +277,8 @@ export default function PlayingCard({
           height: 341px !important;
           transform: translate(-50%, -50%) rotateY(0deg) !important;
           transform-style: preserve-3d !important;
-          transition: transform var(--flip-duration, 0.8s) cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+          transition: transform var(--flip-duration, 0.8s)
+            cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
           cursor: pointer;
           will-change: transform;
           padding: 0 !important;
@@ -280,11 +303,11 @@ export default function PlayingCard({
         .playing-card.expanded {
           width: 350px !important;
           height: 480px !important;
-          transform: translate(-50%, -50%) rotateY(180deg) scale(1.1) !important;
+          transform: translate(-50%, -65%) rotateY(180deg) scale(1.1) !important;
           transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
           transform-origin: center center !important;
           position: fixed !important;
-          top: 50% !important;
+          top: 0% !important;
           left: 50% !important;
         }
 
@@ -302,7 +325,12 @@ export default function PlayingCard({
         }
 
         .card-back {
-          background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #1e3a8a 100%);
+          background: linear-gradient(
+            135deg,
+            #1e3a8a 0%,
+            #3730a3 50%,
+            #1e3a8a 100%
+          );
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -343,19 +371,32 @@ export default function PlayingCard({
         .pattern-layer-1 {
           position: absolute;
           inset: 0;
-          background: radial-gradient(circle at 25% 25%, rgba(255,255,255,0.2) 0%, transparent 50%);
+          background: radial-gradient(
+            circle at 25% 25%,
+            rgba(255, 255, 255, 0.2) 0%,
+            transparent 50%
+          );
         }
 
         .pattern-layer-2 {
           position: absolute;
           inset: 0;
-          background: radial-gradient(circle at 75% 75%, rgba(255,255,255,0.1) 0%, transparent 60%);
+          background: radial-gradient(
+            circle at 75% 75%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 60%
+          );
         }
 
         .pattern-layer-3 {
           position: absolute;
           inset: 0;
-          background: linear-gradient(45deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+          background: linear-gradient(
+            45deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.05) 50%,
+            transparent 100%
+          );
         }
 
         .back-branding {
@@ -491,9 +532,9 @@ export default function PlayingCard({
           border-radius: 10px;
           font-weight: 600;
           cursor: pointer;
-          transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
-                      box-shadow 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                      background 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            box-shadow 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+            background 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           font-size: 0.8rem;
           letter-spacing: 0.3px;
           will-change: transform, box-shadow;
@@ -533,14 +574,21 @@ export default function PlayingCard({
         }
 
         @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.7; }
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.7;
+          }
         }
 
         /* Keyframe-based flipping removed to avoid positioning issues */
 
         @keyframes loadingDots {
-          0%, 80%, 100% {
+          0%,
+          80%,
+          100% {
             transform: scale(0.8);
             opacity: 0.6;
           }

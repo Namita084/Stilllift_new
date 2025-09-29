@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@amplitude/analytics-browser':
+        specifier: ^2.23.7
+        version: 2.25.0
       '@radix-ui/react-label':
         specifier: ^2.1.7
         version: 2.1.7(@types/react-dom@19.1.7(@types/react@19.1.9))(@types/react@19.1.9)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -78,6 +81,45 @@ packages:
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
+
+  '@amplitude/analytics-browser@2.25.0':
+    resolution: {integrity: sha512-KcouU8fl/zpnpF8MJhJfJedwyZP5woy0NLljD2xk3UCqyUx0qHk2XPT7pJ0WQYgBRN2A8yBEKMGx9RaVqfflTQ==}
+
+  '@amplitude/analytics-client-common@2.4.1':
+    resolution: {integrity: sha512-fGdXIQsHRZmrqV+3VehoGAtXGcR8C5CePNQujYQsLRl4c4vpZ2DAOh5cU5Dek9K7opy2S18xWWPR4w2lWal18Q==}
+
+  '@amplitude/analytics-connector@1.6.4':
+    resolution: {integrity: sha512-SpIv0IQMNIq6SH3UqFGiaZyGSc7PBZwRdq7lvP0pBxW8i4Ny+8zwI0pV+VMfMHQwWY3wdIbWw5WQphNjpdq1/Q==}
+
+  '@amplitude/analytics-core@1.2.8':
+    resolution: {integrity: sha512-Krxpr5uvS3HmmjvpYqPfbMbs2kcZZu09L+6KwQnPiofWRzoXWIM217fRfy6aSD/QrAoPGbZjvtVitw9cB7Cx+A==}
+
+  '@amplitude/analytics-core@2.26.0':
+    resolution: {integrity: sha512-ymlEx6z0XCkcDSWoWGZ/qo/i/g7h+ulGIEZ/JyC2VoS/rLZCQr9lM9kO3oZ9Sy/tlVbZOkVqrbMdo0ZoDlBusg==}
+
+  '@amplitude/analytics-remote-config@0.4.1':
+    resolution: {integrity: sha512-BYl6kQ9qjztrCACsugpxO+foLaQIC0aSEzoXEAb/gwOzInmqkyyI+Ub+aWTBih4xgB/lhWlOcidWHAmNiTJTNw==}
+
+  '@amplitude/analytics-remote-config@0.6.3':
+    resolution: {integrity: sha512-icE0ogCzdHAtQi9jiOFQUmKrvWQc5YEO6bLZUfQXCT/yTTNXppWnT1zHMKzXa3SMDosfrLwU/X8sro1PTI+jZQ==}
+
+  '@amplitude/analytics-types@1.4.0':
+    resolution: {integrity: sha512-RiMPHBqdrJ8ktTqG+Wzj2htnN/PCG9jGZG0SXtTFnWwVvcAJYbYm55/nrP1TTyrx1OlLhvF2VG3lVUP/xGAU8w==}
+
+  '@amplitude/analytics-types@2.10.0':
+    resolution: {integrity: sha512-WP8eEbJh10MmFVnxkHjg92i5DBxBFsRvSZxjDQPXEGL8ZP+i7rSsleiH2K3VrwoKksYfZ/1eAqrZvevAmjSlig==}
+
+  '@amplitude/plugin-autocapture-browser@1.14.1':
+    resolution: {integrity: sha512-7+wBoEnQgmCrXhIj1YAUxIH3AqgBCu9Q435+VU/BBrJhfLS19u/CWqxfVTH29C2+/WQafbj6lDvIth4QdGJP4w==}
+
+  '@amplitude/plugin-network-capture-browser@1.6.3':
+    resolution: {integrity: sha512-FGZ++swGo0BU1fpTCfyPT/ORmVG3MRC/PtN03NRwLcMXPNNnDC05t0AwTVuicxxwb6IWtvr0nlzCG4tpyT4ncg==}
+
+  '@amplitude/plugin-page-view-tracking-browser@2.4.1':
+    resolution: {integrity: sha512-ScrJ7u2uvPoVjtHHPTypQiiNfTcVl30rTQdnNneu5qdHDMnt4rB/+JFFfD4XFgOsVC1x9UkdcYYQNUodLXmbEg==}
+
+  '@amplitude/plugin-web-vitals-browser@0.1.0-frustrationanalytics.0':
+    resolution: {integrity: sha512-xv4sje6/D8r+SgNFTA22FJ5PhtdhN+VSydvs63Frll+qWlyQwaZ1IgDbPyqjzryEkldHRPD7GUaQual+geoIYg==}
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -1677,6 +1719,9 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
+  rxjs@7.8.2:
+    resolution: {integrity: sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==}
+
   safe-array-concat@1.1.3:
     resolution: {integrity: sha512-AURm5f0jYEOydBj7VQlVvDrjeFgthDdEF5H1dP+6mNpoXOMo1quQqJ4wvJDyRZ9+pO3kGWoOdmV08cSv2aJV6Q==}
     engines: {node: '>=0.4'}
@@ -1882,6 +1927,9 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
+  web-vitals@5.1.0:
+    resolution: {integrity: sha512-ArI3kx5jI0atlTtmV0fWU3fjpLmq/nD3Zr1iFFlJLaqa5wLBkUSzINwBPySCX/8jRyjlmy1Volw1kz1g9XE4Jg==}
+
   which-boxed-primitive@1.1.1:
     resolution: {integrity: sha512-TbX3mj8n0odCBFVlY8AxkqcHASw3L60jIuF8jFP78az3C2YhmGvqbHBpAjTRH2/xqYunrJ9g1jSyjCjpoWzIAA==}
     engines: {node: '>= 0.4'}
@@ -1918,6 +1966,78 @@ packages:
 snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
+
+  '@amplitude/analytics-browser@2.25.0':
+    dependencies:
+      '@amplitude/analytics-core': 2.26.0
+      '@amplitude/analytics-remote-config': 0.4.1
+      '@amplitude/plugin-autocapture-browser': 1.14.1
+      '@amplitude/plugin-network-capture-browser': 1.6.3
+      '@amplitude/plugin-page-view-tracking-browser': 2.4.1
+      '@amplitude/plugin-web-vitals-browser': 0.1.0-frustrationanalytics.0
+      tslib: 2.8.1
+
+  '@amplitude/analytics-client-common@2.4.1':
+    dependencies:
+      '@amplitude/analytics-connector': 1.6.4
+      '@amplitude/analytics-core': 2.26.0
+      '@amplitude/analytics-types': 2.10.0
+      tslib: 2.8.1
+
+  '@amplitude/analytics-connector@1.6.4': {}
+
+  '@amplitude/analytics-core@1.2.8':
+    dependencies:
+      '@amplitude/analytics-types': 1.4.0
+      tslib: 2.8.1
+
+  '@amplitude/analytics-core@2.26.0':
+    dependencies:
+      '@amplitude/analytics-connector': 1.6.4
+      tslib: 2.8.1
+
+  '@amplitude/analytics-remote-config@0.4.1':
+    dependencies:
+      '@amplitude/analytics-client-common': 2.4.1
+      '@amplitude/analytics-core': 2.26.0
+      '@amplitude/analytics-types': 2.10.0
+      tslib: 2.8.1
+
+  '@amplitude/analytics-remote-config@0.6.3':
+    dependencies:
+      '@amplitude/analytics-core': 1.2.8
+      '@amplitude/analytics-types': 1.4.0
+      tslib: 2.8.1
+
+  '@amplitude/analytics-types@1.4.0': {}
+
+  '@amplitude/analytics-types@2.10.0': {}
+
+  '@amplitude/plugin-autocapture-browser@1.14.1':
+    dependencies:
+      '@amplitude/analytics-core': 2.26.0
+      '@amplitude/analytics-remote-config': 0.6.3
+      rxjs: 7.8.2
+      tslib: 2.8.1
+
+  '@amplitude/plugin-network-capture-browser@1.6.3':
+    dependencies:
+      '@amplitude/analytics-core': 2.26.0
+      rxjs: 7.8.2
+      tslib: 2.8.1
+
+  '@amplitude/plugin-page-view-tracking-browser@2.4.1':
+    dependencies:
+      '@amplitude/analytics-client-common': 2.4.1
+      '@amplitude/analytics-types': 2.10.0
+      tslib: 2.8.1
+
+  '@amplitude/plugin-web-vitals-browser@0.1.0-frustrationanalytics.0':
+    dependencies:
+      '@amplitude/analytics-core': 2.26.0
+      rxjs: 7.8.2
+      tslib: 2.8.1
+      web-vitals: 5.1.0
 
   '@ampproject/remapping@2.3.0':
     dependencies:
@@ -3602,6 +3722,10 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
+  rxjs@7.8.2:
+    dependencies:
+      tslib: 2.8.1
+
   safe-array-concat@1.1.3:
     dependencies:
       call-bind: 1.0.8
@@ -3906,6 +4030,8 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
+
+  web-vitals@5.1.0: {}
 
   which-boxed-primitive@1.1.1:
     dependencies:

@@ -1,27 +1,33 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 interface FlipCardProps {
   message: string;
-  actionType: 'ACTION' | 'VISUALIZE' | 'RECITE';
+  actionType: "ACTION" | "VISUALIZE" | "RECITE";
   title: string;
   flipDelay?: number;
 }
 
-export default function FlipCard({ message, actionType, title, flipDelay = 100 }: FlipCardProps) {
+export default function FlipCard({
+  message,
+  actionType,
+  title,
+  flipDelay = 100,
+}: FlipCardProps) {
   useEffect(() => {
     const triggerCardFlip = () => {
-      const cardElement = document.getElementById('personalized-card');
+      const cardElement = document.getElementById("personalized-card");
       if (!cardElement) return;
-      setTimeout(() => {
-        cardElement.classList.add('is-flipped');
-      }, typeof flipDelay === 'number' && !isNaN(flipDelay) ? flipDelay : 100);
+      setTimeout(
+        () => {
+          cardElement.classList.add("is-flipped");
+        },
+        typeof flipDelay === "number" && !isNaN(flipDelay) ? flipDelay : 100
+      );
     };
-
-    // Expose function (optional) and auto-trigger
-    // @ts-ignore
-    (window as any).triggerCardFlip = triggerCardFlip;
+    // @ts-expect-error : define a type for this
+    window.triggerCardFlip = triggerCardFlip;
     triggerCardFlip();
   }, []);
 
@@ -33,7 +39,7 @@ export default function FlipCard({ message, actionType, title, flipDelay = 100 }
             <p>StillLift</p>
           </div>
           <div className="sl-card-face sl-card-front">
-            <h3 className="sl-card-title">{actionType || 'ACTION'}</h3>
+            <h3 className="sl-card-title">{actionType || "ACTION"}</h3>
             <p className="sl-card-message">{message}</p>
           </div>
         </div>
@@ -132,7 +138,3 @@ export default function FlipCard({ message, actionType, title, flipDelay = 100 }
     </div>
   );
 }
-
-
-
-

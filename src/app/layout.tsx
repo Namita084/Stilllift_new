@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono, Dancing_Script } from "next/font/google";
 import "./globals.css";
 import "@/components/3DComponents.css";
 import ThemeProvider from "@/components/ThemeProvider";
+import { Suspense } from "react";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -10,7 +11,7 @@ const inter = Inter({
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
   preload: true,
-  fallback: ['system-ui', 'arial'],
+  fallback: ["system-ui", "arial"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -19,7 +20,7 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "600"],
   display: "swap",
   preload: true,
-  fallback: ['monospace'],
+  fallback: ["monospace"],
 });
 
 const dancingScript = Dancing_Script({
@@ -28,12 +29,13 @@ const dancingScript = Dancing_Script({
   weight: ["400", "500", "600", "700"],
   display: "swap",
   preload: true,
-  fallback: ['cursive'],
+  fallback: ["cursive"],
 });
 
 export const metadata: Metadata = {
   title: "StillLift - How are you feeling today?",
-  description: "A mental health platform providing personalized wellness messages and micro-habits for immediate support.",
+  description:
+    "A mental health platform providing personalized wellness messages and micro-habits for immediate support.",
 };
 
 export default function RootLayout({
@@ -45,18 +47,24 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
       </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} ${dancingScript.variable} antialiased font-inter`}
-        style={{
-          '--font-inter': inter.style.fontFamily,
-          '--font-mono': jetbrainsMono.style.fontFamily,
-          '--font-cursive': dancingScript.style.fontFamily,
-        } as React.CSSProperties}
+        style={
+          {
+            "--font-inter": inter.style.fontFamily,
+            "--font-mono": jetbrainsMono.style.fontFamily,
+            "--font-cursive": dancingScript.style.fontFamily,
+          } as React.CSSProperties
+        }
       >
         <ThemeProvider>
-          {children}
+          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
         </ThemeProvider>
       </body>
     </html>
