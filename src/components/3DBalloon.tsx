@@ -7,15 +7,17 @@ interface BalloonProps {
   onReveal: () => void;
   accentColor: string;
   animationSpeed: 'rich' | 'quick' | 'gentle' | 'instant';
+  audioIndex?: number;
 }
 
-export default function Balloon({ isRevealed, onReveal, accentColor, animationSpeed }: BalloonProps) {
+export default function Balloon({ isRevealed, onReveal, accentColor, animationSpeed, audioIndex }: BalloonProps) {
   const [isPopping, setIsPopping] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [canClick, setCanClick] = useState(true);
   const [messageLocked, setMessageLocked] = useState(false);
+  const hasAnnouncedReveal = useRef(false);
 
   // Animation duration based on speed
   const getAnimationDuration = useCallback(() => {
@@ -52,7 +54,6 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
       console.log('📝 Showing message and locking it permanently...');
       setShowMessage(true);
       setMessageLocked(true); // Lock the message permanently
-      // Don't call onReveal() - keep message visible
     }, duration * 0.6);
     
   }, [canClick, isPopping, isRevealed, onReveal, getAnimationDuration]);
@@ -72,36 +73,11 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
 
   // Keep message locked and visible permanently
   useEffect(() => {
-    if (messageLocked) {
-      console.log('🔒 Message is now locked permanently - it will never disappear');
-      // Force message to stay visible
-      setShowMessage(true);
-      setCanClick(false);
-      
-      // Set up permanent visibility lock
-      const lockInterval = setInterval(() => {
-        setShowMessage(true);
-        console.log('🔒 Maintaining message visibility...');
-      }, 100); // Check every 100ms to ensure message stays visible
-      
-      return () => clearInterval(lockInterval);
+    if (messageLocked && !hasAnnouncedReveal.current) {
+      hasAnnouncedReveal.current = true;
+      onReveal();
     }
-  }, [messageLocked]);
-
-  // Additional safeguard - prevent message from being hidden by parent component
-  useEffect(() => {
-    if (showMessage && messageLocked) {
-      // If message is shown and locked, it should never disappear
-      const safeguardInterval = setInterval(() => {
-        if (!showMessage) {
-          console.log('🛡️ Message was hidden - restoring it immediately');
-          setShowMessage(true);
-        }
-      }, 50); // Check every 50ms
-      
-      return () => clearInterval(safeguardInterval);
-    }
-  }, [showMessage, messageLocked]);
+  }, [messageLocked, onReveal]);
 
   return (
     <div className="balloon-experience-container">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 
 interface PlayingCardProps {
@@ -8,11 +8,12 @@ interface PlayingCardProps {
   onReveal: () => void;
   accentColor: string;
   animationSpeed: "rich" | "quick" | "gentle" | "instant";
-  message?: string;
-  action?: string;
-  actionType?: "ACTION" | "REPEAT/RECITE" | "VISUALIZE";
+  message: string;
+  action: string;
+  actionType: "ACTION" | "REPEAT/RECITE" | "VISUALIZE";
   onStartOver?: () => void;
   onTryAnother?: () => void;
+  mood?: string;
 }
 
 export default function PlayingCard({
@@ -25,6 +26,7 @@ export default function PlayingCard({
   actionType,
   onStartOver,
   onTryAnother,
+  mood,
 }: PlayingCardProps) {
   const [isFlipping, setIsFlipping] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -35,26 +37,82 @@ export default function PlayingCard({
   const [mounted, setMounted] = useState(false);
   const cardRef = useRef<HTMLDivElement | null>(null);
 
+  const palette = useMemo(() => {
+    switch (mood) {
+      case "good":
+        return {
+          background: "linear-gradient(150deg, #fefbea 0%, #f5f9dc 50%, #eaf3d2 100%)",
+          iconFrame: "linear-gradient(160deg, rgba(217, 119, 6, 0.14), rgba(234, 179, 8, 0.1))",
+          iconOrb: "linear-gradient(140deg, #fde68a 0%, #facc15 100%)",
+          textTone: "#3f3d2e",
+          textSubtle: "#4b5563",
+          faceFill: "#fef3c7",
+          faceStroke: "#b45309"
+        };
+      case "okay":
+        return {
+          background: "linear-gradient(150deg, #f5f9ff 0%, #e9f2ff 52%, #dde9ff 100%)",
+          iconFrame: "linear-gradient(160deg, rgba(59, 130, 246, 0.16), rgba(14, 165, 233, 0.1))",
+          iconOrb: "linear-gradient(140deg, #bfdbfe 0%, #93c5fd 100%)",
+          textTone: "#1f2937",
+          textSubtle: "#475569",
+          faceFill: "#e0f2fe",
+          faceStroke: "#1d4ed8"
+        };
+      case "bad":
+        return {
+          background: "linear-gradient(150deg, #fff3f2 0%, #ffe1e1 50%, #fdd6d6 100%)",
+          iconFrame: "linear-gradient(160deg, rgba(248, 113, 113, 0.18), rgba(251, 113, 133, 0.12))",
+          iconOrb: "linear-gradient(140deg, #fca5a5 0%, #f87171 100%)",
+          textTone: "#7f1d1d",
+          textSubtle: "#9f1239",
+          faceFill: "#fee2e2",
+          faceStroke: "#b91c1c"
+        };
+      case "awful":
+        return {
+          background: "linear-gradient(150deg, #fbf7ff 0%, #f0e8ff 52%, #e4dcff 100%)",
+          iconFrame: "linear-gradient(160deg, rgba(147, 51, 234, 0.18), rgba(236, 72, 153, 0.12))",
+          iconOrb: "linear-gradient(140deg, #d8b4fe 0%, #f0abfc 100%)",
+          textTone: "#4c1d95",
+          textSubtle: "#6b21a8",
+          faceFill: "#ede9fe",
+          faceStroke: "#7c3aed"
+        };
+      default:
+        return {
+          background: "linear-gradient(150deg, #111827 0%, #1e293b 55%, #334155 100%)",
+          iconFrame: "linear-gradient(160deg, rgba(99, 102, 241, 0.18), rgba(14, 165, 233, 0.18))",
+          iconOrb: "linear-gradient(140deg, #e0f2fe 0%, #c7d2fe 100%)",
+          textTone: "#e2e8f0",
+          textSubtle: "#cbd5f5",
+          faceFill: "#cbd5f5",
+          faceStroke: "#1e293b"
+        };
+    }
+  }, [mood]);
+
+  const { label: moodLabel } = useMemo(() => {
+    switch (mood) {
+      case "good":
+        return { label: "Good" };
+      case "okay":
+        return { label: "Okay" };
+      case "bad":
+        return { label: "Bad" };
+      case "awful":
+        return { label: "Awful" };
+      default:
+        return { label: "Your Mood" };
+    }
+  }, [mood]);
+
   // Messages for rotating content
   const messages = [
     {
-      action: action || "Take a mindful moment",
-      message:
-        message ||
-        "Sometimes the smallest pause can create the biggest shift in perspective.",
-      tag: actionType || "VISUALIZE",
-    },
-    {
-      action: "Focus on what you can control",
-      message:
-        "Release what's beyond your reach and embrace what's within your power.",
-      tag: "ACTION",
-    },
-    {
-      action: "Repeat: 'I choose peace in this moment'",
-      message:
-        "Every breath is a chance to reset and choose how you want to feel.",
-      tag: "REPEAT/RECITE",
+      action,
+      message,
+      tag: actionType,
     },
   ];
 
@@ -173,6 +231,20 @@ export default function PlayingCard({
   };
 
   const currentMessageData = messages[currentMessage];
+  const cardAnimationDuration = getAnimationDuration();
+
+  const cardThemeStyle = useMemo(() => {
+    return {
+      "--flip-duration": `${cardAnimationDuration}ms`,
+      "--card-back-bg": palette.background,
+      "--card-icon-frame": palette.iconFrame,
+      "--card-icon-orb": palette.iconOrb,
+      "--card-text-tone": palette.textTone,
+      "--card-text-subtle": palette.textSubtle ?? palette.textTone,
+      "--card-face-fill": palette.faceFill ?? "#f1f5f9",
+      "--card-face-stroke": palette.faceStroke ?? "#0f172a"
+    } as React.CSSProperties;
+  }, [cardAnimationDuration, palette]);
 
   const cardContent = (
     <div className="playing-card-container">
@@ -181,11 +253,7 @@ export default function PlayingCard({
         className={`playing-card ${isFlipped ? "flipped" : ""} ${
           isExpanded ? "expanded" : ""
         }`}
-        style={
-          {
-            "--flip-duration": `${getAnimationDuration()}ms`,
-          } as React.CSSProperties
-        }
+        style={cardThemeStyle}
         data-speed={animationSpeed}
       >
         {/* Card Back (shows first) */}
@@ -197,17 +265,33 @@ export default function PlayingCard({
               <div className="pattern-layer-3"></div>
             </div>
             <div className="back-branding">
-              <div className="back-logo">🎴</div>
-              <div className="back-text">Still Lift</div>
-              <div className="back-subtitle">Your Playing Card</div>
+              <div className="back-logo">
+                <span className="back-icon">
+                  <span className="icon-face">
+                    <span className="face-circle"></span>
+                    <span className="face-eye left"></span>
+                    <span className="face-eye right"></span>
+                  <span className="face-smile" data-mood={mood || 'neutral'}></span>
+                  </span>
+                </span>
+              </div>
+              <div
+                className="back-text"
+                style={{ color: 'rgba(71, 85, 105, 0.85)' }}
+              >
+                Still Lift
+              </div>
             </div>
-            <div className="loading-indicator">
+            <div className="mood-text" aria-label={`Feeling ${moodLabel}`}>
+              <span className="mood-heading">Feeling</span>
+              <span className="mood-label">{moodLabel}</span>
+            </div>
+            <div className="loading-indicator" aria-hidden="true">
               <div className="loading-dots">
                 <span></span>
                 <span></span>
                 <span></span>
               </div>
-              <p>Preparing your message...</p>
             </div>
           </div>
         </div>
@@ -325,12 +409,7 @@ export default function PlayingCard({
         }
 
         .card-back {
-          background: linear-gradient(
-            135deg,
-            #1e3a8a 0%,
-            #3730a3 50%,
-            #1e3a8a 100%
-          );
+          background: var(--card-back-bg, linear-gradient(160deg, #111827 0%, #1e293b 55%, #334155 100%));
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -359,21 +438,21 @@ export default function PlayingCard({
         }
 
         .dark-mode .card-back {
-          border: 2px solid rgba(255, 255, 255, 0.2);
+          border: 2px solid rgba(255, 255, 255, 0.12);
         }
 
         .back-pattern {
           position: absolute;
           inset: 0;
-          opacity: 0.2;
+          opacity: 0.07;
         }
 
         .pattern-layer-1 {
           position: absolute;
           inset: 0;
           background: radial-gradient(
-            circle at 25% 25%,
-            rgba(255, 255, 255, 0.2) 0%,
+            circle at 28% 24%,
+            rgba(255, 255, 255, 0.25) 0%,
             transparent 50%
           );
         }
@@ -382,9 +461,9 @@ export default function PlayingCard({
           position: absolute;
           inset: 0;
           background: radial-gradient(
-            circle at 75% 75%,
-            rgba(255, 255, 255, 0.1) 0%,
-            transparent 60%
+            circle at 72% 70%,
+            rgba(100, 116, 139, 0.28) 0%,
+            transparent 65%
           );
         }
 
@@ -392,79 +471,105 @@ export default function PlayingCard({
           position: absolute;
           inset: 0;
           background: linear-gradient(
-            45deg,
+            120deg,
             transparent 0%,
-            rgba(255, 255, 255, 0.05) 50%,
+            rgba(148, 163, 184, 0.12) 50%,
             transparent 100%
           );
         }
 
         .back-branding {
           text-align: center;
-          z-index: 2;
+          z-index: 3;
           margin-bottom: 1.5rem;
           flex-shrink: 0;
         }
 
         .back-logo {
-          font-size: 4rem;
-          margin-bottom: 0.75rem;
-          animation: pulse 2s infinite;
-          filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+          font-size: 0;
+          margin-bottom: 1rem;
+        }
+
+        .back-icon {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 96px;
+          height: 96px;
+          border-radius: 24px;
+          background: var(--card-icon-frame, linear-gradient(160deg, rgba(99, 102, 241, 0.08), rgba(14, 165, 233, 0.08)));
+          border: 1px solid rgba(148, 163, 184, 0.25);
+          box-shadow: 0 12px 28px rgba(15, 23, 42, 0.15);
+        }
+
+        .icon-face {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 68px;
+          height: 68px;
+        }
+
+        .face-circle {
+          position: absolute;
+          inset: 0;
+          border-radius: 50%;
+          background: var(--card-face-fill, #f1f5f9);
+          border: 2px solid var(--card-face-stroke, #0f172a);
+          box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+        }
+
+        .face-eye {
+          position: absolute;
+          top: 45%;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--card-face-stroke, #0f172a);
+        }
+
+        .face-eye.left {
+          left: 36%;
+        }
+
+        .face-eye.right {
+          right: 36%;
+        }
+
+        .face-smile {
+          position: absolute;
+          bottom: 28%;
+          left: 50%;
+          width: 26px;
+          height: 14px;
+          border-bottom: 2px solid var(--card-face-stroke, #0f172a);
+          border-radius: 0 0 18px 18px;
+          transform: translateX(-50%);
+        }
+
+        .face-smile[data-mood='bad'],
+        .face-smile[data-mood='awful'] {
+          border-bottom: none;
+          border-top: 2px solid var(--card-face-stroke, #0f172a);
+          border-radius: 18px 18px 0 0;
+          bottom: 35%;
+        }
+        }
         }
 
         .back-text {
-          font-size: 1.5rem;
-          font-weight: 700;
-          letter-spacing: 1.5px;
-          margin-bottom: 0.25rem;
-          text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-        }
-
-        .back-subtitle {
-          font-size: 0.9rem;
-          opacity: 0.9;
-          font-weight: 300;
-          letter-spacing: 0.5px;
+          font-size: 1.25rem;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          margin-bottom: 1.25rem;
+          color: rgba(71, 85, 105, 0.85);
+          text-transform: uppercase;
         }
 
         .loading-indicator {
-          text-align: center;
-          z-index: 2;
-          flex-shrink: 0;
-        }
-
-        .loading-dots {
-          display: flex;
-          justify-content: center;
-          gap: 0.5rem;
-          margin-bottom: 0.75rem;
-        }
-
-        .loading-dots span {
-          width: 8px;
-          height: 8px;
-          background: white;
-          border-radius: 50%;
-          animation: loadingDots 1.5s infinite;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-          will-change: transform, opacity;
-        }
-
-        .loading-dots span:nth-child(2) {
-          animation-delay: 0.3s;
-        }
-
-        .loading-dots span:nth-child(3) {
-          animation-delay: 0.6s;
-        }
-
-        .loading-indicator p {
-          font-size: 0.8rem;
-          opacity: 0.8;
-          font-weight: 300;
-          letter-spacing: 0.5px;
-          margin: 0;
+          display: none;
         }
 
         .message-content {

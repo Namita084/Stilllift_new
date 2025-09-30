@@ -9,6 +9,7 @@ export interface ContentMessage {
   category?: string;
   intensity?: 'gentle' | 'moderate' | 'strong';
   tags?: string[];
+  audioIndex?: number;
 }
 
 export interface MoodContextContent {

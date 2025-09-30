@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 interface TreasureChestProps {
   isRevealed: boolean;
@@ -32,6 +32,7 @@ export default function TreasureChest({
   const [canClick, setCanClick] = useState(true);
   const [messageStaysPermanent, setMessageStaysPermanent] = useState(false);
   const [messageStatic, setMessageStatic] = useState(false);
+  const hasAnnouncedReveal = useRef(false);
 
   // Animation duration based on speed
   const getAnimationDuration = () => {
@@ -93,6 +94,13 @@ export default function TreasureChest({
     }, duration * 1.5);
     
   }, [canClick, isOpening, onReveal, animationSpeed]);
+
+  useEffect(() => {
+    if (!hasAnnouncedReveal.current && (showMessage || messageStaysPermanent)) {
+      hasAnnouncedReveal.current = true;
+      onReveal();
+    }
+  }, [showMessage, messageStaysPermanent, onReveal]);
 
   const handleReplay = () => {
     console.log('TreasureChest: Replay clicked');

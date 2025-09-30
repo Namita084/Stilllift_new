@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import TreasureChest from './3DTreasureChest';
 import Balloon from './3DBalloon';
 import Stamp from './3DStamp';
@@ -26,6 +27,7 @@ interface RevealElementProps {
   actionType?: string;
   onStartOver?: () => void;
   onTryAnother?: () => void;
+  mood?: string | null;
 }
 
 export default function RevealElement({ 
@@ -39,14 +41,27 @@ export default function RevealElement({
   actionType,
   onStartOver,
   onTryAnother,
-
+  mood,
 }: RevealElementProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   const handleReveal = () => {
     setIsAnimating(true);
     onReveal();
   };
+
+  const overlay = isRevealed && isMounted
+    ? createPortal(
+        <div className="reveal-overlay" aria-hidden="true" />,
+        document.body
+      )
+    : null;
 
   // Render the appropriate 3D element based on reveal type
   const renderElement = () => {
@@ -58,8 +73,8 @@ export default function RevealElement({
             onReveal={handleReveal}
             accentColor={accentColor}
             animationSpeed={animationSpeed}
-            message={message}
-            action={action}
+            message={message ?? ''}
+            action={action ?? ''}
             actionType={actionType}
             onStartOver={onStartOver}
             onTryAnother={onTryAnother}
@@ -123,8 +138,8 @@ export default function RevealElement({
             onReveal={handleReveal}
             accentColor={accentColor}
             animationSpeed={animationSpeed}
-            message={message}
-            action={action}
+            message={message ?? ''}
+            action={action ?? ''}
             actionType={actionType as 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE'}
             onStartOver={onStartOver}
             onTryAnother={onTryAnother}
@@ -138,11 +153,12 @@ export default function RevealElement({
             onReveal={handleReveal}
             accentColor={accentColor}
             animationSpeed={animationSpeed}
-            message={message}
-            action={action}
+            message={message ?? ''}
+            action={action ?? ''}
             actionType={actionType as 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE'}
             onStartOver={onStartOver}
             onTryAnother={onTryAnother}
+            mood={mood ?? undefined}
           />
         );
       
@@ -237,14 +253,24 @@ export default function RevealElement({
     }
   };
 
+  const element = renderElement();
+
   // For portalized elements like playing-card, don't render the wrapper to avoid placeholder boxes
   if (revealType === 'playing-card') {
-    return renderElement();
+    return (
+      <>
+        {overlay}
+        {element}
+      </>
+    );
   }
 
   return (
-    <div className="reveal-element-container">
-      {renderElement()}
-    </div>
+    <>
+      {overlay}
+      <div className="reveal-element-container">
+        {element}
+      </div>
+    </>
   );
 }

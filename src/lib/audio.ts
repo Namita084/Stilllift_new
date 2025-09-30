@@ -7,6 +7,68 @@ export interface PlayTextAudioOptions {
   mood?: string;
   context?: string;
   isHomepage?: boolean;
+  audioIndex?: number;
+  preferExactIndex?: boolean;
+}
+
+let activeAudio: HTMLAudioElement | null = null;
+let activeSpeech: SpeechSynthesisUtterance | null = null;
+
+type ExternalAudioStopper = () => void;
+
+const externalAudioStopHandlers = new Set<ExternalAudioStopper>();
+let isStoppingNarration = false;
+
+export function registerExternalAudioStopper(handler: ExternalAudioStopper): () => void {
+  if (typeof window === 'undefined') {
+    return () => {};
+  }
+
+  externalAudioStopHandlers.add(handler);
+
+  return () => {
+    externalAudioStopHandlers.delete(handler);
+  };
+}
+
+export function stopAllNarration() {
+  if (typeof window === 'undefined') return;
+
+  if (isStoppingNarration) return;
+
+  isStoppingNarration = true;
+
+  try {
+    const handlers = Array.from(externalAudioStopHandlers);
+    for (const handler of handlers) {
+      try {
+        handler();
+      } catch (error) {
+        console.warn('[audio] External audio stop handler failed:', error);
+      }
+    }
+
+    if (activeAudio) {
+      activeAudio.pause();
+      try {
+        activeAudio.currentTime = 0;
+      } catch (error) {
+        console.warn('[audio] Unable to reset audio currentTime:', error);
+      }
+      activeAudio = null;
+    }
+
+    if (activeSpeech) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch (error) {
+        console.warn('[audio] Unable to cancel speech synthesis:', error);
+      }
+      activeSpeech = null;
+    }
+  } finally {
+    isStoppingNarration = false;
+  }
 }
 
 function slugify(input: string): string {
@@ -27,12 +89,22 @@ async function tryPlayAudioFile(title: string | undefined, message: string, opti
   if (options?.mood && options?.context) {
     const moodCapitalized = options.mood.charAt(0).toUpperCase() + options.mood.slice(1);
     const contextMapped = mapContextToYourNaming(options.context);
-    candidates.push(
-      `/Audio/Mood_${moodCapitalized}_Context_${contextMapped}_Audio_1.mp3`,
-      `/Audio/Mood_${moodCapitalized}_Context_${contextMapped}_Audio_1.m4a`,
-      `/Audio/Mood_${moodCapitalized}_Context_${contextMapped}_Audio_1.ogg`,
-      `/Audio/Mood_${moodCapitalized}_Context_${contextMapped}_Audio_1.wav`
-    );
+    const primaryIndex = Math.max(1, Math.floor(options.audioIndex ?? 1));
+    const indicesToTry: number[] = [primaryIndex];
+
+    if (!options?.preferExactIndex && primaryIndex !== 1) {
+      indicesToTry.push(1);
+    }
+
+    for (const idx of indicesToTry) {
+      const suffix = `_Audio_${idx}`;
+      candidates.push(
+        `/Audio/Mood_${moodCapitalized}_Context_${contextMapped}${suffix}.mp3`,
+        `/Audio/Mood_${moodCapitalized}_Context_${contextMapped}${suffix}.m4a`,
+        `/Audio/Mood_${moodCapitalized}_Context_${contextMapped}${suffix}.ogg`,
+        `/Audio/Mood_${moodCapitalized}_Context_${contextMapped}${suffix}.wav`
+      );
+    }
   }
   
   // Strategy 2: Homepage audio (only if no mood/context or explicitly requested)
@@ -72,6 +144,15 @@ async function tryPlayAudioFile(title: string | undefined, message: string, opti
       if (playPromise !== undefined) {
         await playPromise;
         console.log('[audio] ✅ Playing pre-generated file:', src);
+        if (activeAudio && activeAudio !== audio) {
+          activeAudio.pause();
+        }
+        activeAudio = audio;
+        audio.onended = () => {
+          if (activeAudio === audio) {
+            activeAudio = null;
+          }
+        };
         return true;
       }
     } catch (err) {
@@ -122,9 +203,20 @@ function speakWithTts(text: string, options?: PlayTextAudioOptions) {
     // Add error handling for TTS
     utterance.onerror = (event) => {
       console.error('[audio] TTS error:', event.error);
+      if (activeSpeech === utterance) {
+        activeSpeech = null;
+      }
     };
 
+    utterance.onend = () => {
+      if (activeSpeech === utterance) {
+        activeSpeech = null;
+      }
+    };
+
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
+    activeSpeech = utterance;
     console.log('[audio] 🔊 Playing TTS:', text);
   } catch (error) {
     console.error('[audio] Error in TTS:', error);
@@ -143,6 +235,7 @@ export async function playMessageAudio(
   if (typeof window === 'undefined') return;
 
   try {
+    stopAllNarration();
     // Prefer pre-generated audio
     const played = await tryPlayAudioFile(title, message, options);
     if (played) return;
