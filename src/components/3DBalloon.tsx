@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+const BALLOON_ACTION_TAG = 'SUPPORT';
+const BALLOON_MESSAGE_BODY = "It's perfectly normal to feel okay. Sometimes 'okay' is exactly where we need to be. Take a few deep breaths and acknowledge this moment.";
 
 interface BalloonProps {
   isRevealed: boolean;
@@ -8,9 +10,19 @@ interface BalloonProps {
   accentColor: string;
   animationSpeed: 'rich' | 'quick' | 'gentle' | 'instant';
   audioIndex?: number;
+  onPlayNarration?: (
+    message: string,
+    actionType?: string,
+    overrideMood?: string | null,
+    overrideContext?: string | null,
+    audioIndexOverride?: number | null,
+    preferExact?: boolean
+  ) => void;
+  mood?: string;
+  context?: string;
 }
 
-export default function Balloon({ isRevealed, onReveal, accentColor, animationSpeed, audioIndex }: BalloonProps) {
+export default function Balloon({ isRevealed, onReveal, accentColor, animationSpeed, audioIndex, onPlayNarration, mood, context }: BalloonProps) {
   const [isPopping, setIsPopping] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -67,8 +79,9 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
 
   const handleGiveAnother = () => {
     console.log('📝 Getting another message...');
-    // For now, just show the same message since we're keeping it static
-    // In the future, this could cycle through different messages
+    if (onPlayNarration) {
+      onPlayNarration(BALLOON_MESSAGE_BODY, BALLOON_ACTION_TAG, mood ?? null, context ?? null, audioIndex ?? null, false);
+    }
   };
 
   // Keep message locked and visible permanently
@@ -78,6 +91,11 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
       onReveal();
     }
   }, [messageLocked, onReveal]);
+
+  useEffect(() => {
+    if (!messageLocked || !onPlayNarration) return;
+    onPlayNarration(BALLOON_MESSAGE_BODY, BALLOON_ACTION_TAG, mood ?? null, context ?? null, audioIndex ?? null, false);
+  }, [messageLocked, onPlayNarration, mood, context, audioIndex]);
 
   return (
     <div className="balloon-experience-container">

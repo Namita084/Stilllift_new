@@ -1,5 +1,8 @@
 'use client';
 
+import Image from 'next/image';
+import logoStillliftNew from '@/../public/Logo stilllift new.svg';
+
 interface HeaderProps {
   isDarkMode: boolean;
   audioEnabled: boolean;
@@ -20,8 +23,15 @@ export default function Header({
   return (
     <header className="glass-header">
       <div className="header-content">
-        <div className="logo">
-          <h1 className="font-inter font-semibold">StillLift</h1>
+        <div className="logo" aria-label="StillLift">
+          <Image
+            src={logoStillliftNew}
+            alt="StillLift logo"
+            width={48}
+            height={48}
+            priority
+          />
+          <span className="logo-text font-inter">StillLift</span>
         </div>
         <div className="controls">
           <button 

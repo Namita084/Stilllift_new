@@ -28,6 +28,16 @@ interface RevealElementProps {
   onStartOver?: () => void;
   onTryAnother?: () => void;
   mood?: string | null;
+  onPlayNarration?: (
+    message: string,
+    actionType?: string,
+    overrideMood?: string | null,
+    overrideContext?: string | null,
+    audioIndexOverride?: number | null,
+    preferExact?: boolean
+  ) => void;
+  context?: string | null;
+  audioIndex?: number;
 }
 
 export default function RevealElement({ 
@@ -42,6 +52,9 @@ export default function RevealElement({
   onStartOver,
   onTryAnother,
   mood,
+  onPlayNarration,
+  context,
+  audioIndex,
 }: RevealElementProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -65,6 +78,26 @@ export default function RevealElement({
 
   // Render the appropriate 3D element based on reveal type
   const renderElement = () => {
+    const handleCustomNarration = (
+      fallbackMessage: string,
+      fallbackActionType?: string,
+      overrideMood?: string | null,
+      overrideContext?: string | null,
+      audioIndexOverride?: number | null,
+      preferExact?: boolean
+    ) => {
+      if (!onPlayNarration) return;
+      const resolvedIndex = (audioIndexOverride ?? audioIndex) ?? null;
+      onPlayNarration(
+        fallbackMessage,
+        fallbackActionType,
+        mood ?? overrideMood ?? null,
+        context ?? overrideContext ?? null,
+        resolvedIndex,
+        preferExact
+      );
+    };
+
     switch (revealType) {
       case 'treasure-chest':
         return (
@@ -78,6 +111,7 @@ export default function RevealElement({
             actionType={actionType}
             onStartOver={onStartOver}
             onTryAnother={onTryAnother}
+            onPlayNarration={handleCustomNarration}
           />
         );
       
@@ -88,6 +122,9 @@ export default function RevealElement({
             onReveal={handleReveal}
             accentColor={accentColor}
             animationSpeed={animationSpeed}
+            onPlayNarration={handleCustomNarration}
+            mood={mood ?? undefined}
+            context={context ?? undefined}
           />
         );
       
@@ -98,6 +135,9 @@ export default function RevealElement({
             onReveal={handleReveal}
             accentColor={accentColor}
             animationSpeed={animationSpeed}
+            onPlayNarration={handleCustomNarration}
+            mood={mood ?? undefined}
+            context={context ?? undefined}
           />
         );
       
@@ -108,6 +148,12 @@ export default function RevealElement({
             onReveal={handleReveal}
             accentColor={accentColor}
             animationSpeed={animationSpeed}
+            onPlayNarration={handleCustomNarration}
+            message={message ?? ''}
+            action={action ?? ''}
+            actionType={actionType}
+            onStartOver={onStartOver}
+            onTryAnother={onTryAnother}
           />
         );
       
@@ -143,6 +189,9 @@ export default function RevealElement({
             actionType={actionType as 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE'}
             onStartOver={onStartOver}
             onTryAnother={onTryAnother}
+            onPlayNarration={handleCustomNarration}
+            mood={mood ?? undefined}
+            context={context ?? undefined}
           />
         );
       
@@ -159,6 +208,8 @@ export default function RevealElement({
             onStartOver={onStartOver}
             onTryAnother={onTryAnother}
             mood={mood ?? undefined}
+            onPlayNarration={handleCustomNarration}
+            context={context ?? undefined}
           />
         );
       
@@ -199,6 +250,9 @@ export default function RevealElement({
             onReveal={handleReveal}
             accentColor={accentColor}
             animationSpeed={animationSpeed}
+            onPlayNarration={handleCustomNarration}
+            mood={mood ?? undefined}
+            context={context ?? undefined}
           />
         );
       

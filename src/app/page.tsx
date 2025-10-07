@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import Header from '@/components/Header';
@@ -8,59 +8,9 @@ import Footer from '@/components/Footer';
 import Background from '@/components/Background';
 import RevealElement from '@/components/3DRevealElement';
 import { initAnalytics, trackMoodSelected, trackContextSelected, trackMoodContextCombination, trackMicroHabitRevealed, trackUserAction } from '@/lib/analytics';
-import { getAllMessages, type Mood, type Context, type ContentMessage } from '@/lib/content';
-import { playMessageAudio, stopAllNarration, registerExternalAudioStopper } from '@/lib/audio';
+import { getRandomMessage, getAllMessages, type Mood, type Context, type ContentMessage } from '@/lib/content-updated';
+import { playMessageAudio } from '@/lib/audio';
 import '@/components/3DComponents.css';
-
-type NormalizedActionType = 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE';
-
-const normalizeActionType = (actionType: ContentMessage['actionType']): NormalizedActionType => {
-  if (actionType === 'RECITE') return 'REPEAT/RECITE';
-  return actionType;
-};
-
-const getRevealType = (mood: string, context: string): string => {
-  if (context === 'moving' || context === 'focussed') {
-    return 'playing-card';
-  }
-  if (mood === 'good') return 'treasure-chest';
-  if (mood === 'okay') return 'balloon-pop';
-  if (mood === 'bad') return 'envelope';
-  if (mood === 'awful') return 'bandage';
-  return 'treasure-chest';
-};
-
-const getRevealToken = (mood: string, context: string): string => {
-  if (context === 'moving' || context === 'focussed') {
-    return '🎴';
-  }
-  if (mood === 'good') return '💎';
-  if (mood === 'okay') return '🎈';
-  if (mood === 'bad') return '📩';
-  if (mood === 'awful') return '🩹';
-  return '🎴';
-};
-
-const getAccentColor = (actionType: NormalizedActionType): string => {
-  if (actionType === 'VISUALIZE') return '#8B5CF6';
-  if (actionType === 'REPEAT/RECITE') return '#10B981';
-  return '#3B82F6';
-};
-
-const getAnimationSpeed = (mood: string, context: string): 'rich' | 'quick' | 'gentle' | 'instant' => {
-  if (mood === 'good' && context === 'safe') return 'rich';
-  if (mood === 'good' && context === 'moving') return 'quick';
-  if (mood === 'good' && context === 'focussed') return 'instant';
-  if (mood === 'okay' && context === 'safe') return 'rich';
-  if (mood === 'okay' && context === 'moving') return 'quick';
-  if (mood === 'okay' && context === 'focussed') return 'gentle';
-  if (mood === 'bad' && context === 'safe') return 'rich';
-  if (mood === 'bad' && context === 'moving') return 'quick';
-  if (mood === 'bad' && context === 'focussed') return 'instant';
-  if (mood === 'awful' && context === 'safe') return 'gentle';
-  if (mood === 'awful' && (context === 'moving' || context === 'focussed')) return 'instant';
-  return 'rich';
-};
 
 interface MicroHabitData {
   action: string;
@@ -70,6 +20,7 @@ interface MicroHabitData {
   revealType: string;
   accentColor: string;
   animationSpeed: 'rich' | 'quick' | 'gentle' | 'instant';
+  audioIndex?: number;
 }
 
 export default function Home() {
@@ -77,31 +28,7 @@ export default function Home() {
   const [selectedContext, setSelectedContext] = useState<string | null>(null);
   const [showReveal, setShowReveal] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
-  const homepageAudioRef = useRef<HTMLAudioElement | null>(null);
-  const repeatTimerRef = useRef<number | null>(null);
-  const contentAudioRepeatRef = useRef<number | null>(null);
-  const hasUserRespondedRef = useRef(false);
-  const prevAudioEnabledRef = useRef(false);
-  const prevScreenlessModeRef = useRef(false);
-  const [currentContentIndex, setCurrentContentIndex] = useState<number | null>(null);
-  const lastContentAudioKeyRef = useRef<string | null>(null);
-  const reRevealTimeoutRef = useRef<number | null>(null);
-
-  const availableMessages = useMemo<ContentMessage[]>(() => {
-    if (!selectedMood || !selectedContext) return [];
-    return getAllMessages(selectedMood as Mood, selectedContext as Context);
-  }, [selectedMood, selectedContext]);
-
-  const currentContent = useMemo<ContentMessage | null>(() => {
-    if (currentContentIndex === null) return null;
-    return availableMessages[currentContentIndex] ?? null;
-  }, [availableMessages, currentContentIndex]);
-
-  useEffect(() => {
-    if (selectedMood && selectedContext && currentContentIndex === null && availableMessages.length > 0) {
-      setCurrentContentIndex(0);
-    }
-  }, [selectedMood, selectedContext, currentContentIndex, availableMessages.length]);
+  const [sheetContent, setSheetContent] = useState<{ safe: ContentMessage[]; moving: ContentMessage[]; focussed: ContentMessage[] } | null>(null);
   
   const {
     isDarkMode,
@@ -117,12 +44,6 @@ export default function Home() {
     localStorage.setItem('currentMood', mood);
     // Track mood selection
     trackMoodSelected(mood);
-
-    setCurrentContentIndex(null);
-    stopHomepageAudio();
-    hasUserRespondedRef.current = true;
-    lastContentAudioKeyRef.current = null;
-    clearContentAudioRepeat();
   };
 
   const handleContextSelection = (context: string) => {
@@ -130,135 +51,7 @@ export default function Home() {
     localStorage.setItem('currentContext', context);
     // Track context selection
     trackContextSelected(context);
-
-    if (selectedMood) {
-      setCurrentContentIndex(null);
-    }
-    stopHomepageAudio();
-    hasUserRespondedRef.current = true;
-    lastContentAudioKeyRef.current = null;
-    clearContentAudioRepeat();
   };
-
-  const clearRepeatTimer = useCallback(() => {
-    if (repeatTimerRef.current) {
-      clearTimeout(repeatTimerRef.current);
-      repeatTimerRef.current = null;
-    }
-  }, []);
-
-  const clearContentAudioRepeat = useCallback(() => {
-    if (contentAudioRepeatRef.current) {
-      clearTimeout(contentAudioRepeatRef.current);
-      contentAudioRepeatRef.current = null;
-    }
-  }, []);
-
-  const clearReRevealTimeout = useCallback(() => {
-    if (reRevealTimeoutRef.current) {
-      clearTimeout(reRevealTimeoutRef.current);
-      reRevealTimeoutRef.current = null;
-    }
-  }, []);
-
-  const stopHomepageAudio = useCallback((options?: { skipGlobalStop?: boolean }) => {
-    const audio = homepageAudioRef.current;
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
-      audio.onended = null;
-      homepageAudioRef.current = null;
-    }
-    clearRepeatTimer();
-    clearContentAudioRepeat();
-    if (!options?.skipGlobalStop) {
-      stopAllNarration();
-    }
-  }, [clearRepeatTimer, clearContentAudioRepeat, stopAllNarration]);
-
-  useEffect(() => {
-    const unregister = registerExternalAudioStopper(() => stopHomepageAudio({ skipGlobalStop: true }));
-    return () => {
-      unregister();
-    };
-  }, [stopHomepageAudio]);
-
-  const playHomepageAudio = useCallback(() => {
-    if (typeof window === 'undefined' || typeof Audio === 'undefined') return;
-
-    hasUserRespondedRef.current = false;
-    clearRepeatTimer();
-    clearContentAudioRepeat();
-    stopAllNarration();
-
-    const existingAudio = homepageAudioRef.current;
-    if (existingAudio) {
-      existingAudio.pause();
-      existingAudio.currentTime = 0;
-      existingAudio.onended = null;
-    }
-
-    const audio = new Audio('/Audio/homepage audio.mp3');
-    homepageAudioRef.current = audio;
-
-    const scheduleRepeat = () => {
-      clearRepeatTimer();
-      repeatTimerRef.current = window.setTimeout(() => {
-        if (!hasUserRespondedRef.current) {
-          playHomepageAudio();
-        }
-      }, 5 * 60 * 1000);
-    };
-
-    const handleAudioEnded = () => {
-      audio.onended = null;
-      if (!hasUserRespondedRef.current) {
-        scheduleRepeat();
-      }
-    };
-
-    audio.onended = handleAudioEnded;
-
-    audio.play().catch((error) => {
-      console.error('[audio] Failed to play homepage audio:', error);
-      if (!hasUserRespondedRef.current) {
-        scheduleRepeat();
-      }
-    });
-  }, [clearRepeatTimer, clearContentAudioRepeat, stopAllNarration]);
-
-  const playContentAudio = useCallback((content: ContentMessage) => {
-    if (!content || !selectedMood || !selectedContext) return;
-
-    const normalizedActionType = normalizeActionType(content.actionType);
-    const messageKey = `${selectedMood}-${selectedContext}-${content.message}`;
-
-    if (!audioEnabled && !screenlessMode) {
-      lastContentAudioKeyRef.current = null;
-      clearContentAudioRepeat();
-      return;
-    }
-
-    stopAllNarration();
-    clearContentAudioRepeat();
-
-    playMessageAudio(undefined, `${normalizedActionType}: ${content.message}`, {
-      mood: selectedMood,
-      context: selectedContext,
-      audioIndex: (content.audioIndex ?? availableMessages.indexOf(content) + 1) || 1,
-      preferExactIndex: !!content.audioIndex,
-      voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira'],
-    }).then(() => {
-      lastContentAudioKeyRef.current = messageKey;
-      contentAudioRepeatRef.current = window.setTimeout(() => {
-        if (lastContentAudioKeyRef.current === messageKey) {
-          playContentAudio(content);
-        }
-      }, 5 * 60 * 1000);
-    }).catch((error) => {
-      console.error('[audio] Failed to play content audio:', error);
-    });
-  }, [selectedMood, selectedContext, availableMessages, clearContentAudioRepeat]);
 
   // Load saved mood and context on component mount
   useEffect(() => {
@@ -272,12 +65,42 @@ export default function Home() {
     setSelectedContext(null);
     setShowReveal(false);
     setIsRevealed(false);
-    prevAudioEnabledRef.current = audioEnabled;
-    prevScreenlessModeRef.current = screenlessMode;
 
-    return () => {
-      stopHomepageAudio();
+    // Fetch Google Sheet content (CSV export) once on load
+    const controller = new AbortController();
+    const loadSheet = async () => {
+      try {
+        const res = await fetch('https://docs.google.com/spreadsheets/d/12c1m52MTkfVhBMlE8Hr3VEeBBMjBR-Oe/export?format=csv&gid=1079777578', { signal: controller.signal });
+        if (!res.ok) return;
+        const csvText = await res.text();
+        // Basic CSV parse (no commas inside cells expected for our columns A-C)
+        const lines = csvText.split(/\r?\n/).filter(l => l.trim().length > 0);
+        const dataRows = lines.slice(1); // skip header row (STILL,MOVING,FOCUSED)
+        const parseCell = (cell: string): ContentMessage | null => {
+          const trimmed = cell.trim();
+          if (!trimmed) return null;
+          // Detect action type by bracket token like [ACTION] / [REPEAT/RECITE] / [VISUALIZE]
+          const typeMatch = trimmed.match(/\[(ACTION|REPEAT\/RECITE|VISUALIZE)\]/i);
+          const actionType = (typeMatch?.[1]?.toUpperCase() as ContentMessage['actionType']) || 'ACTION';
+          const message = trimmed.replace(/\s*\[(ACTION|REPEAT\/RECITE|VISUALIZE)\]\s*/i, '').trim();
+          return { actionType, message, displayTime: 120 };
+        };
+        const safe: ContentMessage[] = [];
+        const moving: ContentMessage[] = [];
+        const focussed: ContentMessage[] = [];
+        for (const row of dataRows) {
+          const cols = row.split(',');
+          if (cols[0]) { const m = parseCell(cols[0]); if (m) safe.push(m); }
+          if (cols[1]) { const m = parseCell(cols[1]); if (m) moving.push(m); }
+          if (cols[2]) { const m = parseCell(cols[2]); if (m) focussed.push(m); }
+        }
+        setSheetContent({ safe, moving, focussed });
+      } catch (_) {
+        // Silently fall back to local content library
+      }
+      return () => controller.abort();
     };
+    loadSheet();
   }, []);
 
   // Auto-navigate to reveal when both mood and context are selected
@@ -285,11 +108,6 @@ export default function Home() {
     if (selectedMood && selectedContext) {
       // Track mood-context combination
       trackMoodContextCombination(selectedMood, selectedContext);
-
-      if (!hasUserRespondedRef.current) {
-        hasUserRespondedRef.current = true;
-      }
-      stopHomepageAudio();
       
       // Small delay to show the selection state before revealing
       const timer = setTimeout(() => {
@@ -299,27 +117,6 @@ export default function Home() {
       return () => clearTimeout(timer);
     }
   }, [selectedMood, selectedContext]);
-
-  useEffect(() => {
-    const prevAudioEnabled = prevAudioEnabledRef.current;
-    const prevScreenlessMode = prevScreenlessModeRef.current;
-
-    const audioJustEnabled = !prevAudioEnabled && audioEnabled;
-    const screenlessJustEnabled = !prevScreenlessMode && screenlessMode;
-
-    if (audioJustEnabled || screenlessJustEnabled) {
-      hasUserRespondedRef.current = false;
-      playHomepageAudio();
-    }
-
-    if (!audioEnabled && !screenlessMode) {
-      stopHomepageAudio();
-      hasUserRespondedRef.current = false;
-    }
-
-    prevAudioEnabledRef.current = audioEnabled;
-    prevScreenlessModeRef.current = screenlessMode;
-  }, [audioEnabled, screenlessMode]);
 
 
 
@@ -372,7 +169,9 @@ export default function Home() {
           voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira'],
           mood: selectedMood || undefined,
           context: selectedContext || undefined,
-          isHomepage: false
+          isHomepage: false,
+          audioIndex: selectedMicroHabit.audioIndex,
+          preferExactIndex: true
         });
       }
     }, animationDuration);
@@ -388,16 +187,6 @@ export default function Home() {
     setSelectedContext(null);
     setShowReveal(false);
     setIsRevealed(false);
-    hasUserRespondedRef.current = false;
-    lastContentAudioKeyRef.current = null;
-    clearContentAudioRepeat();
-    clearReRevealTimeout();
-
-    if (audioEnabled || screenlessMode) {
-      playHomepageAudio();
-    } else {
-      stopHomepageAudio();
-    }
     
     // Remove animation classes
     const tokenElement = document.querySelector('.reveal-token');
@@ -412,21 +201,6 @@ export default function Home() {
     
     setShowReveal(false);
     setIsRevealed(false);
-    hasUserRespondedRef.current = true;
-    lastContentAudioKeyRef.current = null;
-    clearContentAudioRepeat();
-    clearReRevealTimeout();
-    stopAllNarration();
-
-    if (availableMessages.length > 0) {
-      reRevealTimeoutRef.current = window.setTimeout(() => {
-        setCurrentContentIndex((prev) => {
-          if (prev === null) return 0;
-          return (prev + 1) % availableMessages.length;
-        });
-        setShowReveal(true);
-      }, 400);
-    }
     
     // Remove animation classes
     const tokenElement = document.querySelector('.reveal-token');
@@ -439,40 +213,100 @@ export default function Home() {
   const getMicroHabit = (): MicroHabitData | null => {
     if (!selectedMood || !selectedContext) return null;
 
-    const contentMessage = currentContent;
+    // Prefer Google Sheet content if loaded (choose the first entry to match the sheet exactly)
+    let contentMessage: ContentMessage | null = null;
+    if (sheetContent) {
+      const source = selectedContext === 'safe' ? sheetContent.safe : selectedContext === 'moving' ? sheetContent.moving : sheetContent.focussed;
+      contentMessage = source.length > 0 ? source[0] : null;
+    }
+    // Fallback to local content if sheet not loaded or empty
+    if (!contentMessage) {
+      contentMessage = getRandomMessage(selectedMood as Mood, selectedContext as Context);
+    }
     if (!contentMessage) return null;
 
     // Map content to micro-habit format with appropriate styling
-    const actionType = normalizeActionType(contentMessage.actionType);
+    const getActionType = (mood: string, context: string): 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE' => {
+      if (mood === 'good' && context === 'safe') return 'VISUALIZE';
+      if (mood === 'good' && (context === 'moving' || context === 'focussed')) return 'ACTION';
+      if (mood === 'okay' && context === 'safe') return 'ACTION';
+      if (mood === 'okay' && context === 'moving') return 'REPEAT/RECITE';
+      if (mood === 'okay' && context === 'focussed') return 'VISUALIZE';
+      if (mood === 'bad') return 'REPEAT/RECITE';
+      if (mood === 'awful') return 'ACTION';
+      return 'ACTION';
+    };
+
+    const getRevealType = (mood: string, context: string): string => {
+      // Card experience only for moving contexts; safe context uses mood-specific tokens
+      if (context === 'moving' || context === 'focussed') {
+        return 'playing-card';
+      }
+      // Still & Safe Place
+      if (mood === 'good') return 'treasure-chest';
+      if (mood === 'okay') return 'balloon-pop';
+      if (mood === 'bad') return 'envelope';
+      if (mood === 'awful') return 'bandage';
+      return 'treasure-chest';
+    };
+
+  const getRevealToken = (mood: string, context: string): string => {
+    // Card glyph for moving/focussed; emoji tokens for safe context per mood
+    if (context === 'moving' || context === 'focussed') {
+      return '🎴';
+    }
+    if (mood === 'good') return '💎'; // treasure chest theme
+    if (mood === 'okay') return '🎈'; // balloon/confetti theme
+    if (mood === 'bad') return '📩'; // envelope/message theme
+    if (mood === 'awful') return '🩹'; // bandage/prescription theme
+    return '🎴';
+  };
+
+    const getAccentColor = (actionType: string): string => {
+      if (actionType === 'VISUALIZE') return '#8B5CF6'; // Purple
+      if (actionType === 'REPEAT/RECITE') return '#10B981'; // Green
+      return '#3B82F6'; // Blue for ACTION
+    };
+
+    const getAnimationSpeed = (mood: string, context: string): 'rich' | 'quick' | 'gentle' | 'instant' => {
+      if (mood === 'good' && context === 'safe') return 'rich';
+      if (mood === 'good' && context === 'moving') return 'quick';
+      if (mood === 'good' && context === 'focussed') return 'instant';
+      if (mood === 'okay' && context === 'safe') return 'rich';
+      if (mood === 'okay' && context === 'moving') return 'quick';
+      if (mood === 'okay' && context === 'focussed') return 'gentle';
+      if (mood === 'bad' && context === 'safe') return 'rich';
+      if (mood === 'bad' && context === 'moving') return 'quick';
+      if (mood === 'bad' && context === 'focussed') return 'instant';
+      if (mood === 'awful' && context === 'safe') return 'gentle';
+      if (mood === 'awful' && (context === 'moving' || context === 'focussed')) return 'instant';
+      return 'rich';
+    };
+
+    const actionType = getActionType(selectedMood, selectedContext);
     const revealType = getRevealType(selectedMood, selectedContext);
     const revealToken = getRevealToken(selectedMood, selectedContext);
     const accentColor = getAccentColor(actionType);
     const animationSpeed = getAnimationSpeed(selectedMood, selectedContext);
 
+    // Determine the audio index based on the exact position in the library (1-based)
+    const allForContext = getAllMessages(selectedMood as Mood, selectedContext as Context);
+    const positionIndex = allForContext.findIndex(m => m.message === contentMessage!.message);
+    const audioIndex = positionIndex >= 0 ? positionIndex + 1 : contentMessage.audioIndex;
+
     return {
       action: contentMessage.message,
-      actionType,
+      actionType: contentMessage.actionType as 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE',
       message: contentMessage.message,
       revealToken,
       revealType,
       accentColor,
-      animationSpeed: animationSpeed as 'rich' | 'quick' | 'gentle' | 'instant'
+    animationSpeed: animationSpeed as 'rich' | 'quick' | 'gentle' | 'instant',
+    audioIndex
     };
   };
 
   const selectedMicroHabit = getMicroHabit();
-
-  useEffect(() => {
-    if (currentContent && (audioEnabled || screenlessMode) && showReveal) {
-      playContentAudio(currentContent);
-    }
-
-    if (!audioEnabled && !screenlessMode) {
-      lastContentAudioKeyRef.current = null;
-      clearContentAudioRepeat();
-      stopAllNarration();
-    }
-  }, [currentContent, audioEnabled, screenlessMode, showReveal, playContentAudio, clearContentAudioRepeat]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -632,9 +466,10 @@ export default function Home() {
                     message={selectedMicroHabit?.message}
                     action={selectedMicroHabit?.action}
                     actionType={selectedMicroHabit?.actionType}
+                    mood={selectedMood}
+                    context={selectedContext}
                     onStartOver={handleStartOver}
                     onTryAnother={handleTryAnother}
-                    mood={selectedMood}
                   />
                 </div>
               </>

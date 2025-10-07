@@ -1,43 +1,61 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 interface EnvelopeProps {
   isRevealed: boolean;
   onReveal: () => void;
   accentColor: string;
   animationSpeed: 'rich' | 'quick' | 'gentle' | 'instant';
+  onPlayNarration?: (
+    message: string,
+    actionType?: string,
+    overrideMood?: string | null,
+    overrideContext?: string | null,
+    audioIndexOverride?: number | null,
+    preferExact?: boolean
+  ) => void;
+  // Content coming from the centralized library (sheet-derived)
+  message?: string; // full text to display
+  action?: string;  // same as message in our mapping
+  actionType?: string; // 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE'
+  onStartOver?: () => void;
+  onTryAnother?: () => void;
+  mood?: string;
+  context?: string;
 }
 
-const envelopeMessages = [
-  {
-    id: 1,
-    title: "🤗 You're Not Alone",
-    message: "Take five deep breaths, counting to four on inhale and six on exhale. This feeling is temporary, and you're stronger than you know."
-  },
-  {
-    id: 2,
-    title: "🌱 Gentle Reminder",
-    message: "It's okay to not be okay. You're human, and this moment will pass. Reach out to someone you trust when you're ready."
-  },
-  {
-    id: 3,
-    title: "💙 Be Kind to Yourself",
-    message: "Treat yourself with the same compassion you'd show a good friend. You're doing the best you can with what you have right now."
-  }
-];
+// Map actionType to a friendly tag label
+const actionTypeToTitle = (actionType?: string): string => {
+  if (!actionType) return '💌 A Note for You';
+  const upper = actionType.toUpperCase();
+  if (upper.includes('VISUAL')) return '🌈 Visualize This';
+  if (upper.includes('RECITE')) return '🗣️ Repeat Gently';
+  if (upper.includes('ACTION')) return '🧭 Gentle Action';
+  return '💌 A Note for You';
+};
 
 export default function Envelope({ 
   isRevealed, 
   onReveal, 
   accentColor, 
-  animationSpeed 
+  animationSpeed,
+  onPlayNarration,
+  message,
+  action,
+  actionType,
+  onStartOver,
+  onTryAnother,
+  mood,
+  context
 }: EnvelopeProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [flapOpen, setFlapOpen] = useState(false);
   const [messageVisible, setMessageVisible] = useState(false);
   const [canClick, setCanClick] = useState(true);
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  
+  const resolvedMessage = action || message || '';
+  const resolvedTitle = actionTypeToTitle(actionType);
 
   // Animation duration based on speed
   const getAnimationDuration = useCallback(() => {
@@ -53,7 +71,6 @@ export default function Envelope({
   const handleClick = useCallback(() => {
     if (!canClick || isAnimating || isRevealed) return;
     
-    console.log('💌 Envelope clicked! Opening with care...');
     setCanClick(false);
     setIsAnimating(true);
     
@@ -62,21 +79,15 @@ export default function Envelope({
     // Gentle flap opening
     setTimeout(() => {
       setFlapOpen(true);
-      console.log('💌 Envelope flap opening...');
     }, duration * 0.1);
     
     // Message card slides out gently and stays longer
     setTimeout(() => {
       setMessageVisible(true);
-      console.log('💌 Message revealed with care');
     }, duration * 0.6);
-    
-
-    
   }, [canClick, isAnimating, isRevealed, onReveal, getAnimationDuration]);
 
   const handleReplay = () => {
-    console.log('🔄 Replaying envelope animation...');
     setIsAnimating(false);
     setFlapOpen(false);
     setMessageVisible(false);
@@ -84,29 +95,31 @@ export default function Envelope({
   };
 
   const handleStartOver = () => {
-    console.log('🏠 Going back to home screen...');
     if (typeof window !== 'undefined') {
       window.location.href = '/';
     }
   };
 
   const handleGiveAnother = () => {
-    console.log('📝 Getting another message...');
-    setCurrentMessageIndex((prev) => (prev + 1) % envelopeMessages.length);
-    // Reset to show new message
-    setIsAnimating(false);
-    setFlapOpen(false);
-    setMessageVisible(false);
-    setCanClick(true);
+    if (onTryAnother) onTryAnother();
   };
 
-  const getCurrentMessage = () => envelopeMessages[currentMessageIndex];
+  useEffect(() => {
+    if (!messageVisible || !onPlayNarration) return;
+    const narrationText = resolvedMessage || '';
+    onPlayNarration(
+      narrationText,
+      actionType?.toUpperCase(),
+      mood ?? null,
+      context ?? null
+    );
+  }, [messageVisible, onPlayNarration, mood, context, resolvedMessage, actionType]);
 
   return (
     <div className="envelope-lottie-container">
       {/* Envelope - Lottie Style */}
       <div 
-        className={`envelope-lottie ${flapOpen ? 'opened' : ''} ${isAnimating ? 'opening' : ''} ${messageVisible ? 'disappearing' : ''}`}
+        className={`envelope-lottie ${flapOpen ? 'opened' : ''} ${isAnimating ? 'opening' : ''} ${messageVisible ? 'revealed' : ''}`}
         onClick={handleClick}
         style={{ cursor: canClick ? 'pointer' : 'default' }}
       >
@@ -136,13 +149,13 @@ export default function Envelope({
         <div className="large-card-content">
           {/* Tag */}
           <div className="large-card-tag">
-            {getCurrentMessage().title}
+            {resolvedTitle}
           </div>
           
           {/* Message with clean background */}
           <div className="large-card-message">
             <div className="clean-text-area">
-              {getCurrentMessage().message}
+              {resolvedMessage}
             </div>
           </div>
           
@@ -150,7 +163,7 @@ export default function Envelope({
           <div className="large-card-actions">
             <button 
               className="large-action-button replay-large-button"
-              onClick={handleStartOver}
+              onClick={onStartOver ?? handleStartOver}
             >
               🔄 Start Over
             </button>
@@ -223,38 +236,36 @@ export default function Envelope({
           .large-message-card {
             width: 90vw;
             max-width: 320px;
-            min-height: 350px;
-            padding: 20px;
+            min-height: 360px;
+            padding: 24px;
             margin: 20px;
           }
 
-          .large-card-tag {
-            font-size: 14px;
-            padding: 8px 16px;
-            margin-bottom: 16px;
+          .large-card-content {
+            padding: 28px 24px;
           }
 
-          .large-card-message {
-            font-size: 14px;
-            line-height: 1.5;
+          .large-card-tag {
+            font-size: 20px;
+            padding: 12px 18px;
             margin-bottom: 20px;
           }
 
           .clean-text-area {
-            font-size: 18px;
+            font-size: 20px;
             padding: 20px;
-            min-height: 150px;
+            min-height: 160px;
           }
 
           .large-card-actions {
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
           }
 
           .large-action-button {
-            padding: 12px 20px;
-            font-size: 14px;
             width: 100%;
+            padding: 14px 24px;
+            font-size: 15px;
           }
 
           .envelope-hint {
@@ -304,36 +315,35 @@ export default function Envelope({
           .large-message-card {
             width: 95vw;
             max-width: 95vw;
-            min-height: 300px;
-            padding: 16px;
-            margin: 10px;
+            min-height: 320px;
+            padding: 20px;
+            margin: 12px;
+          }
+
+          .large-card-content {
+            padding: 26px 20px;
           }
 
           .large-card-tag {
-            font-size: 13px;
-            padding: 6px 12px;
-            margin-bottom: 12px;
-          }
-
-          .large-card-message {
-            font-size: 13px;
+            font-size: 18px;
+            padding: 10px 16px;
             margin-bottom: 16px;
           }
 
           .clean-text-area {
-            font-size: 16px;
-            padding: 16px;
-            min-height: 120px;
+            font-size: 18px;
+            padding: 18px;
+            min-height: 140px;
           }
 
           .large-card-actions {
-            gap: 10px;
+            gap: 12px;
           }
 
           .large-action-button {
-            padding: 10px 16px;
-            font-size: 13px;
-            min-height: 40px;
+            padding: 12px 18px;
+            font-size: 14px;
+            min-height: 46px;
           }
 
           .envelope-hint {
@@ -445,17 +455,33 @@ export default function Envelope({
           position: absolute;
           top: 50%;
           left: 50%;
-          width: 500px;
-          min-height: 400px;
-          background: var(--card-bg-strong);
-          border: var(--card-border-strong);
-          border-radius: 20px;
-          transform: translate(-50%, -50%) scale(0.8);
+          width: 520px;
+          min-height: 420px;
+          background: rgba(30, 41, 59, 0.92);
+          border: 1px solid rgba(148, 163, 184, 0.35);
+          border-radius: 24px;
+          transform: translate(-50%, -50%) scale(0.9);
           opacity: 0;
-          transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: var(--card-shadow-lg);
-          z-index: 20;
+          transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 20px 60px rgba(15, 23, 42, 0.45);
+          z-index: 2010;
           pointer-events: none;
+          overflow: hidden;
+          backdrop-filter: blur(18px);
+        }
+
+        .dark-mode .large-message-card {
+          background: rgba(15, 23, 42, 0.94);
+          border-color: rgba(148, 163, 184, 0.4);
+        }
+
+        .large-message-card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle at top, rgba(59, 130, 246, 0.12), transparent 55%);
+          pointer-events: none;
+          z-index: 0;
         }
 
         .large-message-card.visible {
@@ -465,31 +491,35 @@ export default function Envelope({
         }
 
         .large-card-content {
-          padding: 40px;
+          position: relative;
+          padding: 42px 48px 44px;
           height: 100%;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
+          z-index: 1;
         }
         
         /* Large Card Tag */
         .large-card-tag {
           font-family: 'Inter', sans-serif;
           font-weight: 700;
-          color: #374151;
-          font-size: 28px;
+          color: #E5E7EB;
+          font-size: 30px;
           text-align: center;
-          margin-bottom: 30px;
-          background: rgba(156, 163, 175, 0.1);
-          padding: 16px 24px;
-          border-radius: 16px;
-          border-left: 6px solid #6B7280;
+          margin-bottom: 36px;
+          background: rgba(148, 163, 184, 0.18);
+          padding: 18px 28px;
+          border-radius: 18px;
+          border-left: 8px solid rgba(96, 165, 250, 0.6);
+          box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.2);
         }
 
         .dark-mode .large-card-tag {
-          color: #E5E7EB;
-          background: rgba(75, 85, 99, 0.2);
-          border-left-color: #9CA3AF;
+          color: #F8FAFC;
+          background: rgba(15, 23, 42, 0.65);
+          border-left-color: rgba(59, 130, 246, 0.7);
+          box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.35);
         }
         
         /* Large Card Message with Full Lined Background */
@@ -500,25 +530,27 @@ export default function Envelope({
         
         .clean-text-area {
           width: 100%;
-          height: 100%;
-          min-height: 200px;
-          background: transparent;
+          min-height: 220px;
+          background: rgba(15, 23, 42, 0.7);
           padding: 30px;
-          border-radius: 12px;
+          border-radius: 18px;
           font-family: var(--font-cursive), cursive;
-          color: #374151;
-          font-size: 24px;
+          color: #E2E8F0;
+          font-size: 26px;
           font-weight: 500;
-          line-height: 1.6;
+          line-height: 1.7;
           display: flex;
           align-items: center;
           justify-content: center;
           text-align: center;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+          text-shadow: 0 10px 25px rgba(15, 23, 42, 0.45);
+          border: 1px solid rgba(148, 163, 184, 0.25);
         }
 
         .dark-mode .clean-text-area {
-          color: #E5E7EB;
+          background: rgba(15, 23, 42, 0.78);
+          color: #F8FAFC;
+          border-color: rgba(148, 163, 184, 0.35);
         }
         
         /* Large Card Actions */
@@ -526,53 +558,40 @@ export default function Envelope({
           display: flex;
           gap: 20px;
           justify-content: center;
+          margin-top: 32px;
         }
-        
+
         .large-action-button {
-          padding: 16px 32px;
+          padding: 16px 36px;
           border: none;
-          border-radius: 16px;
+          border-radius: 18px;
           font-family: 'Inter', sans-serif;
           font-size: 16px;
           font-weight: 600;
           cursor: pointer;
           transition: all 0.3s ease;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 12px 30px rgba(15, 23, 42, 0.25);
+          color: #F8FAFC;
         }
-        
+
         .replay-large-button {
-          background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
-          color: #374151;
-          border: 2px solid #D1D5DB;
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0.24));
+          border: 1px solid rgba(96, 165, 250, 0.4);
         }
 
-        .dark-mode .replay-large-button {
-          background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
-          color: #f1f5f9;
-          border: 2px solid #6b7280;
-        }
-        
         .replay-large-button:hover {
-          background: linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%);
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 18px 35px rgba(59, 130, 246, 0.3);
         }
 
-        .dark-mode .replay-large-button:hover {
-          background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
-        
         .support-large-button {
-          background: linear-gradient(135deg, #DBEAFE 0%, #93C5FD 100%);
-          color: #1E40AF;
-          border: 2px solid #60A5FA;
+          background: linear-gradient(135deg, rgba(45, 212, 191, 0.18), rgba(59, 130, 246, 0.3));
+          border: 1px solid rgba(45, 212, 191, 0.4);
         }
-        
+
         .support-large-button:hover {
-          background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%);
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(96, 165, 250, 0.3);
+          box-shadow: 0 18px 35px rgba(45, 212, 191, 0.3);
         }
 
 

@@ -13,6 +13,9 @@ export interface PlayTextAudioOptions {
 
 let activeAudio: HTMLAudioElement | null = null;
 let activeSpeech: SpeechSynthesisUtterance | null = null;
+// When we cancel or stop audio, browsers may fire a spurious TTS "interrupted"
+// error. Suppress error logging for a short window to avoid noisy console.
+let suppressTtsErrorsUntil = 0;
 
 type ExternalAudioStopper = () => void;
 
@@ -64,6 +67,8 @@ export function stopAllNarration() {
       } catch (error) {
         console.warn('[audio] Unable to cancel speech synthesis:', error);
       }
+      // Suppress the inevitable "interrupted" errors fired by some browsers
+      suppressTtsErrorsUntil = Date.now() + 1000;
       activeSpeech = null;
     }
   } finally {
@@ -202,7 +207,18 @@ function speakWithTts(text: string, options?: PlayTextAudioOptions) {
 
     // Add error handling for TTS
     utterance.onerror = (event) => {
-      console.error('[audio] TTS error:', event.error);
+      const err = (event as SpeechSynthesisErrorEvent).error as string | undefined;
+      // Ignore benign interruption/cancel events or those triggered during stop
+      const shouldSuppress =
+        Date.now() < suppressTtsErrorsUntil ||
+        err === 'interrupted' ||
+        err === 'canceled' ||
+        err === 'not-allowed';
+      if (shouldSuppress) {
+        console.warn('[audio] TTS notice (suppressed):', err);
+      } else {
+        console.error('[audio] TTS error:', err);
+      }
       if (activeSpeech === utterance) {
         activeSpeech = null;
       }

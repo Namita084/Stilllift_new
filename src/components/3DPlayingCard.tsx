@@ -14,6 +14,15 @@ interface PlayingCardProps {
   onStartOver?: () => void;
   onTryAnother?: () => void;
   mood?: string;
+  onPlayNarration?: (
+    message: string,
+    actionType?: string,
+    overrideMood?: string | null,
+    overrideContext?: string | null,
+    audioIndexOverride?: number | null,
+    preferExact?: boolean
+  ) => void;
+  context?: string;
 }
 
 export default function PlayingCard({
@@ -27,6 +36,8 @@ export default function PlayingCard({
   onStartOver,
   onTryAnother,
   mood,
+  onPlayNarration,
+  context,
 }: PlayingCardProps) {
   const [isFlipping, setIsFlipping] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -191,6 +202,19 @@ export default function PlayingCard({
     });
   }, [isFlipped, isExpanded]);
 
+  useEffect(() => {
+    if (!showMessage || !onPlayNarration) return;
+    const currentData = messages[currentMessage];
+    if (!currentData) return;
+
+    onPlayNarration(
+      currentData.message,
+      currentData.tag,
+      mood ?? null,
+      context ?? null
+    );
+  }, [showMessage, onPlayNarration, messages, currentMessage, mood, context]);
+
   const handleStartOver = () => {
     console.log("🏠 Going back to home screen...");
     if (onStartOver) {
@@ -214,6 +238,18 @@ export default function PlayingCard({
       setShowMessage(false);
       setIsExpanded(false);
       setCanClick(true);
+
+      const currentData = messages[nextMessage];
+      if (onPlayNarration && currentData) {
+        onPlayNarration(
+          currentData.message,
+          currentData.tag,
+          mood ?? null,
+          context ?? null,
+          null,
+          false
+        );
+      }
     }
   };
 
@@ -298,6 +334,7 @@ export default function PlayingCard({
 
         {/* Card Front (shows after flip) */}
         <div className="card-face card-front">
+          <div className="front-inner">
           {showMessage && (
             <div className="message-content">
               {/* Message Tag */}
@@ -331,6 +368,7 @@ export default function PlayingCard({
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
 
@@ -346,7 +384,9 @@ export default function PlayingCard({
           perspective: 1200px;
           padding: 0 !important;
           margin: 0 !important;
-          z-index: 9999 !important;
+          /* Ensure the card overlay always sits above background and overlays */
+          z-index: 10060 !important;
+          isolation: isolate;
           background: transparent;
           overflow: hidden;
           display: block !important;
@@ -361,6 +401,7 @@ export default function PlayingCard({
           height: 341px !important;
           transform: translate(-50%, -50%) rotateY(0deg) !important;
           transform-style: preserve-3d !important;
+          -webkit-transform-style: preserve-3d !important;
           transition: transform var(--flip-duration, 0.8s)
             cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
           cursor: pointer;
@@ -371,7 +412,8 @@ export default function PlayingCard({
           transform-origin: center center !important;
           /* Fallback positioning */
           display: block !important;
-          z-index: 10000; /* sit above any footers */
+          z-index: 10070; /* sit above any footers/overlays */
+          isolation: isolate;
           pointer-events: auto; /* receive clicks */
         }
 
@@ -387,11 +429,11 @@ export default function PlayingCard({
         .playing-card.expanded {
           width: 350px !important;
           height: 480px !important;
-          transform: translate(-50%, -65%) rotateY(180deg) scale(1.1) !important;
+          transform: translate(-50%, -50%) rotateY(180deg) scale(1.1) !important;
           transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
           transform-origin: center center !important;
           position: fixed !important;
-          top: 0% !important;
+          top: 50% !important;
           left: 50% !important;
         }
 
@@ -400,12 +442,16 @@ export default function PlayingCard({
           width: 100%;
           height: 100%;
           backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
           border-radius: 12px;
           box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
           overflow: hidden;
           border: 2px solid rgba(255, 255, 255, 0.1);
           will-change: transform;
           transform-style: preserve-3d;
+          -webkit-transform-style: preserve-3d;
+          transform: translateZ(0);
+          -webkit-transform: translateZ(0);
         }
 
         .card-back {
@@ -422,12 +468,25 @@ export default function PlayingCard({
 
         .card-front {
           background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-          transform: rotateY(180deg);
+          /* Do not rotate the face itself to avoid mirrored text issues */
           padding: 1.5rem;
           display: flex;
           flex-direction: column;
           justify-content: flex-start;
           border: 2px solid rgba(30, 58, 138, 0.1);
+          overflow: hidden; /* front-inner will scroll */
+        }
+
+        .front-inner {
+          position: absolute;
+          inset: 0;
+          transform: rotateY(180deg) translateZ(0);
+          -webkit-transform: rotateY(180deg) translateZ(0);
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          display: flex;
+          flex-direction: column;
+          padding: 1.5rem;
           overflow-y: auto;
         }
 

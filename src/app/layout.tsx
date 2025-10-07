@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono, Dancing_Script } from "next/font/google";
 import "./globals.css";
 import "@/components/3DComponents.css";
 import ThemeProvider from "@/components/ThemeProvider";
+import ScrollRestorationManager from "@/components/ScrollRestorationManager";
 import { Suspense } from "react";
 
 const inter = Inter({
@@ -64,6 +65,7 @@ export default function RootLayout({
         }
       >
         <ThemeProvider>
+          <ScrollRestorationManager />
           <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
         </ThemeProvider>
       </body>

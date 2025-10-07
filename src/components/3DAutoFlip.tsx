@@ -12,6 +12,16 @@ interface AutoFlipProps {
   actionType?: 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE';
   onStartOver?: () => void;
   onTryAnother?: () => void;
+  onPlayNarration?: (
+    message: string,
+    actionType?: string,
+    overrideMood?: string | null,
+    overrideContext?: string | null,
+    audioIndexOverride?: number | null,
+    preferExact?: boolean
+  ) => void;
+  mood?: string;
+  context?: string;
 }
 
 export default function AutoFlip({ 
@@ -23,7 +33,10 @@ export default function AutoFlip({
   action, 
   actionType,
   onStartOver,
-  onTryAnother 
+  onTryAnother,
+  onPlayNarration,
+  mood,
+  context
 }: AutoFlipProps) {
   const [isFlipping, setIsFlipping] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -119,6 +132,32 @@ export default function AutoFlip({
     setIsExpanded(false);
     setCanClick(true);
   };
+
+  useEffect(() => {
+    if (!showMessage) return;
+    if (!onPlayNarration) return;
+
+    const current = messages[currentMessage];
+    if (!current) return;
+
+    if (currentMessage === 0) {
+      onPlayNarration(
+        current.message,
+        current.tag,
+        mood ?? null,
+        context ?? null
+      );
+    } else {
+      onPlayNarration(
+        current.message,
+        current.tag,
+        mood ?? null,
+        context ?? null,
+        null,
+        false
+      );
+    }
+  }, [showMessage, currentMessage, onPlayNarration, messages, mood, context]);
 
   const getTagColor = (tag: string) => {
     switch (tag) {

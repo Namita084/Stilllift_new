@@ -2,6 +2,10 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 
+const CHEST_ACTION_TYPE = 'ACTION';
+const CHEST_MESSAGE_ACTION = "Practice gratitude by naming three things you appreciate right now";
+const CHEST_MESSAGE_BODY = "Take a moment to appreciate this feeling. You're doing well, and that's worth celebrating.";
+
 interface TreasureChestProps {
   isRevealed: boolean;
   onReveal: () => void;
@@ -12,16 +16,29 @@ interface TreasureChestProps {
   actionType?: string;
   onStartOver?: () => void;
   onTryAnother?: () => void;
+  onPlayNarration?: (
+    message: string,
+    actionType?: string,
+    overrideMood?: string | null,
+    overrideContext?: string | null,
+    audioIndexOverride?: number | null,
+    preferExact?: boolean
+  ) => void;
+  mood?: string;
+  context?: string;
 }
 
 export default function TreasureChest({ 
   onReveal,
   animationSpeed = 'gentle',
-  message = "Take a moment to appreciate this feeling. You're doing well, and that's worth celebrating.",
-  action = "Practice gratitude by naming three things you appreciate right now",
-  actionType = "VISUALIZE",
+  message = CHEST_MESSAGE_BODY,
+  action = CHEST_MESSAGE_ACTION,
+  actionType = CHEST_ACTION_TYPE,
   onStartOver,
-  onTryAnother
+  onTryAnother,
+  onPlayNarration,
+  mood,
+  context,
 }: TreasureChestProps) {
   const [isOpening, setIsOpening] = useState(false);
   const [isOpened, setIsOpened] = useState(false);
@@ -33,6 +50,7 @@ export default function TreasureChest({
   const [messageStaysPermanent, setMessageStaysPermanent] = useState(false);
   const [messageStatic, setMessageStatic] = useState(false);
   const hasAnnouncedReveal = useRef(false);
+  const hasNarrated = useRef(false);
 
   // Animation duration based on speed
   const getAnimationDuration = () => {
@@ -102,6 +120,14 @@ export default function TreasureChest({
     }
   }, [showMessage, messageStaysPermanent, onReveal]);
 
+  useEffect(() => {
+    if (!messageStaysPermanent || hasNarrated.current) return;
+    if (!onPlayNarration) return;
+
+    onPlayNarration(message, actionType, mood ?? null, context ?? null, null, false);
+    hasNarrated.current = true;
+  }, [messageStaysPermanent, onPlayNarration, message, actionType, mood, context]);
+
   const handleReplay = () => {
     console.log('TreasureChest: Replay clicked');
     // Don't reset the message if it's already permanent
@@ -123,6 +149,14 @@ export default function TreasureChest({
       // Keep message visible permanently
       setShowMessage(true);
       setMessageEmerging(true);
+    }
+  };
+
+  const handleTryAnotherClick = () => {
+    if (onTryAnother) {
+      onTryAnother();
+    } else {
+      handleReplay();
     }
   };
 
@@ -235,7 +269,7 @@ export default function TreasureChest({
               <div className="treasure-buttons">
                 <button 
                   className="treasure-btn primary"
-                  onClick={onTryAnother || handleReplay}
+                  onClick={handleTryAnotherClick}
                 >
                   <span className="btn-icon">🔮</span>
                   Try Another
@@ -676,7 +710,9 @@ export default function TreasureChest({
           opacity: 0;
           transition: all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           pointer-events: none;
-          z-index: 100;
+          /* Ensure message sits above the global reveal overlay (z-index: 2000) */
+          z-index: 10050;
+          isolation: isolate;
         }
 
         .treasure-message-scroll.emerging {
@@ -710,6 +746,8 @@ export default function TreasureChest({
           position: relative;
           overflow: hidden;
           backdrop-filter: blur(8px);
+          z-index: 10051; /* one layer above the container */
+          isolation: isolate;
         }
 
         .dark-mode .scroll-container {
@@ -720,6 +758,15 @@ export default function TreasureChest({
 
         .dark-mode .scroll-container h2,
         .dark-mode .scroll-container p {
+          color: #ffffff !important;
+        }
+
+        .dark-mode .treasure-message-scroll h2,
+        .dark-mode .treasure-message-scroll p,
+        body.dark-mode .treasure-message-scroll h2,
+        body.dark-mode .treasure-message-scroll p,
+        html.dark-mode .treasure-message-scroll h2,
+        html.dark-mode .treasure-message-scroll p {
           color: #ffffff !important;
         }
 

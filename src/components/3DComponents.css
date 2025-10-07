@@ -6,22 +6,36 @@
   justify-content: center;
   align-items: center;
   min-height: 300px;
+  /* Ensure reveal elements sit above the page chrome/background */
+  z-index: 10040;
 }
 
 .reveal-element-container > :not(.reveal-overlay) {
   position: relative;
-  z-index: 9100;
+  z-index: 10045;
+  isolation: isolate;
 }
 
 .reveal-overlay {
   position: fixed;
   inset: 0;
-  background: #0f172abf;
+  /* Theme-aware background (overridden below by .light-mode/.dark-mode) */
+  background: rgba(15, 23, 42, 0.3);
   backdrop-filter: blur(14px);
   pointer-events: none;
   opacity: 0;
   animation: revealOverlayFade 0.3s ease forwards;
-  z-index: 9000;
+  /* Keep the overlay behind all reveal elements/cards */
+  z-index: 50;
+}
+
+/* Ensure overlay matches selected theme */
+.light-mode .reveal-overlay {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.dark-mode .reveal-overlay {
+  background: rgba(15, 23, 42, 0.3);
 }
 
 .reveal-overlay--spotlight {
@@ -30,6 +44,20 @@
     rgba(15, 23, 42, 0.4) 50%,
     rgba(15, 23, 42, 0.65) 100%);
   backdrop-filter: blur(14px);
+}
+
+.light-mode .reveal-overlay--spotlight {
+  background: radial-gradient(circle at 50% 45%,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(0, 0, 0, 0.12) 50%,
+    rgba(0, 0, 0, 0.18) 100%);
+}
+
+.dark-mode .reveal-overlay--spotlight {
+  background: radial-gradient(circle at 50% 45%,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(15, 23, 42, 0.4) 50%,
+    rgba(15, 23, 42, 0.65) 100%);
 }
 
 @keyframes revealOverlayFade {
