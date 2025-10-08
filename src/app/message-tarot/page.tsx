@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
@@ -14,7 +14,7 @@ interface MessageData {
   message: string;
 }
 
-export default function MessageTarotPage() {
+function MessageTarotPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedMessage, setSelectedMessage] = useState<MessageData | null>(null);
@@ -65,7 +65,7 @@ export default function MessageTarotPage() {
     } else {
       router.push('/');
     }
-  }, [router, audioEnabled]);
+  }, [router, audioEnabled, searchParams]);
 
   const handleGiveMeAnother = () => {
     router.push('/context');
@@ -149,5 +149,13 @@ export default function MessageTarotPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function MessageTarotPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <MessageTarotPageInner />
+    </Suspense>
   );
 } 

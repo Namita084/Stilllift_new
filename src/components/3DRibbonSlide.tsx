@@ -150,7 +150,7 @@ export default function RibbonSlide({
           transform: translateX(-50%);
           transform-style: preserve-3d;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          z-index: 10;
+          z-index: 1000;
         }
 
         .ribbon.slid {

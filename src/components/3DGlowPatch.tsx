@@ -150,7 +150,7 @@ export default function GlowPatch({
           left: 50%;
           transform: translate(-50%, -50%);
           transform-style: preserve-3d;
-          z-index: 10;
+          z-index: 1000;
           transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 

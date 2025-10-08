@@ -464,7 +464,7 @@ export default function Envelope({
           opacity: 0;
           transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
           box-shadow: 0 20px 60px rgba(15, 23, 42, 0.45);
-          z-index: 2010;
+          z-index: 1000;
           pointer-events: none;
           overflow: hidden;
           backdrop-filter: blur(18px);

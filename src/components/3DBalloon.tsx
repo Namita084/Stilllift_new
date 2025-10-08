@@ -614,7 +614,7 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
           opacity: 0;
           transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
           pointer-events: none;
-          z-index: 10;
+          z-index: 10000;
         }
 
         .dark-mode .message-card-balloon {

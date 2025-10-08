@@ -257,7 +257,7 @@ export default function AutoFlip({
            perspective: 1000px;
            padding: 0 !important;
            margin: 0 !important;
-           z-index: 9999 !important;
+           z-index: 10000 !important;
            background: transparent;
          }
 

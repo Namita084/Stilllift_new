@@ -27,6 +27,11 @@ export default function AudioTestPage() {
     isHomepage: false,
   });
 
+  // Prevent hydration issues
+  if (typeof window === 'undefined') {
+    return <div>Loading...</div>;
+  }
+
   const handlePlay = async (
     testTitle?: string,
     testMessage?: string,

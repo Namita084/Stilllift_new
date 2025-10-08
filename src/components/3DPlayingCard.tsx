@@ -334,40 +334,36 @@ export default function PlayingCard({
 
         {/* Card Front (shows after flip) */}
         <div className="card-face card-front">
-          <div className="front-inner">
-          {showMessage && (
-            <div className="message-content">
-              {/* Message Tag */}
-              <div
-                className="message-tag"
-                style={{ backgroundColor: getTagColor(currentMessageData.tag) }}
-              >
-                {currentMessageData.tag}
-              </div>
-
-              {/* Message Action */}
-              <h3 className="message-action">{currentMessageData.action}</h3>
-
-              {/* Message Text */}
-              <p className="message-text">{currentMessageData.message}</p>
-
-              {/* Action Buttons */}
-              <div className="message-actions">
-                <button
-                  className="action-button start-over"
-                  onClick={handleStartOver}
-                >
-                  🏠 Start Over
-                </button>
-                <button
-                  className="action-button give-another primary"
-                  onClick={handleGiveAnother}
-                >
-                  🎴 Try Another
-                </button>
-              </div>
+          <div className="message-content">
+            {/* Message Tag */}
+            <div
+              className="message-tag"
+              style={{ backgroundColor: getTagColor(currentMessageData.tag) }}
+            >
+              {currentMessageData.tag}
             </div>
-          )}
+
+            {/* Message Action */}
+            <h3 className="message-action">{currentMessageData.action}</h3>
+
+            {/* Message Text */}
+            <p className="message-text">{currentMessageData.message}</p>
+
+            {/* Action Buttons */}
+            <div className="message-actions">
+              <button
+                className="action-button start-over"
+                onClick={handleStartOver}
+              >
+                🏠 Start Over
+              </button>
+              <button
+                className="action-button give-another primary"
+                onClick={handleGiveAnother}
+              >
+                🎴 Try Another
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -384,8 +380,8 @@ export default function PlayingCard({
           perspective: 1200px;
           padding: 0 !important;
           margin: 0 !important;
-          /* Ensure the card overlay always sits above background and overlays */
-          z-index: 10060 !important;
+          /* Ensure the card overlay always sits above background and overlays - highest priority */
+          z-index: 10000 !important;
           isolation: isolate;
           background: transparent;
           overflow: hidden;
@@ -412,7 +408,7 @@ export default function PlayingCard({
           transform-origin: center center !important;
           /* Fallback positioning */
           display: block !important;
-          z-index: 10070; /* sit above any footers/overlays */
+          z-index: 10010; /* sit above any footers/overlays and background blur */
           isolation: isolate;
           pointer-events: auto; /* receive clicks */
         }
@@ -456,6 +452,8 @@ export default function PlayingCard({
 
         .card-back {
           background: var(--card-back-bg, linear-gradient(160deg, #111827 0%, #1e293b 55%, #334155 100%));
+          transform: translateZ(0px);
+          -webkit-transform: translateZ(0px);
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -468,25 +466,13 @@ export default function PlayingCard({
 
         .card-front {
           background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-          /* Do not rotate the face itself to avoid mirrored text issues */
+          transform: rotateY(180deg) translateZ(1px);
+          -webkit-transform: rotateY(180deg) translateZ(1px);
           padding: 1.5rem;
           display: flex;
           flex-direction: column;
           justify-content: flex-start;
           border: 2px solid rgba(30, 58, 138, 0.1);
-          overflow: hidden; /* front-inner will scroll */
-        }
-
-        .front-inner {
-          position: absolute;
-          inset: 0;
-          transform: rotateY(180deg) translateZ(0);
-          -webkit-transform: rotateY(180deg) translateZ(0);
-          backface-visibility: hidden;
-          -webkit-backface-visibility: hidden;
-          display: flex;
-          flex-direction: column;
-          padding: 1.5rem;
           overflow-y: auto;
         }
 

@@ -6,13 +6,13 @@
   justify-content: center;
   align-items: center;
   min-height: 300px;
-  /* Ensure reveal elements sit above the page chrome/background */
-  z-index: 10040;
+  /* Ensure reveal elements sit above the page chrome/background but below message cards */
+  z-index: 1000;
 }
 
 .reveal-element-container > :not(.reveal-overlay) {
   position: relative;
-  z-index: 10045;
+  z-index: 1005;
   isolation: isolate;
 }
 
@@ -25,8 +25,8 @@
   pointer-events: none;
   opacity: 0;
   animation: revealOverlayFade 0.3s ease forwards;
-  /* Keep the overlay behind all reveal elements/cards */
-  z-index: 50;
+  /* Keep the overlay behind all reveal elements/cards - lowest priority */
+  z-index: 10;
 }
 
 /* Ensure overlay matches selected theme */

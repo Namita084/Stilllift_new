@@ -46,7 +46,7 @@ export default function StillLiftMobileCard({ message, actionType, title }: Stil
           display: flex !important;
           justify-content: center !important; /* Center Horizontal */
           align-items: center !important; /* Center Vertical */
-          z-index: 9999;
+          z-index: 10000;
           background-color: transparent; /* No dark overlay */
         }
 

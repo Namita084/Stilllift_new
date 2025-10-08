@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
-export default function ScrollRestorationManager() {
+function ScrollRestorationManagerInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const searchString = searchParams?.toString();
@@ -28,6 +28,14 @@ export default function ScrollRestorationManager() {
   }, [pathname, searchString]);
 
   return null;
+}
+
+export default function ScrollRestorationManager() {
+  return (
+    <Suspense fallback={null}>
+      <ScrollRestorationManagerInner />
+    </Suspense>
+  );
 }
 
 

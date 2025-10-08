@@ -710,8 +710,8 @@ export default function TreasureChest({
           opacity: 0;
           transition: all 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           pointer-events: none;
-          /* Ensure message sits above the global reveal overlay (z-index: 2000) */
-          z-index: 10050;
+          /* Ensure message sits above all other elements - highest priority */
+          z-index: 10000;
           isolation: isolate;
         }
 
@@ -746,7 +746,7 @@ export default function TreasureChest({
           position: relative;
           overflow: hidden;
           backdrop-filter: blur(8px);
-          z-index: 10051; /* one layer above the container */
+          z-index: 10001; /* one layer above the container */
           isolation: isolate;
         }
 
