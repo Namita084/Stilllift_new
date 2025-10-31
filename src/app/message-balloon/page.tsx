@@ -7,6 +7,7 @@ import { playMessageAudio } from '@/lib/audio';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
+import TextBackButton from '@/components/TextBackButton';
 import Balloon from '@/components/3DBalloon';
 
 interface MessageData {
@@ -212,6 +213,11 @@ export default function MessageBalloonPage() {
                 >
                   Start Over
                 </button>
+              </div>
+            )}
+            {showMessage && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.75rem' }}>
+                <TextBackButton />
               </div>
             )}
           </div>

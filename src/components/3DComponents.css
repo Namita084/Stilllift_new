@@ -20,8 +20,8 @@
   position: fixed;
   inset: 0;
   /* Theme-aware background (overridden below by .light-mode/.dark-mode) */
-  background: rgba(15, 23, 42, 0.3);
-  backdrop-filter: blur(14px);
+  background: rgba(15, 23, 42, 0.25);
+  /* Removed backdrop blur to keep page content crisp */
   pointer-events: none;
   opacity: 0;
   animation: revealOverlayFade 0.3s ease forwards;
@@ -31,11 +31,11 @@
 
 /* Ensure overlay matches selected theme */
 .light-mode .reveal-overlay {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .dark-mode .reveal-overlay {
-  background: rgba(15, 23, 42, 0.3);
+  background: rgba(15, 23, 42, 0.25);
 }
 
 .reveal-overlay--spotlight {
@@ -43,7 +43,7 @@
     rgba(255, 255, 255, 0.08) 0%,
     rgba(15, 23, 42, 0.4) 50%,
     rgba(15, 23, 42, 0.65) 100%);
-  backdrop-filter: blur(14px);
+  /* Removed blur to avoid blurring entire page */
 }
 
 .light-mode .reveal-overlay--spotlight {

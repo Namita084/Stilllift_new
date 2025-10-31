@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import TextBackButton from '@/components/TextBackButton';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { playMessageAudio } from '@/lib/audio';
 import Header from '@/components/Header';
@@ -140,9 +140,9 @@ function MessageTarotPageInner() {
               </div>
             </div>
 
-            <Link href="/context" className="back-btn glass-btn">
-              ← Back
-            </Link>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.75rem' }}>
+              <TextBackButton />
+            </div>
           </div>
         </section>
       </main>

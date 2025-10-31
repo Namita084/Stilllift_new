@@ -25,10 +25,12 @@ Each message has the following structure:
 
 ```typescript
 interface ContentMessage {
-  title: string;           // Short title for the message
+  actionType: 'VISUALIZE' | 'ACTION' | 'RECITE';  // Type of activity
   message: string;         // The actual message content
-  category?: string;       // Optional category (e.g., "mindfulness", "connection")
+  displayTime: number;     // How long to show the message (seconds)
+  category?: string;       // Optional category (e.g., "mindfulness", "breathing")
   intensity?: 'gentle' | 'moderate' | 'strong';  // Optional intensity level
+  audioIndex?: number;     // Optional audio file index
   tags?: string[];         // Optional tags for filtering
 }
 ```
@@ -47,10 +49,12 @@ Example:
 good: {
   safe: [
     {
-      title: "Your Custom Title",
-      message: "Your custom message content here. This is what users will see.",
+      actionType: "VISUALIZE",
+      message: "Close your eyes and imagine a peaceful place. Take 3 deep breaths and feel the calm wash over you.",
+      displayTime: 20,
       category: "mindfulness",
-      intensity: "gentle"
+      intensity: "gentle",
+      audioIndex: 1
     },
     // Add more messages...
   ],

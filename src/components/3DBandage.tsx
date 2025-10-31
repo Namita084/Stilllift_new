@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface BandageProps {
   isRevealed: boolean;
@@ -50,6 +50,8 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
   const [showPrescription, setShowPrescription] = useState(false);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [sequenceKey, setSequenceKey] = useState(0);
+  const hasAutoRevealed = useRef(false);
+  const hasAnnouncedReveal = useRef(false);
 
   const getAnimationDuration = useCallback(() => {
     switch (animationSpeed) {
@@ -63,35 +65,34 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
 
   // Automatic animation sequence
   useEffect(() => {
+    if (isRevealed) {
+      return;
+    }
+
     console.log('🩹 Starting automatic bandage sequence...');
-    
-    // Step 1: Show bandage after initial delay (1 second)
     const showBandageTimeout = setTimeout(() => {
       console.log('🩹 Showing bandage...');
       setShowBandage(true);
       setIsPasting(true);
     }, 1000);
 
-    // Step 2: Complete bandage pasting (after 1.5 seconds total)
     const pasteBandageTimeout = setTimeout(() => {
       console.log('🩹 Bandage pasted');
       setIsPasting(false);
       setIsPasted(true);
     }, 1500);
 
-    // Step 3: Show prescription (after 3 seconds total)
     const showPrescriptionTimeout = setTimeout(() => {
       console.log('💊 Prescription message revealed');
       setShowPrescription(true);
     }, 3000);
 
-    // Cleanup timeouts on unmount
     return () => {
       clearTimeout(showBandageTimeout);
       clearTimeout(pasteBandageTimeout);
       clearTimeout(showPrescriptionTimeout);
     };
-  }, [sequenceKey]);
+  }, [sequenceKey, isRevealed]);
 
   const handleReplay = () => {
     console.log('🔄 Replaying bandage animation...');
@@ -119,6 +120,30 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
       context ?? null
     );
   }, [showPrescription, currentMessageIndex, onPlayNarration, mood, context]);
+
+  useEffect(() => {
+    if (showPrescription && !hasAnnouncedReveal.current) {
+      hasAnnouncedReveal.current = true;
+      onReveal();
+    }
+  }, [showPrescription, onReveal]);
+
+  useEffect(() => {
+    if (!isRevealed || hasAutoRevealed.current || showPrescription) return;
+
+    hasAutoRevealed.current = true;
+    setShowBandage(true);
+    setIsPasting(false);
+    setIsPasted(true);
+    setShowPrescription(true);
+  }, [isRevealed, showPrescription]);
+
+  useEffect(() => {
+    if (!isRevealed) {
+      hasAutoRevealed.current = false;
+      hasAnnouncedReveal.current = false;
+    }
+  }, [isRevealed]);
 
 
 

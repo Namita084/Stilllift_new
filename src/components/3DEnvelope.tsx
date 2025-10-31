@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 interface EnvelopeProps {
   isRevealed: boolean;
@@ -53,6 +53,8 @@ export default function Envelope({
   const [flapOpen, setFlapOpen] = useState(false);
   const [messageVisible, setMessageVisible] = useState(false);
   const [canClick, setCanClick] = useState(true);
+  const hasAutoRevealed = useRef(false);
+  const hasAnnouncedReveal = useRef(false);
   
   const resolvedMessage = action || message || '';
   const resolvedTitle = actionTypeToTitle(actionType);
@@ -114,6 +116,30 @@ export default function Envelope({
       context ?? null
     );
   }, [messageVisible, onPlayNarration, mood, context, resolvedMessage, actionType]);
+
+  useEffect(() => {
+    if (messageVisible && !hasAnnouncedReveal.current) {
+      hasAnnouncedReveal.current = true;
+      onReveal();
+    }
+  }, [messageVisible, onReveal]);
+
+  useEffect(() => {
+    if (!isRevealed || messageVisible || hasAutoRevealed.current) return;
+
+    hasAutoRevealed.current = true;
+    setCanClick(false);
+    setIsAnimating(false);
+    setFlapOpen(true);
+    setMessageVisible(true);
+  }, [isRevealed, messageVisible]);
+
+  useEffect(() => {
+    if (!isRevealed) {
+      hasAutoRevealed.current = false;
+      hasAnnouncedReveal.current = false;
+    }
+  }, [isRevealed]);
 
   return (
     <div className="envelope-lottie-container">

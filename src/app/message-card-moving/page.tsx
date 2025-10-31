@@ -4,10 +4,11 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { playMessageAudio } from '@/lib/audio';
+import { getRandomMessage, CONTENT_LIBRARY, Mood } from '@/lib/content-updated';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
-import StillLiftMobileCard from '@/components/StillLiftMobileCard';
+import TextBackButton from '@/components/TextBackButton';
 
 interface MessageData {
   title: string;
@@ -15,9 +16,22 @@ interface MessageData {
   actionType?: string;
 }
 
+// Augment window to avoid using 'any' for a global callback
+declare global {
+  interface Window {
+    playCurrentActionAudio?: () => void;
+  }
+}
+
+interface ActionItem {
+  message: string;
+  actionType?: string;
+}
+
 export default function MessageCardMovingPage() {
   const router = useRouter();
-  const [selectedMessage, setSelectedMessage] = useState<MessageData | null>(null);
+  const [selectedAction, setSelectedAction] = useState<ActionItem | null>(null);
+  const [actionIndex, setActionIndex] = useState<number | null>(null);
   const [showCard, setShowCard] = useState(true);
   const [showActions, setShowActions] = useState(false);
   const [currentMood, setCurrentMood] = useState<string | null>(null);
@@ -54,31 +68,57 @@ export default function MessageCardMovingPage() {
     ]
   }), []);
 
+  // Function to select a random action
+  const selectRandomAction = (mood: string) => {
+    const actions = CONTENT_LIBRARY[mood as Mood]?.moving;
+    if (!actions || actions.length === 0) return null;
+
+    const randomIndex = Math.floor(Math.random() * actions.length);
+    const action = actions[randomIndex];
+
+    setSelectedAction(action);
+    setActionIndex(randomIndex);
+
+    // Auto-play audio if enabled
+    if (audioEnabled) {
+      setTimeout(() => {
+        playMessageAudio(
+          action.actionType || 'ACTION',
+          action.message,
+          {
+            rate: 0.9,
+            pitch: 1,
+            volume: 0.8,
+            voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira'],
+            mood: mood,
+            context: 'moving',
+            audioIndex: randomIndex + 1, // Audio files are 1-indexed
+            preferExactIndex: true
+          }
+        ).catch(() => {
+          // Handle autoplay restrictions (user must click audio icon)
+          console.log("Autoplay blocked. Wait for user interaction.");
+        });
+      }, 500); // Small delay to ensure UI is ready
+    }
+
+    return action;
+  };
+
   useEffect(() => {
-    // Load user preferences and selected message
-    const savedMessage = localStorage.getItem('selectedMessage');
+    // Load user preferences and mood
     const savedMood = localStorage.getItem('currentMood');
     const savedContext = localStorage.getItem('currentContext');
 
-    console.log('Loading message card moving page:', { savedMessage, savedMood, savedContext });
+    console.log('Loading message card moving page:', { savedMood, savedContext });
 
-    if (savedMessage) {
-      try {
-        const parsedMessage = JSON.parse(savedMessage);
-        console.log('Parsed message:', parsedMessage);
-        setSelectedMessage(parsedMessage);
-      } catch (error) {
-        console.error('Error parsing message:', error);
-        router.push('/');
-        return;
-      }
-    } else {
-      console.log('No message found, redirecting to home');
+    if (savedContext !== 'moving') {
+      console.log('Wrong context, redirecting to home');
       router.push('/');
       return;
     }
 
-    if (savedMood) {
+    if (savedMood && ['good', 'okay', 'bad', 'awful'].includes(savedMood)) {
       setCurrentMood(savedMood);
       // Set micro tips based on mood
       const tips = microTipsData[savedMood as keyof typeof microTipsData];
@@ -86,6 +126,18 @@ export default function MessageCardMovingPage() {
         const shuffledTips = [...tips].sort(() => Math.random() - 0.5).slice(0, Math.min(3, tips.length));
         setMicroTips(shuffledTips);
       }
+
+      // Select random action
+      const action = selectRandomAction(savedMood);
+      if (!action) {
+        console.error('No actions available for mood:', savedMood);
+        router.push('/');
+        return;
+      }
+    } else {
+      console.log('Invalid mood, redirecting to home');
+      router.push('/');
+      return;
     }
   }, [router, microTipsData]);
 
@@ -110,17 +162,41 @@ export default function MessageCardMovingPage() {
     router.push('/');
   };
 
+  const handleShuffle = () => {
+    if (currentMood) {
+      selectRandomAction(currentMood);
+      // Audio will auto-play in selectRandomAction if enabled
+    }
+  };
+
   const playCurrentMessage = () => {
-    if (selectedMessage && audioEnabled) {
+    if (selectedAction && audioEnabled && currentMood && actionIndex !== null) {
       playMessageAudio(
-        selectedMessage.title,
-        selectedMessage.message,
-        { rate: 0.9, pitch: 1, volume: 0.8, voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira'] }
+        selectedAction.actionType || 'ACTION',
+        selectedAction.message,
+        {
+          rate: 0.9,
+          pitch: 1,
+          volume: 0.8,
+          voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira'],
+          mood: currentMood,
+          context: 'moving',
+          audioIndex: actionIndex + 1, // Audio files are 1-indexed
+          preferExactIndex: true
+        }
       );
     }
   };
 
-  if (!selectedMessage) {
+  // Expose playCurrentMessage so Navbar can call it
+  useEffect(() => {
+    window.playCurrentActionAudio = playCurrentMessage;
+    return () => {
+      delete window.playCurrentActionAudio;
+    };
+  }, [selectedAction, audioEnabled, currentMood, actionIndex]);
+
+  if (!selectedAction) {
     return <div>Loading...</div>;
   }
 
@@ -140,11 +216,16 @@ export default function MessageCardMovingPage() {
       <main className="flex-1 flex flex-col">
         <section className="screen active">
           <div className="container">
-            <StillLiftMobileCard
-              message={selectedMessage.message}
-              actionType={selectedMessage.actionType as 'ACTION' | 'VISUALIZE' | 'RECITE' || 'ACTION'}
-              title={selectedMessage.actionType || 'ACTION'}
-            />
+            <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+              <div className="flashcard bg-white dark:bg-neutral-800 shadow-lg rounded-2xl p-8 w-[320px] text-center text-lg font-medium leading-relaxed transition-all duration-300 hover:scale-105">
+                <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-3 uppercase tracking-wide">
+                  {selectedAction.actionType || 'ACTION'}
+                </h3>
+                <p className="text-gray-800 dark:text-gray-100">
+                  {selectedAction.message}
+                </p>
+              </div>
+            </div>
 
             {/* Action Buttons and Micro Tips */}
             {showActions && (
@@ -172,13 +253,19 @@ export default function MessageCardMovingPage() {
                 </div>
 
                 <div className="message-actions">
-                  <button 
+                  <button
+                    className="action-btn tertiary glass-btn neubrutalism-btn"
+                    onClick={handleShuffle}
+                  >
+                    🔀 Shuffle
+                  </button>
+                  <button
                     className="action-btn primary glass-btn neubrutalism-btn"
                     onClick={handleGiveMeAnother}
                   >
                     Give Me Another
                   </button>
-                  <button 
+                  <button
                     className="action-btn secondary glass-btn neubrutalism-btn"
                     onClick={handleStartOver}
                   >
@@ -187,6 +274,9 @@ export default function MessageCardMovingPage() {
                 </div>
               </div>
             )}
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.75rem' }}>
+              <TextBackButton />
+            </div>
           </div>
         </section>
       </main>
@@ -358,9 +448,21 @@ export default function MessageCardMovingPage() {
             border-color: rgba(255, 255, 255, 0.1);
           }
 
-          .action-btn.secondary:hover {
-            background: rgba(30, 41, 59, 1);
-          }
+        .action-btn.secondary:hover {
+          background: rgba(30, 41, 59, 1);
+        }
+
+        .action-btn.tertiary {
+          background: rgba(148, 163, 184, 0.9);
+          color: #334155;
+          border: 2px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .action-btn.tertiary:hover {
+          background: rgba(148, 163, 184, 1);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(148, 163, 184, 0.3);
+        }
         }
 
         /* Mobile responsiveness */

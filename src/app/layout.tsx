@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Dancing_Script } from "next/font/google";
 import "./globals.css";
 import "@/components/3DComponents.css";
+import Script from "next/script";
 import ThemeProvider from "@/components/ThemeProvider";
 import ScrollRestorationManager from "@/components/ScrollRestorationManager";
 import { Suspense } from "react";
+import { AudioControllerProvider } from "@/context/AudioControllerContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -45,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -53,6 +55,10 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        {/* Remove known extension-injected classes before hydration to avoid mismatches */}
+        <Script id="sanitize-extension-classes" strategy="beforeInteractive">{`
+          try { document.documentElement.classList.remove('js-storylane-extension'); } catch (e) {}
+        `}</Script>
       </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} ${dancingScript.variable} antialiased font-inter`}
@@ -65,8 +71,10 @@ export default function RootLayout({
         }
       >
         <ThemeProvider>
-          <ScrollRestorationManager />
-          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+          <AudioControllerProvider>
+            <ScrollRestorationManager />
+            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+          </AudioControllerProvider>
         </ThemeProvider>
       </body>
     </html>

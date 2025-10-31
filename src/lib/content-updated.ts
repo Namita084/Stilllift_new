@@ -36,14 +36,16 @@ export const CONTENT_LIBRARY: ContentLibrary = {
         message: "Do a mindful body scan",
         displayTime: 120,
         category: "mindfulness",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 1
       },
       {
         actionType: "ACTION",
         message: "Write down three things you're grateful for",
         displayTime: 180,
         category: "gratitude",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 2
       },
       {
         actionType: "RECITE",

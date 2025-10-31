@@ -9,6 +9,7 @@ import { type Mood, type Context } from '@/lib/content';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
+import TextBackButton from '@/components/TextBackButton';
 
 interface MessageData {
   title: string;
@@ -157,9 +158,9 @@ export default function CardsPage() {
                 </div>
               ))}
             </div>
-            <Link href="/context" className="back-btn glass-btn">
-              ← Back
-            </Link>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+              <TextBackButton />
+            </div>
           </div>
         </section>
       </main>

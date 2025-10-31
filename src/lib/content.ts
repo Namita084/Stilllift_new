@@ -94,49 +94,56 @@ export const CONTENT_LIBRARY: ContentLibrary = {
         message: "Draw a doodle of how you feel",
         displayTime: 240,
         category: "mindfulness",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 9
       },
       {
         actionType: "VISUALIZE",
         message: "Imagine yourself floating on calm water",
         displayTime: 120,
         category: "visualization",
-        intensity: "gentle"
+        intensity: "gentle",
+        audioIndex: 10
       },
       {
         actionType: "RECITE",
         message: "Repeat: 'Joy flows through me'",
         displayTime: 60,
         category: "affirmation",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 11
       },
       {
         actionType: "ACTION",
         message: "Light a candle and focus on the flame",
         displayTime: 180,
         category: "focus",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 16
       },
       {
         actionType: "VISUALIZE",
         message: "Visualise a place you love",
         displayTime: 120,
         category: "visualization",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 12
       },
       {
         actionType: "RECITE",
         message: "Recite: 'I am rooted and grounded'",
         displayTime: 60,
         category: "affirmation",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 13
       },
       {
         actionType: "ACTION",
         message: "Do a 4-7-8 breathing pattern",
         displayTime: 120,
         category: "breathing",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 14
       }
     ],
     moving: [
@@ -187,63 +194,72 @@ export const CONTENT_LIBRARY: ContentLibrary = {
         message: "Breathe in rhythm with your footsteps",
         displayTime: 120,
         category: "breathing",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 8
       },
       {
         actionType: "VISUALIZE",
         message: "Picture yourself on a mountain path",
         displayTime: 120,
         category: "visualization",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 9
       },
       {
         actionType: "RECITE",
         message: "Repeat: 'Step by step, I move forward'",
         displayTime: 60,
         category: "affirmation",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 10
       },
       {
         actionType: "ACTION",
         message: "Tap fingers to the beat of your walk",
         displayTime: 60,
         category: "movement",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 11
       },
       {
         actionType: "VISUALIZE",
         message: "Imagine a bubble of light around you",
         displayTime: 120,
         category: "visualization",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 15
       },
       {
         actionType: "RECITE",
         message: "Repeat: 'I am grounded and moving'",
         displayTime: 60,
         category: "affirmation",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 12
       },
       {
         actionType: "ACTION",
         message: "Bounce lightly on your toes",
         displayTime: 60,
         category: "mindfulness",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 13
       },
       {
         actionType: "VISUALIZE",
         message: "Picture your body as fluid and strong",
         displayTime: 120,
         category: "visualization",
-        intensity: "strong"
+        intensity: "strong",
+        audioIndex: 14
       },
       {
         actionType: "RECITE",
         message: "Recite: 'Movement is joy'",
         displayTime: 60,
         category: "affirmation",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 16
       }
     ],
     focussed: [
@@ -301,7 +317,8 @@ export const CONTENT_LIBRARY: ContentLibrary = {
         message: "Listen to nature sounds with eyes open",
         displayTime: 180,
         category: "audio",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 8
       },
       {
         actionType: "VISUALIZE",
@@ -322,35 +339,40 @@ export const CONTENT_LIBRARY: ContentLibrary = {
         message: "Focus on one sound in your environment",
         displayTime: 120,
         category: "audio",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 10
       },
       {
         actionType: "VISUALIZE",
         message: "Visualise your brain lighting up",
         displayTime: 120,
         category: "visualization",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 13
       },
       {
         actionType: "RECITE",
         message: "Repeat: 'I am present and attentive'",
         displayTime: 60,
         category: "affirmation",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 14
       },
       {
         actionType: "ACTION",
         message: "Listen to calming binaural beats",
         displayTime: 180,
         category: "audio",
-        intensity: "gentle"
+        intensity: "gentle",
+        audioIndex: 11
       },
       {
         actionType: "VISUALIZE",
         message: "Picture a tunnel narrowing toward one goal",
         displayTime: 120,
         category: "visualization",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 12
       }
     ]
   },
@@ -468,14 +490,16 @@ export const CONTENT_LIBRARY: ContentLibrary = {
         message: "Walk while noticing five things around you",
         displayTime: 180,
         category: "movement",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 14
       },
       {
         actionType: "RECITE",
         message: "Repeat: 'Every step energises me'",
         displayTime: 60,
         category: "affirmation",
-        intensity: "moderate"
+        intensity: "moderate",
+        audioIndex: 15
       },
       {
         actionType: "VISUALIZE",
@@ -1397,3 +1421,10 @@ export function validateContentLibrary(): { isValid: boolean; errors: string[] }
     errors
   };
 }
+
+
+
+
+
+
+

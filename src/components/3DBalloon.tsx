@@ -30,6 +30,7 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
   const [canClick, setCanClick] = useState(true);
   const [messageLocked, setMessageLocked] = useState(false);
   const hasAnnouncedReveal = useRef(false);
+  const hasAutoRevealed = useRef(false);
 
   // Animation duration based on speed
   const getAnimationDuration = useCallback(() => {
@@ -96,6 +97,24 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
     if (!messageLocked || !onPlayNarration) return;
     onPlayNarration(BALLOON_MESSAGE_BODY, BALLOON_ACTION_TAG, mood ?? null, context ?? null, audioIndex ?? null, false);
   }, [messageLocked, onPlayNarration, mood, context, audioIndex]);
+
+  useEffect(() => {
+    if (!isRevealed || messageLocked || hasAutoRevealed.current) return;
+
+    hasAutoRevealed.current = true;
+    setCanClick(false);
+    setIsPopping(false);
+    setShowConfetti(true);
+    setShowMessage(true);
+    setMessageLocked(true);
+    setIsHovered(false);
+  }, [isRevealed, messageLocked]);
+
+  useEffect(() => {
+    if (!isRevealed) {
+      hasAutoRevealed.current = false;
+    }
+  }, [isRevealed]);
 
   return (
     <div className="balloon-experience-container">

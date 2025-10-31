@@ -9,10 +9,14 @@ export interface PlayTextAudioOptions {
   isHomepage?: boolean;
   audioIndex?: number;
   preferExactIndex?: boolean;
+  audioIntent?: AudioIntent;
 }
+
+export type AudioIntent = 'homepage' | 'task' | 'other';
 
 let activeAudio: HTMLAudioElement | null = null;
 let activeSpeech: SpeechSynthesisUtterance | null = null;
+let activeAudioIntent: AudioIntent | null = null;
 // When we cancel or stop audio, browsers may fire a spurious TTS "interrupted"
 // error. Suppress error logging for a short window to avoid noisy console.
 let suppressTtsErrorsUntil = 0;
@@ -71,9 +75,20 @@ export function stopAllNarration() {
       suppressTtsErrorsUntil = Date.now() + 1000;
       activeSpeech = null;
     }
+    activeAudioIntent = null;
   } finally {
     isStoppingNarration = false;
   }
+}
+
+export function stopAudioByIntent(intent: AudioIntent) {
+  if (activeAudioIntent === intent) {
+    stopAllNarration();
+  }
+}
+
+export function getActiveAudioIntent(): AudioIntent | null {
+  return activeAudioIntent;
 }
 
 function slugify(input: string): string {
@@ -87,7 +102,12 @@ function slugify(input: string): string {
  * Try to play a pre-generated audio file using various naming strategies.
  * Returns true if audio file playback started, else false.
  */
-async function tryPlayAudioFile(title: string | undefined, message: string, options?: PlayTextAudioOptions): Promise<boolean> {
+async function tryPlayAudioFile(
+  title: string | undefined,
+  message: string,
+  options: PlayTextAudioOptions | undefined,
+  intent: AudioIntent
+): Promise<boolean> {
   const candidates: string[] = [];
   
   // Strategy 1: Mood-Context structured files (your naming pattern) - PRIORITY
@@ -153,9 +173,11 @@ async function tryPlayAudioFile(title: string | undefined, message: string, opti
           activeAudio.pause();
         }
         activeAudio = audio;
+        activeAudioIntent = intent;
         audio.onended = () => {
           if (activeAudio === audio) {
             activeAudio = null;
+            activeAudioIntent = null;
           }
         };
         return true;
@@ -187,7 +209,7 @@ function mapContextToYourNaming(context: string): string {
 /**
  * Speak text via Web Speech API.
  */
-function speakWithTts(text: string, options?: PlayTextAudioOptions) {
+function speakWithTts(text: string, options: PlayTextAudioOptions | undefined, intent: AudioIntent) {
   try {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       console.warn('[audio] Speech synthesis not available');
@@ -233,6 +255,7 @@ function speakWithTts(text: string, options?: PlayTextAudioOptions) {
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
     activeSpeech = utterance;
+    activeAudioIntent = intent;
     console.log('[audio] 🔊 Playing TTS:', text);
   } catch (error) {
     console.error('[audio] Error in TTS:', error);
@@ -250,20 +273,23 @@ export async function playMessageAudio(
 ): Promise<void> {
   if (typeof window === 'undefined') return;
 
+  const intent: AudioIntent = options?.audioIntent
+    ?? (options?.isHomepage ? 'homepage' : 'task');
+
   try {
     stopAllNarration();
     // Prefer pre-generated audio
-    const played = await tryPlayAudioFile(title, message, options);
+    const played = await tryPlayAudioFile(title, message, options, intent);
     if (played) return;
 
     // Fallback to TTS
     const fullText = title && title.trim().length > 0 ? `${title}. ${message}` : message;
-    speakWithTts(fullText, options);
+    speakWithTts(fullText, options, intent);
   } catch (error) {
     console.error('[audio] Error in playMessageAudio:', error);
     // Still try TTS as fallback even if there's an error
     const fullText = title && title.trim().length > 0 ? `${title}. ${message}` : message;
-    speakWithTts(fullText, options);
+    speakWithTts(fullText, options, intent);
   }
 }
 

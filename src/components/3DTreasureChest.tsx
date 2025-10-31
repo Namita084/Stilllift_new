@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { CONTENT_LIBRARY, Mood } from '@/lib/content-updated';
 
 const CHEST_ACTION_TYPE = 'ACTION';
 const CHEST_MESSAGE_ACTION = "Practice gratitude by naming three things you appreciate right now";
@@ -29,6 +30,7 @@ interface TreasureChestProps {
 }
 
 export default function TreasureChest({ 
+  isRevealed,
   onReveal,
   animationSpeed = 'gentle',
   message = CHEST_MESSAGE_BODY,
@@ -51,6 +53,36 @@ export default function TreasureChest({
   const [messageStatic, setMessageStatic] = useState(false);
   const hasAnnouncedReveal = useRef(false);
   const hasNarrated = useRef(false);
+  const hasAutoRevealed = useRef(false);
+  const [overrideMessage, setOverrideMessage] = useState<string | null>(null);
+  const [overrideActionType, setOverrideActionType] = useState<string | null>(null);
+  const [selectedAudioIndex, setSelectedAudioIndex] = useState<number | null>(null);
+  const previousIndexRef = useRef<number | null>(null);
+
+  const getDisplayActionType = (raw: string | null | undefined): string => {
+    const value = (raw ?? '').toUpperCase();
+    if (value === 'RECITE' || value === 'REPEAT/RECITE') return 'REPEAT';
+    return raw ?? 'ACTION';
+  };
+
+  const selectRandomForGoodSafe = useCallback(() => {
+    if (mood === 'good' && context === 'safe') {
+      const actions = CONTENT_LIBRARY['good' as Mood]?.['safe'];
+      if (actions && actions.length > 0) {
+        let randomIndex = Math.floor(Math.random() * actions.length);
+        if (actions.length > 1 && previousIndexRef.current === randomIndex) {
+          randomIndex = (randomIndex + 1) % actions.length;
+        }
+        previousIndexRef.current = randomIndex;
+        const picked = actions[randomIndex];
+        setOverrideMessage(picked.message);
+        setOverrideActionType(picked.actionType || 'ACTION');
+        setSelectedAudioIndex(randomIndex + 1);
+      }
+      return true;
+    }
+    return false;
+  }, [mood, context, onPlayNarration]);
 
   // Animation duration based on speed
   const getAnimationDuration = () => {
@@ -70,6 +102,16 @@ export default function TreasureChest({
     setCanClick(false);
     setIsOpening(true);
     
+    // If specifically Good + Still and Safe, choose a random action and map audio index
+    if (selectRandomForGoodSafe()) {
+      // already set overrides and triggered audio via narrator
+    } else {
+      // For other combos, clear overrides so props flow through
+      setOverrideMessage(null);
+      setOverrideActionType(null);
+      setSelectedAudioIndex(null);
+    }
+
     const duration = getAnimationDuration();
     
     // Chest opens
@@ -111,7 +153,7 @@ export default function TreasureChest({
       console.log('TreasureChest: Animation complete, message permanent and static');
     }, duration * 1.5);
     
-  }, [canClick, isOpening, onReveal, animationSpeed]);
+  }, [canClick, isOpening, onReveal, animationSpeed, mood, context, selectRandomForGoodSafe]);
 
   useEffect(() => {
     if (!hasAnnouncedReveal.current && (showMessage || messageStaysPermanent)) {
@@ -121,12 +163,45 @@ export default function TreasureChest({
   }, [showMessage, messageStaysPermanent, onReveal]);
 
   useEffect(() => {
+    if (!isRevealed || hasAutoRevealed.current || showMessage || messageStaysPermanent) {
+      return;
+    }
+
+    hasAutoRevealed.current = true;
+    setCanClick(false);
+    setIsOpening(false);
+    setIsOpened(true);
+    setShowCoins(false);
+    setMessageEmerging(true);
+    setShowMessage(true);
+    setMessageStatic(true);
+    setMessageStaysPermanent(true);
+    setChestHidden(true);
+
+    if (!hasAnnouncedReveal.current) {
+      hasAnnouncedReveal.current = true;
+      onReveal();
+    }
+  }, [isRevealed, showMessage, messageStaysPermanent, onReveal]);
+
+  useEffect(() => {
+    hasAutoRevealed.current = false;
+    // Reset narration flag when message source changes
+    hasNarrated.current = false;
+  }, [message, action, overrideMessage, overrideActionType]);
+
+  useEffect(() => {
     if (!messageStaysPermanent || hasNarrated.current) return;
     if (!onPlayNarration) return;
 
-    onPlayNarration(message, actionType, mood ?? null, context ?? null, null, false);
+    const finalMessage = overrideMessage ?? message;
+    const finalActionType = overrideActionType ?? actionType;
+    const audioIndexOverride = selectedAudioIndex ?? null;
+    const preferExact = audioIndexOverride !== null;
+
+    onPlayNarration(finalMessage, finalActionType, mood ?? null, context ?? null, audioIndexOverride, preferExact);
     hasNarrated.current = true;
-  }, [messageStaysPermanent, onPlayNarration, message, actionType, mood, context]);
+  }, [messageStaysPermanent, onPlayNarration, message, actionType, mood, context, overrideMessage, overrideActionType, selectedAudioIndex]);
 
   const handleReplay = () => {
     console.log('TreasureChest: Replay clicked');
@@ -153,6 +228,21 @@ export default function TreasureChest({
   };
 
   const handleTryAnotherClick = () => {
+    // For Good + Still: re-randomize in place and play matching audio
+    if (selectRandomForGoodSafe()) {
+      // Ensure the message remains visible and impactful
+      setIsOpening(false);
+      setIsOpened(true);
+      setShowCoins(false);
+      setMessageEmerging(true);
+      setShowMessage(true);
+      setMessageStatic(true);
+      setMessageStaysPermanent(true);
+      setChestHidden(true);
+      setCanClick(true);
+      return;
+    }
+    // Fallback to parent behavior for other contexts
     if (onTryAnother) {
       onTryAnother();
     } else {
@@ -238,19 +328,20 @@ export default function TreasureChest({
             
             <div className="scroll-content">
               <div className="action-badge" style={{ 
-                backgroundColor: actionType === 'VISUALIZE' ? '#8B5CF6' : 
-                               actionType === 'REPEAT/RECITE' ? '#10B981' : 
-                               '#3B82F6',
+                backgroundColor: (overrideActionType ?? actionType) === 'VISUALIZE' ? '#8B5CF6' : 
+                               ((overrideActionType ?? actionType) === 'REPEAT/RECITE' || (overrideActionType ?? actionType) === 'RECITE' || getDisplayActionType(overrideActionType ?? actionType) === 'REPEAT') ? '#10B981' : 
+                                '#3B82F6',
                 color: '#ffffff',
                 fontWeight: '600',
                 textShadow: 'none'
               }}>
-                {actionType}
+                {getDisplayActionType(overrideActionType ?? actionType)}
               </div>
               
-              <h2 style={{ color: '#1e293b', fontWeight: '600', textShadow: 'none', fontSize: '1.5rem', margin: '1rem 0', zIndex: 999 }}>{action}</h2>
+              <h2 style={{ fontWeight: '600', textShadow: 'none', fontSize: '1.5rem', margin: '1rem 0', zIndex: 999 }}>
+                {overrideMessage ?? action}
+              </h2>
               <p style={{ 
-                color: '#475569', 
                 fontWeight: '600', 
                 textShadow: 'none', 
                 opacity: '1', 
@@ -260,7 +351,7 @@ export default function TreasureChest({
                 zIndex: 999,
                 fontFamily: 'Inter, sans-serif',
                 letterSpacing: '0.025em'
-              }}>{message}</p>
+              }}>{overrideMessage ? '' : message}</p>
               
               <div className="treasure-divider">
                 <span>⚜️</span>
@@ -745,7 +836,7 @@ export default function TreasureChest({
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
           position: relative;
           overflow: hidden;
-          backdrop-filter: blur(8px);
+          /* Removed backdrop blur to prevent dialog appearing blurred */
           z-index: 10001; /* one layer above the container */
           isolation: isolate;
         }
@@ -788,7 +879,8 @@ export default function TreasureChest({
           border-bottom: var(--card-border);
           margin-bottom: 20px;
           background: var(--card-bg);
-          opacity: 0.5;
+          /* Ensure header content remains crisp */
+          opacity: 1;
         }
 
         .treasure-gems {
@@ -1038,7 +1130,8 @@ export default function TreasureChest({
           padding: 12px;
           border-top: var(--card-border);
           background: var(--card-bg);
-          opacity: 0.3;
+          /* Ensure footer content remains crisp */
+          opacity: 1;
         }
 
         .golden-border {

@@ -7,6 +7,7 @@ import { useUserPreferences } from '@/hooks/useUserPreferences';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
+import TextBackButton from '@/components/TextBackButton';
 
 export default function ContextPage() {
   const router = useRouter();
@@ -180,6 +181,9 @@ export default function ContextPage() {
                 </button>
               </>
             )}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.75rem' }}>
+            <TextBackButton />
           </div>
         </section>
       </main>

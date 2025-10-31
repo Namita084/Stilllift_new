@@ -150,6 +150,15 @@ export default function PlayingCard({
   // Auto-flip after delay using transition-based flip (no keyframes)
   useEffect(() => {
     if (!isRevealed && canClick) {
+      // For moving context, show the action immediately as a simple card (no flip)
+      if (context === 'moving') {
+        setCanClick(false);
+        setIsFlipped(true);
+        setShowMessage(true);
+        setIsExpanded(true);
+        const revealTimer = setTimeout(() => onReveal(), 200);
+        return () => clearTimeout(revealTimer);
+      }
       const flipDelay = animationSpeed === "instant" ? 500 : 1200;
 
       const flipTimer = setTimeout(() => {
@@ -185,7 +194,7 @@ export default function PlayingCard({
 
       return () => clearTimeout(flipTimer);
     }
-  }, [isRevealed, canClick, animationSpeed, getAnimationDuration, onReveal]);
+  }, [isRevealed, canClick, animationSpeed, getAnimationDuration, onReveal, context]);
 
   // Debug: log bounding rect to ensure we remain centered
   useEffect(() => {
@@ -266,6 +275,11 @@ export default function PlayingCard({
     }
   };
 
+  const getDisplayTag = (tag: string) => {
+    if (tag === 'REPEAT/RECITE' || tag === 'RECITE') return 'REPEAT';
+    return tag;
+  };
+
   const currentMessageData = messages[currentMessage];
   const cardAnimationDuration = getAnimationDuration();
 
@@ -282,6 +296,83 @@ export default function PlayingCard({
     } as React.CSSProperties;
   }, [cardAnimationDuration, palette]);
 
+  // For moving context, reveal quickly at top-level (no conditional hook usage)
+  useEffect(() => {
+    if (context !== 'moving') return;
+    const t = setTimeout(() => onReveal(), 80);
+    return () => clearTimeout(t);
+  }, [context, onReveal]);
+
+  // Simple, non-flipping card for moving context to guarantee visibility
+  if (context === 'moving') {
+    return (
+      <div className="playing-card-container" style={{ zIndex: 10000 }}>
+        <div className="simple-moving-card" style={{
+          position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          width: '420px', maxWidth: '95vw', minHeight: '480px',
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          borderRadius: '16px',
+          border: '2px solid rgba(30,58,138,0.1)',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+          padding: '24px',
+          display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
+        }}>
+          <div className="message-tag" style={{
+            display: 'inline-block',
+            alignSelf: 'flex-start',
+            padding: '6px 12px',
+            borderRadius: '999px',
+            fontWeight: 700,
+            fontSize: '12px',
+            letterSpacing: '0.04em',
+            color: '#ffffff',
+            backgroundColor: getTagColor(actionType)
+          }}>{getDisplayTag(actionType)}</div>
+          <h3 className="message-action" style={{
+            marginTop: '12px', marginBottom: '8px', fontSize: '22px', fontWeight: 800,
+            color: '#0f172a'
+          }}>{(actionType === 'REPEAT/RECITE') ? `Repeat: ${action}` : action}</h3>
+          {/* Only show body text if different from action to avoid repetition */}
+          {message !== action && (
+            <p className="message-text" style={{
+              margin: 0, fontSize: '16px', lineHeight: 1.6, color: '#334155'
+            }}>{message}</p>
+          )}
+
+          <div className="moving-card-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+            <button
+              className="action-button give-another primary"
+              onClick={onTryAnother}
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                borderRadius: '12px',
+                border: '2px solid rgba(0,0,0,0.05)',
+                background: 'linear-gradient(135deg, #004851 0%, #006B7A 100%)',
+                color: '#fff', fontWeight: 700
+              }}
+            >
+              🔀 Try Another
+            </button>
+            <button
+              className="action-button start-over"
+              onClick={onStartOver}
+              style={{
+                flex: 1,
+                padding: '12px 16px',
+                borderRadius: '12px',
+                border: '2px solid rgba(0,0,0,0.05)',
+                background: '#ffffff', color: '#334155', fontWeight: 700
+              }}
+            >
+              🏠 Start Over
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const cardContent = (
     <div className="playing-card-container">
       <div
@@ -292,7 +383,8 @@ export default function PlayingCard({
         style={cardThemeStyle}
         data-speed={animationSpeed}
       >
-        {/* Card Back (shows first) */}
+        {/* Card Back (shows first) - hidden for moving context to avoid mirrored branding */}
+        {context !== 'moving' && (
         <div className="card-face card-back">
           <div className="card-back-content">
             <div className="back-pattern">
@@ -331,6 +423,7 @@ export default function PlayingCard({
             </div>
           </div>
         </div>
+        )}
 
         {/* Card Front (shows after flip) */}
         <div className="card-face card-front">
@@ -338,13 +431,23 @@ export default function PlayingCard({
             {/* Message Tag */}
             <div
               className="message-tag"
-              style={{ backgroundColor: getTagColor(currentMessageData.tag) }}
+              style={{
+                backgroundColor: getTagColor(currentMessageData.tag),
+                display: 'inline-block',
+                alignSelf: 'flex-start',
+                padding: '6px 12px',
+                borderRadius: '999px',
+                fontWeight: 700,
+                fontSize: '12px',
+                letterSpacing: '0.04em',
+                color: '#ffffff'
+              }}
             >
-              {currentMessageData.tag}
+              {getDisplayTag(currentMessageData.tag)}
             </div>
 
             {/* Message Action */}
-            <h3 className="message-action">{currentMessageData.action}</h3>
+            <h3 className="message-action">{(currentMessageData.tag === 'REPEAT/RECITE') ? `Repeat: ${currentMessageData.action}` : currentMessageData.action}</h3>
 
             {/* Message Text */}
             <p className="message-text">{currentMessageData.message}</p>

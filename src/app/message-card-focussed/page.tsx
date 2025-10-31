@@ -8,6 +8,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
 import StillLiftMobileCard from '@/components/StillLiftMobileCard';
+import TextBackButton from '@/components/TextBackButton';
 
 interface MessageData {
   title: string;
@@ -143,7 +144,6 @@ export default function MessageCardFocussedPage() {
             <StillLiftMobileCard
               message={selectedMessage.message}
               actionType={selectedMessage.actionType as 'ACTION' | 'VISUALIZE' | 'RECITE' || 'ACTION'}
-              title={selectedMessage.actionType || 'ACTION'}
             />
 
             {/* Action Buttons and Micro Tips */}
@@ -188,6 +188,9 @@ export default function MessageCardFocussedPage() {
                 </div>
               </div>
             )}
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.75rem' }}>
+              <TextBackButton />
+            </div>
           </div>
         </section>
       </main>

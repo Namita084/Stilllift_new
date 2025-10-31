@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export function useUserPreferences() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -50,11 +50,10 @@ export function useUserPreferences() {
     localStorage.setItem('audio', newAudioEnabled ? 'enabled' : 'disabled');
   };
 
-  const toggleScreenless = () => {
-    const newScreenlessMode = !screenlessMode;
-    setScreenlessMode(newScreenlessMode);
-    
-    if (newScreenlessMode) {
+  const setScreenlessModeState = useCallback((enabled: boolean) => {
+    setScreenlessMode(enabled);
+
+    if (enabled) {
       document.body.classList.add('screenless-mode');
       document.body.classList.remove('normal-mode');
       localStorage.setItem('screenless', 'enabled');
@@ -63,6 +62,10 @@ export function useUserPreferences() {
       document.body.classList.remove('screenless-mode');
       localStorage.setItem('screenless', 'disabled');
     }
+  }, [setScreenlessMode]);
+
+  const toggleScreenless = () => {
+    setScreenlessModeState(!screenlessMode);
   };
 
   return {
@@ -72,5 +75,6 @@ export function useUserPreferences() {
     toggleTheme,
     toggleReadAloud,
     toggleScreenless,
+    setScreenlessMode: setScreenlessModeState,
   };
 } 

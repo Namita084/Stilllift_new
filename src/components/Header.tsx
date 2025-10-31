@@ -2,6 +2,15 @@
 
 import Image from 'next/image';
 import logoStillliftNew from '@/../public/Logo stilllift new.svg';
+import logoStillliftDark from '@/../public/Logo stilllift - dark theme.png';
+import { useEffect, useState } from 'react';
+import { AnimatedThemeToggler } from '@/registry/magicui/animated-theme-toggler';
+
+declare global {
+  interface Window {
+    playCurrentActionAudio?: () => void;
+  }
+}
 
 interface HeaderProps {
   isDarkMode: boolean;
@@ -20,12 +29,22 @@ export default function Header({
   onToggleReadAloud,
   onToggleScreenless
 }: HeaderProps) {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 8);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   return (
-    <header className="glass-header">
+    <header className={`glass-header${scrolled ? ' scrolled' : ''}`}>
       <div className="header-content">
         <div className="logo" aria-label="StillLift">
           <Image
-            src={logoStillliftNew}
+            src={isDarkMode ? logoStillliftDark : logoStillliftNew}
             alt="StillLift logo"
             width={48}
             height={48}
@@ -33,17 +52,18 @@ export default function Header({
           />
           <span className="logo-text font-inter">StillLift</span>
         </div>
-        <div className="controls">
-          <button 
-            onClick={onToggleTheme}
-            className={`toggle-switch ${isDarkMode ? 'active' : ''}`}
-            aria-label="Toggle dark mode"
-          >
-            <span className="toggle-icon left">☀️</span>
-            <span className="toggle-icon right">🌙</span>
-          </button>
-          <button 
-            onClick={onToggleReadAloud}
+        <div className="controls" style={{ gap: '0.75rem' }}>
+          <AnimatedThemeToggler isDark={isDarkMode} onToggle={onToggleTheme} ariaLabel="Toggle theme" />
+          <button
+            onClick={() => {
+              // If there's a global play function available, use it to play current audio
+              if (typeof window !== 'undefined' && window.playCurrentActionAudio) {
+                window.playCurrentActionAudio();
+              } else {
+                // Otherwise toggle audio on/off
+                onToggleReadAloud();
+              }
+            }}
             className={`control-btn glass-control ${audioEnabled ? 'active' : ''}`}
             aria-label="Read aloud messages"
           >
@@ -52,9 +72,11 @@ export default function Header({
           <button 
             onClick={onToggleScreenless}
             className={`control-btn glass-control ${screenlessMode ? 'active' : ''}`}
-            aria-label="Screenless mode"
+            aria-label={screenlessMode ? 'Exit screenless mode' : 'Enter screenless mode'}
           >
-            <span className="control-icon">👁️‍🗨️</span>
+            <span className="control-icon" aria-hidden="true">
+              {screenlessMode ? '🙈' : '👁️'}
+            </span>
           </button>
         </div>
       </div>

@@ -8,6 +8,7 @@ import { playMessageAudio } from '@/lib/audio';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
+import TextBackButton from '@/components/TextBackButton';
 
 interface MessageData {
   title: string;
@@ -128,6 +129,9 @@ export default function MessageGlassmorphicPage() {
             <Link href="/context" className="back-btn glass-btn">
               ← Back
             </Link>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.75rem' }}>
+            <TextBackButton />
           </div>
         </section>
       </main>
