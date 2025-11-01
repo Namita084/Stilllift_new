@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import ActionRevealCard from './ActionRevealCard';
 const BALLOON_ACTION_TAG = 'SUPPORT';
 const BALLOON_MESSAGE_BODY = "It's perfectly normal to feel okay. Sometimes 'okay' is exactly where we need to be. Take a few deep breaths and acknowledge this moment.";
 
@@ -20,15 +21,24 @@ interface BalloonProps {
   ) => void;
   mood?: string;
   context?: string;
+  message?: string;
+  action?: string;
+  actionType?: string;
+  onStartOver?: () => void;
+  onTryAnother?: () => void;
 }
 
-export default function Balloon({ isRevealed, onReveal, accentColor, animationSpeed, audioIndex, onPlayNarration, mood, context }: BalloonProps) {
+export default function Balloon({ isRevealed, onReveal, accentColor, animationSpeed, audioIndex, onPlayNarration, mood, context, message, action, actionType, onStartOver, onTryAnother }: BalloonProps) {
   const [isPopping, setIsPopping] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
   const [canClick, setCanClick] = useState(true);
   const [messageLocked, setMessageLocked] = useState(false);
+  const [showTreasureCard, setShowTreasureCard] = useState(false);
+  const [treasureCardEmerging, setTreasureCardEmerging] = useState(false);
+  const [treasureCardFullyRevealed, setTreasureCardFullyRevealed] = useState(false);
+  const [treasureCardStatic, setTreasureCardStatic] = useState(false);
   const hasAnnouncedReveal = useRef(false);
   const hasAutoRevealed = useRef(false);
 
@@ -62,12 +72,25 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
       setShowConfetti(true);
     }, duration * 0.2);
     
-    // Message appears after confetti settles and gets locked permanently
+    // Treasure card appears after confetti settles
     setTimeout(() => {
-      console.log('📝 Showing message and locking it permanently...');
+      console.log('📝 Showing treasure card...');
+      setShowTreasureCard(true);
+      setTreasureCardEmerging(true);
       setShowMessage(true);
-      setMessageLocked(true); // Lock the message permanently
+      setMessageLocked(true);
     }, duration * 0.6);
+    
+    // Treasure card fully revealed
+    setTimeout(() => {
+      setTreasureCardFullyRevealed(true);
+      setTreasureCardEmerging(false);
+    }, duration * 0.8);
+    
+    // Treasure card becomes static
+    setTimeout(() => {
+      setTreasureCardStatic(true);
+    }, duration * 1.1);
     
   }, [canClick, isPopping, isRevealed, onReveal, getAnimationDuration]);
 
@@ -108,6 +131,16 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
     setShowMessage(true);
     setMessageLocked(true);
     setIsHovered(false);
+    // Show treasure card
+    setShowTreasureCard(true);
+    setTreasureCardEmerging(true);
+    setTimeout(() => {
+      setTreasureCardFullyRevealed(true);
+      setTreasureCardEmerging(false);
+    }, 300);
+    setTimeout(() => {
+      setTreasureCardStatic(true);
+    }, 600);
   }, [isRevealed, messageLocked]);
 
   useEffect(() => {
@@ -217,32 +250,18 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
         </div>
       )}
 
-      {/* Message Card */}
-      <div className={`message-card-balloon ${(showMessage || messageLocked) ? 'visible' : ''}`}>
-        <div className="card-content-balloon">
-          <div className="card-icon-balloon">🎉</div>
-          <div className="card-title-balloon">You&apos;re Doing Just Fine!</div>
-          <div className="card-message-balloon">
-            It&apos;s perfectly normal to feel okay. Sometimes &apos;okay&apos; is exactly where we need to be. Take a few deep breaths and acknowledge this moment.
-          </div>
-          
-          {/* Action Buttons */}
-          <div className="card-actions-balloon">
-            <button 
-              className="action-button-balloon start-over-button"
-              onClick={handleStartOver}
-            >
-              🔄 Start Over
-            </button>
-            <button 
-              className="action-button-balloon give-another-button"
-              onClick={handleGiveAnother}
-            >
-              📝 Give Me Another
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Treasure Card */}
+      <ActionRevealCard
+        message={message}
+        action={action}
+        actionType={actionType}
+        onStartOver={onStartOver}
+        onTryAnother={onTryAnother}
+        showCard={showTreasureCard}
+        isEmerging={treasureCardEmerging}
+        isFullyRevealed={treasureCardFullyRevealed}
+        isStatic={treasureCardStatic}
+      />
 
       <style jsx>{`
         .balloon-experience-container {

@@ -114,6 +114,8 @@ async function tryPlayAudioFile(
   if (options?.mood && options?.context) {
     const moodCapitalized = options.mood.charAt(0).toUpperCase() + options.mood.slice(1);
     const contextMapped = mapContextToYourNaming(options.context);
+    // audioIndex is optional in PlayTextAudioOptions (for backwards compatibility), 
+    // but required when coming from ContentMessage. Default to 1 if not provided.
     const primaryIndex = Math.max(1, Math.floor(options.audioIndex ?? 1));
     const indicesToTry: number[] = [primaryIndex];
 

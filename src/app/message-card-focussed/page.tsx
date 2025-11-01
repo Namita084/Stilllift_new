@@ -143,7 +143,7 @@ export default function MessageCardFocussedPage() {
           <div className="container">
             <StillLiftMobileCard
               message={selectedMessage.message}
-              actionType={selectedMessage.actionType as 'ACTION' | 'VISUALIZE' | 'RECITE' || 'ACTION'}
+              actionType={selectedMessage.actionType as 'ACTION' | 'VISUALIZE' | 'REPEAT' || 'ACTION'}
             />
 
             {/* Action Buttons and Micro Tips */}

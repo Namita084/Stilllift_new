@@ -9,19 +9,19 @@ import Background from '@/components/Background';
 import RevealElement from '@/components/3DRevealElement';
 import TextBackButton from '@/components/TextBackButton';
 import { initAnalytics, trackMoodSelected, trackContextSelected, trackMoodContextCombination, trackMicroHabitRevealed, trackUserAction } from '@/lib/analytics';
-import { getRandomMessage, getAllMessages, type Mood, type Context, type ContentMessage } from '@/lib/content';
+import { getRandomMessage, type Mood, type Context } from '@/lib/content';
 import { useAudioController } from '@/context/AudioControllerContext';
 import '@/components/3DComponents.css';
 
 interface MicroHabitData {
   action: string;
-  actionType: 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE';
+  actionType: 'ACTION' | 'REPEAT' | 'VISUALIZE';
   message: string;
   revealToken: string;
   revealType: string;
   accentColor: string;
   animationSpeed: 'rich' | 'quick' | 'gentle' | 'instant';
-  audioIndex?: number;
+  audioIndex: number; // Required: Index of the pre-recorded audio file
 }
 
 export default function Home() {
@@ -29,7 +29,6 @@ export default function Home() {
   const [selectedContext, setSelectedContext] = useState<string | null>(null);
   const [showReveal, setShowReveal] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
-  const [sheetContent, setSheetContent] = useState<{ safe: ContentMessage[]; moving: ContentMessage[]; focussed: ContentMessage[] } | null>(null);
   
   const {
     isDarkMode,
@@ -109,42 +108,6 @@ export default function Home() {
     setSelectedContext(null);
     setShowReveal(false);
     setIsRevealed(false);
-
-    // Fetch Google Sheet content (CSV export) once on load
-    const controller = new AbortController();
-    const loadSheet = async () => {
-      try {
-        const res = await fetch('https://docs.google.com/spreadsheets/d/12c1m52MTkfVhBMlE8Hr3VEeBBMjBR-Oe/export?format=csv&gid=1079777578', { signal: controller.signal });
-        if (!res.ok) return;
-        const csvText = await res.text();
-        // Basic CSV parse (no commas inside cells expected for our columns A-C)
-        const lines = csvText.split(/\r?\n/).filter(l => l.trim().length > 0);
-        const dataRows = lines.slice(1); // skip header row (STILL,MOVING,FOCUSED)
-        const parseCell = (cell: string): ContentMessage | null => {
-          const trimmed = cell.trim();
-          if (!trimmed) return null;
-          // Detect action type by bracket token like [ACTION] / [REPEAT/RECITE] / [VISUALIZE]
-          const typeMatch = trimmed.match(/\[(ACTION|REPEAT\/RECITE|VISUALIZE)\]/i);
-          const actionType = (typeMatch?.[1]?.toUpperCase() as ContentMessage['actionType']) || 'ACTION';
-          const message = trimmed.replace(/\s*\[(ACTION|REPEAT\/RECITE|VISUALIZE)\]\s*/i, '').trim();
-          return { actionType, message, displayTime: 120 };
-        };
-        const safe: ContentMessage[] = [];
-        const moving: ContentMessage[] = [];
-        const focussed: ContentMessage[] = [];
-        for (const row of dataRows) {
-          const cols = row.split(',');
-          if (cols[0]) { const m = parseCell(cols[0]); if (m) safe.push(m); }
-          if (cols[1]) { const m = parseCell(cols[1]); if (m) moving.push(m); }
-          if (cols[2]) { const m = parseCell(cols[2]); if (m) focussed.push(m); }
-        }
-        setSheetContent({ safe, moving, focussed });
-      } catch (_) {
-        // Silently fall back to local content library
-      }
-      return () => controller.abort();
-    };
-    loadSheet();
   }, []);
 
   // Auto-navigate to reveal when both mood and context are selected
@@ -166,35 +129,18 @@ export default function Home() {
   const getMicroHabit = (): MicroHabitData | null => {
     if (!selectedMood || !selectedContext) return null;
 
-    // Prefer Google Sheet content if loaded (pick a random item for variety)
-    let contentMessage: ContentMessage | null = null;
-    let sheetChosenIndex: number | null = null;
-    // For Good + On the move, force local library (skip Sheet)
-    if (sheetContent && !(selectedMood === 'good' && selectedContext === 'moving')) {
-      const source = selectedContext === 'safe'
-        ? sheetContent.safe
-        : selectedContext === 'moving'
-          ? sheetContent.moving
-          : sheetContent.focussed;
-      if (source && source.length > 0) {
-        sheetChosenIndex = Math.floor(Math.random() * source.length);
-        contentMessage = source[sheetChosenIndex] ?? null;
-      }
-    }
-    // Fallback to local content if sheet not loaded or empty
-    if (!contentMessage) {
-      contentMessage = getRandomMessage(selectedMood as Mood, selectedContext as Context);
-    }
+    // Always use local content library for all mood-context combinations
+    const contentMessage = getRandomMessage(selectedMood as Mood, selectedContext as Context);
     if (!contentMessage) return null;
 
     // Map content to micro-habit format with appropriate styling
-    const getActionType = (mood: string, context: string): 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE' => {
+    const getActionType = (mood: string, context: string): 'ACTION' | 'REPEAT' | 'VISUALIZE' => {
       if (mood === 'good' && context === 'safe') return 'VISUALIZE';
       if (mood === 'good' && (context === 'moving' || context === 'focussed')) return 'ACTION';
       if (mood === 'okay' && context === 'safe') return 'ACTION';
-      if (mood === 'okay' && context === 'moving') return 'REPEAT/RECITE';
+      if (mood === 'okay' && context === 'moving') return 'REPEAT';
       if (mood === 'okay' && context === 'focussed') return 'VISUALIZE';
-      if (mood === 'bad') return 'REPEAT/RECITE';
+      if (mood === 'bad') return 'REPEAT';
       if (mood === 'awful') return 'ACTION';
       return 'ACTION';
     };
@@ -226,7 +172,7 @@ export default function Home() {
 
     const getAccentColor = (actionType: string): string => {
       if (actionType === 'VISUALIZE') return '#8B5CF6'; // Purple
-      if (actionType === 'REPEAT/RECITE') return '#10B981'; // Green
+      if (actionType === 'REPEAT') return '#10B981'; // Green
       return '#3B82F6'; // Blue for ACTION
     };
 
@@ -251,23 +197,12 @@ export default function Home() {
     const accentColor = getAccentColor(actionType);
     const animationSpeed = getAnimationSpeed(selectedMood, selectedContext);
 
-    // Determine the audio index
-    // Prefer the index from the local library order (the canonical audio order).
-    // If not found in local library, fall back to sheet index (if any), then to embedded audioIndex.
-    const allForContext = getAllMessages(selectedMood as Mood, selectedContext as Context);
-    const positionIndex = allForContext.findIndex(m => m.message === contentMessage!.message);
-    let audioIndex: number | undefined = undefined;
-    if (positionIndex >= 0) {
-      audioIndex = positionIndex + 1;
-    } else if (sheetChosenIndex !== null) {
-      audioIndex = sheetChosenIndex + 1;
-    } else {
-      audioIndex = contentMessage.audioIndex;
-    }
+    // Use the explicit audioIndex from the message object (required field)
+    const audioIndex = contentMessage.audioIndex;
 
     return {
       action: contentMessage.message,
-      actionType: contentMessage.actionType as 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE',
+      actionType: contentMessage.actionType as 'ACTION' | 'REPEAT' | 'VISUALIZE',
       message: contentMessage.message,
       revealToken,
       revealType,
@@ -292,7 +227,7 @@ export default function Home() {
         mood: selectedMood ?? undefined,
         context: selectedContext ?? undefined,
         isHomepage: false,
-        audioIndex: selectedMicroHabit.audioIndex ?? undefined,
+        audioIndex: selectedMicroHabit.audioIndex,
         preferExactIndex: true,
       },
     };
@@ -384,7 +319,10 @@ export default function Home() {
       setIsRevealed(true);
       recordRevealAnalytics();
 
-      if (audioEnabled && !screenlessMode && taskAudioPayload && selectedMicroHabit.revealType !== 'treasure-chest') {
+      // Skip audio playback for 'playing-card' and 'treasure-chest' - they handle their own audio
+      if (audioEnabled && !screenlessMode && taskAudioPayload && 
+          selectedMicroHabit.revealType !== 'treasure-chest' && 
+          selectedMicroHabit.revealType !== 'playing-card') {
         // Ensure no previous audio (homepage or task) leaks through
         stopHomepageAudio();
         stopTaskAudio();
@@ -462,7 +400,7 @@ export default function Home() {
       return;
     }
 
-    const autoKey = `${taskAudioPayload.message}|${selectedMicroHabit.audioIndex ?? ''}|${selectedMood ?? ''}|${selectedContext ?? ''}`;
+    const autoKey = `${taskAudioPayload.message}|${selectedMicroHabit.audioIndex}|${selectedMood ?? ''}|${selectedContext ?? ''}`;
     if (lastAutoAudioKeyRef.current === autoKey) {
       return;
     }
@@ -662,7 +600,8 @@ export default function Home() {
               <>
                 {/* Reveal Experience */}
                 <div className="reveal-container">
-                  {selectedMicroHabit?.revealType !== 'balloon-pop' && (
+                  {selectedMicroHabit?.revealType !== 'balloon-pop' && 
+                   !(selectedMicroHabit?.revealType === 'playing-card' && (selectedContext === 'moving' || selectedContext === 'focussed')) && (
                     <div className="reveal-header">
                       <h2 className="font-inter font-semibold text-slate-900 dark:text-slate-100">
                         Your Personalized Experience
@@ -692,6 +631,7 @@ export default function Home() {
                     context={selectedContext}
                     onStartOver={handleStartOver}
                     onTryAnother={handleTryAnother}
+                    audioIndex={selectedMicroHabit?.audioIndex}
                     onPlayNarration={(msg, tag, overrideMood, overrideContext, audioIndexOverride, preferExact) => {
                       // Route narration to task audio with exact index if provided
                       playTaskAudio({

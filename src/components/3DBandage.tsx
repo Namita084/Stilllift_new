@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import ActionRevealCard from './ActionRevealCard';
 
 interface BandageProps {
   isRevealed: boolean;
@@ -17,6 +18,11 @@ interface BandageProps {
   ) => void;
   mood?: string;
   context?: string;
+  message?: string;
+  action?: string;
+  actionType?: string;
+  onStartOver?: () => void;
+  onTryAnother?: () => void;
 }
 
 const prescriptionMessages = [
@@ -27,8 +33,8 @@ const prescriptionMessages = [
   },
   {
     id: 2,
-    text: "Repeat: 'I'm doing just fine' (1 min)",
-    type: "[REPEAT/RECITE]"
+    text: "'I'm doing just fine' (1 min)",
+    type: "[REPEAT]"
   },
   {
     id: 3,
@@ -39,17 +45,21 @@ const prescriptionMessages = [
 
 const mapPrescriptionTypeToActionType = (type: string): string => {
   if (type.includes('VISUALIZE')) return 'VISUALIZE';
-  if (type.includes('REPEAT')) return 'REPEAT/RECITE';
+  if (type.includes('REPEAT')) return 'REPEAT';
   return 'ACTION';
 };
 
-export default function Bandage({ isRevealed, onReveal, accentColor, animationSpeed, onPlayNarration, mood, context }: BandageProps) {
+export default function Bandage({ isRevealed, onReveal, accentColor, animationSpeed, onPlayNarration, mood, context, message, action, actionType, onStartOver, onTryAnother }: BandageProps) {
   const [showBandage, setShowBandage] = useState(false);
   const [isPasting, setIsPasting] = useState(false);
   const [isPasted, setIsPasted] = useState(false);
   const [showPrescription, setShowPrescription] = useState(false);
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [sequenceKey, setSequenceKey] = useState(0);
+  const [showTreasureCard, setShowTreasureCard] = useState(false);
+  const [treasureCardEmerging, setTreasureCardEmerging] = useState(false);
+  const [treasureCardFullyRevealed, setTreasureCardFullyRevealed] = useState(false);
+  const [treasureCardStatic, setTreasureCardStatic] = useState(false);
   const hasAutoRevealed = useRef(false);
   const hasAnnouncedReveal = useRef(false);
 
@@ -85,6 +95,16 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
     const showPrescriptionTimeout = setTimeout(() => {
       console.log('💊 Prescription message revealed');
       setShowPrescription(true);
+      // Show treasure card after prescription
+      setShowTreasureCard(true);
+      setTreasureCardEmerging(true);
+      setTimeout(() => {
+        setTreasureCardFullyRevealed(true);
+        setTreasureCardEmerging(false);
+      }, 300);
+      setTimeout(() => {
+        setTreasureCardStatic(true);
+      }, 600);
     }, 3000);
 
     return () => {
@@ -100,6 +120,10 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
     setIsPasting(false);
     setIsPasted(false);
     setShowPrescription(false);
+    setShowTreasureCard(false);
+    setTreasureCardEmerging(false);
+    setTreasureCardFullyRevealed(false);
+    setTreasureCardStatic(false);
     setSequenceKey((prev) => prev + 1);
   };
 
@@ -136,6 +160,16 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
     setIsPasting(false);
     setIsPasted(true);
     setShowPrescription(true);
+    // Show treasure card
+    setShowTreasureCard(true);
+    setTreasureCardEmerging(true);
+    setTimeout(() => {
+      setTreasureCardFullyRevealed(true);
+      setTreasureCardEmerging(false);
+    }, 300);
+    setTimeout(() => {
+      setTreasureCardStatic(true);
+    }, 600);
   }, [isRevealed, showPrescription]);
 
   useEffect(() => {
@@ -181,32 +215,18 @@ export default function Bandage({ isRevealed, onReveal, accentColor, animationSp
         </div>
       )}
 
-      {/* Prescription Message Card */}
-      {showPrescription && (
-        <div className="prescription-card visible">
-          <div className="prescription-letterhead">
-            <div className="letterhead-logo" style={{ color: accentColor }}>💚</div>
-            <div className="letterhead-title">Stillift Wellness</div>
-            <div className="letterhead-subtitle">Mindful Care & Emotional Support</div>
-          </div>
-
-          <div className="prescription-body">
-            <div className="prescription-message">
-              <div className="message-content">{getCurrentMessage().text}</div>
-              <div className="message-type">{getCurrentMessage().type}</div>
-            </div>
-          </div>
-
-          <div className="prescription-actions">
-            <button className="prescription-button start-over-button" onClick={handleReplay}>
-              🔄 Start Over
-            </button>
-            <button className="prescription-button another-button" onClick={handleGiveAnother}>
-              📝 Give Me Another
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Treasure Card */}
+      <ActionRevealCard
+        message={message}
+        action={action}
+        actionType={actionType}
+        onStartOver={onStartOver}
+        onTryAnother={onTryAnother}
+        showCard={showTreasureCard}
+        isEmerging={treasureCardEmerging}
+        isFullyRevealed={treasureCardFullyRevealed}
+        isStatic={treasureCardStatic}
+      />
 
       <style jsx>{`
         .bandage-wrap-container {

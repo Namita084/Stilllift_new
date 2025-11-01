@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { playMessageAudio } from '@/lib/audio';
-import { getRandomMessage, CONTENT_LIBRARY, Mood } from '@/lib/content-updated';
+import { getRandomMessage, CONTENT_LIBRARY, Mood } from '@/lib/content';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';
@@ -26,6 +26,7 @@ declare global {
 interface ActionItem {
   message: string;
   actionType?: string;
+  audioIndex: number;
 }
 
 export default function MessageCardMovingPage() {
@@ -92,7 +93,7 @@ export default function MessageCardMovingPage() {
             voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira'],
             mood: mood,
             context: 'moving',
-            audioIndex: randomIndex + 1, // Audio files are 1-indexed
+            audioIndex: action.audioIndex, // Use explicit audioIndex from message
             preferExactIndex: true
           }
         ).catch(() => {
@@ -170,7 +171,7 @@ export default function MessageCardMovingPage() {
   };
 
   const playCurrentMessage = () => {
-    if (selectedAction && audioEnabled && currentMood && actionIndex !== null) {
+    if (selectedAction && audioEnabled && currentMood) {
       playMessageAudio(
         selectedAction.actionType || 'ACTION',
         selectedAction.message,
@@ -181,7 +182,7 @@ export default function MessageCardMovingPage() {
           voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira'],
           mood: currentMood,
           context: 'moving',
-          audioIndex: actionIndex + 1, // Audio files are 1-indexed
+          audioIndex: selectedAction.audioIndex, // Use explicit audioIndex from message
           preferExactIndex: true
         }
       );
@@ -194,7 +195,7 @@ export default function MessageCardMovingPage() {
     return () => {
       delete window.playCurrentActionAudio;
     };
-  }, [selectedAction, audioEnabled, currentMood, actionIndex]);
+  }, [selectedAction, audioEnabled, currentMood]);
 
   if (!selectedAction) {
     return <div>Loading...</div>;

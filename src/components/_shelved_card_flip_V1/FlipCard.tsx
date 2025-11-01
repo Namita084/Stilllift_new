@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 interface FlipCardProps {
   message: string;
-  actionType: "ACTION" | "VISUALIZE" | "RECITE";
+  actionType: "ACTION" | "VISUALIZE" | "REPEAT";
   title: string;
   flipDelay?: number;
 }

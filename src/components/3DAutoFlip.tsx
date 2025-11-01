@@ -9,7 +9,7 @@ interface AutoFlipProps {
   animationSpeed: 'rich' | 'quick' | 'gentle' | 'instant';
   message?: string;
   action?: string;
-  actionType?: 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE';
+  actionType?: 'ACTION' | 'REPEAT' | 'VISUALIZE';
   onStartOver?: () => void;
   onTryAnother?: () => void;
   onPlayNarration?: (
@@ -58,9 +58,9 @@ export default function AutoFlip({
       tag: "ACTION"
     },
     {
-      action: "Repeat: 'I am exactly where I need to be'",
+      action: "'I am exactly where I need to be'",
       message: "Sometimes the journey is more important than the destination. Trust your path.",
-      tag: "REPEAT/RECITE"
+      tag: "REPEAT"
     }
   ];
 
@@ -163,7 +163,7 @@ export default function AutoFlip({
     switch (tag) {
       case 'VISUALIZE': return '#10B981'; // Green
       case 'ACTION': return '#3B82F6'; // Blue
-      case 'REPEAT/RECITE': return '#8B5CF6'; // Purple
+      case 'REPEAT': return '#10B981'; // Green
       default: return accentColor;
     }
   };

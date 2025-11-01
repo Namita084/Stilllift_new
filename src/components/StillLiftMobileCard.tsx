@@ -5,7 +5,7 @@ import { useUserPreferences } from '@/hooks/useUserPreferences';
 
 interface StillLiftMobileCardProps {
   message: string;
-  actionType: 'ACTION' | 'VISUALIZE' | 'RECITE';
+  actionType: 'ACTION' | 'VISUALIZE' | 'REPEAT';
 }
 
 export default function StillLiftMobileCard({ message, actionType }: StillLiftMobileCardProps) {

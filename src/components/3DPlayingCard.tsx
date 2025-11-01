@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
+import ActionRevealCard from './ActionRevealCard';
 
 interface PlayingCardProps {
   isRevealed: boolean;
@@ -10,7 +11,7 @@ interface PlayingCardProps {
   animationSpeed: "rich" | "quick" | "gentle" | "instant";
   message: string;
   action: string;
-  actionType: "ACTION" | "REPEAT/RECITE" | "VISUALIZE";
+  actionType: "ACTION" | "REPEAT" | "VISUALIZE";
   onStartOver?: () => void;
   onTryAnother?: () => void;
   mood?: string;
@@ -23,6 +24,7 @@ interface PlayingCardProps {
     preferExact?: boolean
   ) => void;
   context?: string;
+  audioIndex?: number;
 }
 
 export default function PlayingCard({
@@ -38,6 +40,7 @@ export default function PlayingCard({
   mood,
   onPlayNarration,
   context,
+  audioIndex,
 }: PlayingCardProps) {
   const [isFlipping, setIsFlipping] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -46,6 +49,10 @@ export default function PlayingCard({
   const [canClick, setCanClick] = useState(true);
   const [currentMessage, setCurrentMessage] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [showTreasureCard, setShowTreasureCard] = useState(false);
+  const [treasureCardEmerging, setTreasureCardEmerging] = useState(false);
+  const [treasureCardFullyRevealed, setTreasureCardFullyRevealed] = useState(false);
+  const [treasureCardStatic, setTreasureCardStatic] = useState(false);
   const cardRef = useRef<HTMLDivElement | null>(null);
 
   const palette = useMemo(() => {
@@ -150,12 +157,22 @@ export default function PlayingCard({
   // Auto-flip after delay using transition-based flip (no keyframes)
   useEffect(() => {
     if (!isRevealed && canClick) {
-      // For moving context, show the action immediately as a simple card (no flip)
-      if (context === 'moving') {
+      // For moving and focussed contexts, show the action immediately as a simple card (no flip)
+      if (context === 'moving' || context === 'focussed') {
         setCanClick(false);
         setIsFlipped(true);
         setShowMessage(true);
         setIsExpanded(true);
+        // Show treasure card for moving/focussed contexts
+        setShowTreasureCard(true);
+        setTreasureCardEmerging(true);
+        setTimeout(() => {
+          setTreasureCardFullyRevealed(true);
+          setTreasureCardEmerging(false);
+        }, 300);
+        setTimeout(() => {
+          setTreasureCardStatic(true);
+        }, 600);
         const revealTimer = setTimeout(() => onReveal(), 200);
         return () => clearTimeout(revealTimer);
       }
@@ -176,15 +193,27 @@ export default function PlayingCard({
 
         const msgTimer = setTimeout(() => {
           setShowMessage(true);
+          // Show treasure card after message appears
+          setShowTreasureCard(true);
+          setTreasureCardEmerging(true);
           // Expand for readability
           const expandTimer = setTimeout(() => {
             setIsExpanded(true);
+            setTreasureCardFullyRevealed(true);
+            setTreasureCardEmerging(false);
             console.log("🎴 Playing card expanded for better readability");
+            // Treasure card becomes static
+            const staticTimer = setTimeout(() => {
+              setTreasureCardStatic(true);
+            }, 300);
             // Notify reveal after a small delay
             const revealTimer = setTimeout(() => {
               onReveal();
             }, 300);
-            return () => clearTimeout(revealTimer);
+            return () => {
+              clearTimeout(revealTimer);
+              clearTimeout(staticTimer);
+            };
           }, expandDelay);
           return () => clearTimeout(expandTimer);
         }, showMsgDelay);
@@ -220,9 +249,11 @@ export default function PlayingCard({
       currentData.message,
       currentData.tag,
       mood ?? null,
-      context ?? null
+      context ?? null,
+      audioIndex ?? null,
+      audioIndex !== undefined && audioIndex !== null
     );
-  }, [showMessage, onPlayNarration, messages, currentMessage, mood, context]);
+  }, [showMessage, onPlayNarration, messages, currentMessage, mood, context, audioIndex]);
 
   const handleStartOver = () => {
     console.log("🏠 Going back to home screen...");
@@ -255,8 +286,8 @@ export default function PlayingCard({
           currentData.tag,
           mood ?? null,
           context ?? null,
-          null,
-          false
+          audioIndex ?? null,
+          audioIndex !== undefined && audioIndex !== null
         );
       }
     }
@@ -268,7 +299,7 @@ export default function PlayingCard({
         return "#8B5CF6"; // Purple
       case "ACTION":
         return "#3B82F6"; // Blue
-      case "REPEAT/RECITE":
+      case "REPEAT":
         return "#10B981"; // Green
       default:
         return accentColor;
@@ -276,7 +307,7 @@ export default function PlayingCard({
   };
 
   const getDisplayTag = (tag: string) => {
-    if (tag === 'REPEAT/RECITE' || tag === 'RECITE') return 'REPEAT';
+    if (tag === 'REPEAT' || tag === 'RECITE') return 'REPEAT';
     return tag;
   };
 
@@ -296,80 +327,48 @@ export default function PlayingCard({
     } as React.CSSProperties;
   }, [cardAnimationDuration, palette]);
 
-  // For moving context, reveal quickly at top-level (no conditional hook usage)
+  // For moving and focussed contexts, reveal quickly at top-level (no conditional hook usage)
   useEffect(() => {
-    if (context !== 'moving') return;
+    if (context !== 'moving' && context !== 'focussed') return;
     const t = setTimeout(() => onReveal(), 80);
     return () => clearTimeout(t);
   }, [context, onReveal]);
 
-  // Simple, non-flipping card for moving context to guarantee visibility
-  if (context === 'moving') {
+  // Show treasure card for moving and focussed contexts
+  useEffect(() => {
+    if (context === 'moving' || context === 'focussed') {
+      // Show treasure card after a short delay
+      const timer = setTimeout(() => {
+        setShowTreasureCard(true);
+        setTreasureCardEmerging(true);
+        setTimeout(() => {
+          setTreasureCardFullyRevealed(true);
+          setTreasureCardEmerging(false);
+        }, 300);
+        setTimeout(() => {
+          setTreasureCardStatic(true);
+        }, 600);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [context]);
+  
+  // Simple, non-flipping card for moving and focussed contexts - show treasure card instead
+  if (context === 'moving' || context === 'focussed') {
     return (
-      <div className="playing-card-container" style={{ zIndex: 10000 }}>
-        <div className="simple-moving-card" style={{
-          position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          width: '420px', maxWidth: '95vw', minHeight: '480px',
-          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-          borderRadius: '16px',
-          border: '2px solid rgba(30,58,138,0.1)',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
-          padding: '24px',
-          display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
-        }}>
-          <div className="message-tag" style={{
-            display: 'inline-block',
-            alignSelf: 'flex-start',
-            padding: '6px 12px',
-            borderRadius: '999px',
-            fontWeight: 700,
-            fontSize: '12px',
-            letterSpacing: '0.04em',
-            color: '#ffffff',
-            backgroundColor: getTagColor(actionType)
-          }}>{getDisplayTag(actionType)}</div>
-          <h3 className="message-action" style={{
-            marginTop: '12px', marginBottom: '8px', fontSize: '22px', fontWeight: 800,
-            color: '#0f172a'
-          }}>{(actionType === 'REPEAT/RECITE') ? `Repeat: ${action}` : action}</h3>
-          {/* Only show body text if different from action to avoid repetition */}
-          {message !== action && (
-            <p className="message-text" style={{
-              margin: 0, fontSize: '16px', lineHeight: 1.6, color: '#334155'
-            }}>{message}</p>
-          )}
-
-          <div className="moving-card-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-            <button
-              className="action-button give-another primary"
-              onClick={onTryAnother}
-              style={{
-                flex: 1,
-                padding: '12px 16px',
-                borderRadius: '12px',
-                border: '2px solid rgba(0,0,0,0.05)',
-                background: 'linear-gradient(135deg, #004851 0%, #006B7A 100%)',
-                color: '#fff', fontWeight: 700
-              }}
-            >
-              🔀 Try Another
-            </button>
-            <button
-              className="action-button start-over"
-              onClick={onStartOver}
-              style={{
-                flex: 1,
-                padding: '12px 16px',
-                borderRadius: '12px',
-                border: '2px solid rgba(0,0,0,0.05)',
-                background: '#ffffff', color: '#334155', fontWeight: 700
-              }}
-            >
-              🏠 Start Over
-            </button>
-          </div>
-        </div>
-      </div>
+      <>
+        <ActionRevealCard
+          message={message}
+          action={action}
+          actionType={actionType}
+          onStartOver={onStartOver}
+          onTryAnother={onTryAnother}
+          showCard={showTreasureCard}
+          isEmerging={treasureCardEmerging}
+          isFullyRevealed={treasureCardFullyRevealed}
+          isStatic={treasureCardStatic}
+        />
+      </>
     );
   }
 
@@ -383,8 +382,8 @@ export default function PlayingCard({
         style={cardThemeStyle}
         data-speed={animationSpeed}
       >
-        {/* Card Back (shows first) - hidden for moving context to avoid mirrored branding */}
-        {context !== 'moving' && (
+        {/* Card Back (shows first) - hidden for moving and focussed contexts to avoid mirrored branding */}
+        {context !== 'moving' && context !== 'focussed' && (
         <div className="card-face card-back">
           <div className="card-back-content">
             <div className="back-pattern">
@@ -447,7 +446,7 @@ export default function PlayingCard({
             </div>
 
             {/* Message Action */}
-            <h3 className="message-action">{(currentMessageData.tag === 'REPEAT/RECITE') ? `Repeat: ${currentMessageData.action}` : currentMessageData.action}</h3>
+            <h3 className="message-action">{currentMessageData.action}</h3>
 
             {/* Message Text */}
             <p className="message-text">{currentMessageData.message}</p>
@@ -470,6 +469,19 @@ export default function PlayingCard({
           </div>
         </div>
       </div>
+
+      {/* Treasure Card - shown for all contexts */}
+      <ActionRevealCard
+        message={message}
+        action={action}
+        actionType={actionType}
+        onStartOver={onStartOver}
+        onTryAnother={onTryAnother}
+        showCard={showTreasureCard}
+        isEmerging={treasureCardEmerging}
+        isFullyRevealed={treasureCardFullyRevealed}
+        isStatic={treasureCardStatic}
+      />
 
       <style jsx>{`
         .playing-card-container {

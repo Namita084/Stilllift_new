@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { CONTENT_LIBRARY, Mood } from '@/lib/content-updated';
+import { CONTENT_LIBRARY, Mood } from '@/lib/content';
+import ActionRevealCard from './ActionRevealCard';
 
 const CHEST_ACTION_TYPE = 'ACTION';
 const CHEST_MESSAGE_ACTION = "Practice gratitude by naming three things you appreciate right now";
@@ -51,6 +52,10 @@ export default function TreasureChest({
   const [canClick, setCanClick] = useState(true);
   const [messageStaysPermanent, setMessageStaysPermanent] = useState(false);
   const [messageStatic, setMessageStatic] = useState(false);
+  const [showTreasureCard, setShowTreasureCard] = useState(false);
+  const [treasureCardEmerging, setTreasureCardEmerging] = useState(false);
+  const [treasureCardFullyRevealed, setTreasureCardFullyRevealed] = useState(false);
+  const [treasureCardStatic, setTreasureCardStatic] = useState(false);
   const hasAnnouncedReveal = useRef(false);
   const hasNarrated = useRef(false);
   const hasAutoRevealed = useRef(false);
@@ -61,7 +66,7 @@ export default function TreasureChest({
 
   const getDisplayActionType = (raw: string | null | undefined): string => {
     const value = (raw ?? '').toUpperCase();
-    if (value === 'RECITE' || value === 'REPEAT/RECITE') return 'REPEAT';
+    if (value === 'RECITE' || value === 'REPEAT/RECITE' || value === 'REPEAT') return 'REPEAT';
     return raw ?? 'ACTION';
   };
 
@@ -149,9 +154,23 @@ export default function TreasureChest({
     // Message becomes permanent - never disappears
     setTimeout(() => {
       setMessageStaysPermanent(true);
+      // Show treasure card after animation completes
+      setShowTreasureCard(true);
+      setTreasureCardEmerging(true);
       // Don't call onReveal() to prevent message from disappearing
       console.log('TreasureChest: Animation complete, message permanent and static');
     }, duration * 1.5);
+    
+    // Treasure card fully revealed
+    setTimeout(() => {
+      setTreasureCardFullyRevealed(true);
+      setTreasureCardEmerging(false);
+    }, duration * 1.7);
+    
+    // Treasure card becomes static
+    setTimeout(() => {
+      setTreasureCardStatic(true);
+    }, duration * 1.9);
     
   }, [canClick, isOpening, onReveal, animationSpeed, mood, context, selectRandomForGoodSafe]);
 
@@ -177,6 +196,16 @@ export default function TreasureChest({
     setMessageStatic(true);
     setMessageStaysPermanent(true);
     setChestHidden(true);
+    // Show treasure card
+    setShowTreasureCard(true);
+    setTreasureCardEmerging(true);
+    setTimeout(() => {
+      setTreasureCardFullyRevealed(true);
+      setTreasureCardEmerging(false);
+    }, 300);
+    setTimeout(() => {
+      setTreasureCardStatic(true);
+    }, 600);
 
     if (!hasAnnouncedReveal.current) {
       hasAnnouncedReveal.current = true;
@@ -230,7 +259,16 @@ export default function TreasureChest({
   const handleTryAnotherClick = () => {
     // For Good + Still: re-randomize in place and play matching audio
     if (selectRandomForGoodSafe()) {
-      // Ensure the message remains visible and impactful
+      // Ensure the treasure card remains visible
+      setShowTreasureCard(true);
+      setTreasureCardEmerging(true);
+      setTimeout(() => {
+        setTreasureCardFullyRevealed(true);
+        setTreasureCardEmerging(false);
+      }, 300);
+      setTimeout(() => {
+        setTreasureCardStatic(true);
+      }, 600);
       setIsOpening(false);
       setIsOpened(true);
       setShowCoins(false);
@@ -313,74 +351,18 @@ export default function TreasureChest({
         </div>
       )}
 
-      {/* Treasure Message Scroll */}
-      {(messageEmerging || showMessage || messageStaysPermanent) && (
-        <div className={`treasure-message-scroll ${messageEmerging ? 'emerging' : ''} ${showMessage || messageStaysPermanent ? 'fully-revealed' : ''} ${messageStatic ? 'static' : ''}`}>
-          <div className="scroll-container">
-            <div className="scroll-header">
-              <div className="treasure-gems">
-                <span className="gem">💎</span>
-                <span className="gem">💎</span>
-                <span className="gem">💎</span>
-              </div>
-              <div className="scroll-title">✨ Your Treasure ✨</div>
-            </div>
-            
-            <div className="scroll-content">
-              <div className="action-badge" style={{ 
-                backgroundColor: (overrideActionType ?? actionType) === 'VISUALIZE' ? '#8B5CF6' : 
-                               ((overrideActionType ?? actionType) === 'REPEAT/RECITE' || (overrideActionType ?? actionType) === 'RECITE' || getDisplayActionType(overrideActionType ?? actionType) === 'REPEAT') ? '#10B981' : 
-                                '#3B82F6',
-                color: '#ffffff',
-                fontWeight: '600',
-                textShadow: 'none'
-              }}>
-                {getDisplayActionType(overrideActionType ?? actionType)}
-              </div>
-              
-              <h2 style={{ fontWeight: '600', textShadow: 'none', fontSize: '1.5rem', margin: '1rem 0', zIndex: 999 }}>
-                {overrideMessage ?? action}
-              </h2>
-              <p style={{ 
-                fontWeight: '600', 
-                textShadow: 'none', 
-                opacity: '1', 
-                fontSize: '1.2rem', 
-                lineHeight: '1.7', 
-                margin: '1rem 0', 
-                zIndex: 999,
-                fontFamily: 'Inter, sans-serif',
-                letterSpacing: '0.025em'
-              }}>{overrideMessage ? '' : message}</p>
-              
-              <div className="treasure-divider">
-                <span>⚜️</span>
-              </div>
-              
-              <div className="treasure-buttons">
-                <button 
-                  className="treasure-btn primary"
-                  onClick={handleTryAnotherClick}
-                >
-                  <span className="btn-icon">🔮</span>
-                  Try Another
-                </button>
-                <button 
-                  className="treasure-btn secondary"
-                  onClick={onStartOver || handleReplay}
-                >
-                  <span className="btn-icon">🏠</span>
-                  Start Over
-                </button>
-              </div>
-            </div>
-            
-            <div className="scroll-footer">
-              <div className="golden-border"></div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Treasure Card - Use shared component */}
+      <ActionRevealCard
+        message={!overrideMessage ? message : undefined}
+        action={overrideMessage ?? action}
+        actionType={overrideActionType ?? actionType}
+        onStartOver={onStartOver}
+        onTryAnother={handleTryAnotherClick}
+        showCard={showTreasureCard}
+        isEmerging={treasureCardEmerging}
+        isFullyRevealed={treasureCardFullyRevealed}
+        isStatic={treasureCardStatic}
+      />
 
       <style jsx>{`
         .treasure-chest-container {

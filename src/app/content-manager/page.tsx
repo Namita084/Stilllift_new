@@ -17,8 +17,7 @@ export default function ContentManagerPage() {
     actionType: 'ACTION',
     message: '',
     displayTime: 10,
-    category: 'general',
-    intensity: 'moderate'
+    audioIndex: 1
   });
   const [isAdding, setIsAdding] = useState(false);
 
@@ -53,8 +52,7 @@ export default function ContentManagerPage() {
       actionType: 'ACTION',
       message: '',
       displayTime: 10,
-      category: 'general',
-      intensity: 'moderate'
+      audioIndex: 1
     });
   };
 
@@ -171,18 +169,6 @@ export default function ContentManagerPage() {
                           {message.displayTime}s
                         </span>
                       </div>
-                      <div className="flex gap-2">
-                        {message.category && (
-                          <span className="px-2 py-1 text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded">
-                            {message.category}
-                          </span>
-                        )}
-                        {message.intensity && (
-                          <span className="px-2 py-1 text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 rounded">
-                            {message.intensity}
-                          </span>
-                        )}
-                      </div>
                     </div>
                     <p className="text-slate-600 dark:text-slate-300 text-sm">
                       {message.message}
@@ -206,12 +192,12 @@ export default function ContentManagerPage() {
                     </label>
                     <select
                       value={newMessage.actionType}
-                      onChange={(e) => setNewMessage(prev => ({ ...prev, actionType: e.target.value as 'VISUALIZE' | 'ACTION' | 'RECITE' }))}
+                      onChange={(e) => setNewMessage(prev => ({ ...prev, actionType: e.target.value as 'VISUALIZE' | 'ACTION' | 'REPEAT' }))}
                       className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                     >
                       <option value="VISUALIZE">VISUALIZE</option>
                       <option value="ACTION">ACTION</option>
-                      <option value="RECITE">RECITE</option>
+                      <option value="REPEAT">REPEAT</option>
                     </select>
                   </div>
 
@@ -244,35 +230,6 @@ export default function ContentManagerPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Category
-                    </label>
-                    <input
-                      type="text"
-                      value={newMessage.category || ''}
-                      onChange={(e) => setNewMessage(prev => ({ ...prev, category: e.target.value }))}
-                      className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                      placeholder="e.g., mindfulness, connection, etc."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                      Intensity
-                    </label>
-                    <select
-                      value={newMessage.intensity || 'moderate'}
-                      onChange={(e) => setNewMessage(prev => ({ ...prev, intensity: e.target.value as 'gentle' | 'moderate' | 'strong' }))}
-                      className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                    >
-                      <option value="gentle">Gentle</option>
-                      <option value="moderate">Moderate</option>
-                      <option value="strong">Strong</option>
-                    </select>
-                  </div>
-                </div>
 
                 <div className="flex gap-4">
                   <button

@@ -3,8 +3,6 @@ import {
   getRandomMessage, 
   getAllMessages, 
   getRandomMessages, 
-  getMessagesByCategory, 
-  getMessagesByIntensity,
   type Mood, 
   type Context, 
   type ContentMessage 
@@ -14,13 +12,11 @@ export interface UseContentOptions {
   mood: Mood | null;
   context: Context | null;
   count?: number;
-  category?: string;
-  intensity?: 'gentle' | 'moderate' | 'strong';
   shuffle?: boolean;
 }
 
 export function useContent(options: UseContentOptions) {
-  const { mood, context, count = 3, category, intensity, shuffle = true } = options;
+  const { mood, context, count = 3, shuffle = true } = options;
 
   const content = useMemo(() => {
     if (!mood || !context) {
@@ -34,16 +30,7 @@ export function useContent(options: UseContentOptions) {
     }
 
     try {
-      let messages: ContentMessage[] = [];
-
-      // Get messages based on filters
-      if (category) {
-        messages = getMessagesByCategory(mood, context, category);
-      } else if (intensity) {
-        messages = getMessagesByIntensity(mood, context, intensity);
-      } else {
-        messages = getAllMessages(mood, context);
-      }
+      let messages: ContentMessage[] = getAllMessages(mood, context);
 
       // Shuffle if requested
       if (shuffle && messages.length > 0) {
@@ -72,7 +59,7 @@ export function useContent(options: UseContentOptions) {
         error: error instanceof Error ? error.message : 'Unknown error occurred'
       };
     }
-  }, [mood, context, count, category, intensity, shuffle]);
+  }, [mood, context, count, shuffle]);
 
   return content;
 }

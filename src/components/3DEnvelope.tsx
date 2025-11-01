@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import ActionRevealCard from './ActionRevealCard';
 
 interface EnvelopeProps {
   isRevealed: boolean;
@@ -15,10 +16,10 @@ interface EnvelopeProps {
     audioIndexOverride?: number | null,
     preferExact?: boolean
   ) => void;
-  // Content coming from the centralized library (sheet-derived)
+  // Content coming from the centralized library
   message?: string; // full text to display
   action?: string;  // same as message in our mapping
-  actionType?: string; // 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE'
+  actionType?: string; // 'ACTION' | 'REPEAT' | 'VISUALIZE'
   onStartOver?: () => void;
   onTryAnother?: () => void;
   mood?: string;
@@ -30,7 +31,7 @@ const actionTypeToTitle = (actionType?: string): string => {
   if (!actionType) return '💌 A Note for You';
   const upper = actionType.toUpperCase();
   if (upper.includes('VISUAL')) return '🌈 Visualize This';
-  if (upper.includes('RECITE')) return '🗣️ Repeat Gently';
+  if (upper.includes('RECITE') || upper.includes('REPEAT')) return '🗣️ Repeat Gently';
   if (upper.includes('ACTION')) return '🧭 Gentle Action';
   return '💌 A Note for You';
 };
@@ -53,6 +54,10 @@ export default function Envelope({
   const [flapOpen, setFlapOpen] = useState(false);
   const [messageVisible, setMessageVisible] = useState(false);
   const [canClick, setCanClick] = useState(true);
+  const [showTreasureCard, setShowTreasureCard] = useState(false);
+  const [treasureCardEmerging, setTreasureCardEmerging] = useState(false);
+  const [treasureCardFullyRevealed, setTreasureCardFullyRevealed] = useState(false);
+  const [treasureCardStatic, setTreasureCardStatic] = useState(false);
   const hasAutoRevealed = useRef(false);
   const hasAnnouncedReveal = useRef(false);
   
@@ -83,10 +88,23 @@ export default function Envelope({
       setFlapOpen(true);
     }, duration * 0.1);
     
-    // Message card slides out gently and stays longer
+    // Treasure card appears after envelope opens
     setTimeout(() => {
       setMessageVisible(true);
+      setShowTreasureCard(true);
+      setTreasureCardEmerging(true);
     }, duration * 0.6);
+    
+    // Treasure card fully revealed
+    setTimeout(() => {
+      setTreasureCardFullyRevealed(true);
+      setTreasureCardEmerging(false);
+    }, duration * 0.8);
+    
+    // Treasure card becomes static
+    setTimeout(() => {
+      setTreasureCardStatic(true);
+    }, duration * 1.1);
   }, [canClick, isAnimating, isRevealed, onReveal, getAnimationDuration]);
 
   const handleReplay = () => {
@@ -132,6 +150,16 @@ export default function Envelope({
     setIsAnimating(false);
     setFlapOpen(true);
     setMessageVisible(true);
+    // Show treasure card
+    setShowTreasureCard(true);
+    setTreasureCardEmerging(true);
+    setTimeout(() => {
+      setTreasureCardFullyRevealed(true);
+      setTreasureCardEmerging(false);
+    }, 300);
+    setTimeout(() => {
+      setTreasureCardStatic(true);
+    }, 600);
   }, [isRevealed, messageVisible]);
 
   useEffect(() => {
@@ -170,38 +198,18 @@ export default function Envelope({
 
       
 
-      {/* Large Impact Message Card */}
-      <div className={`large-message-card ${messageVisible ? 'visible' : ''}`}>
-        <div className="large-card-content">
-          {/* Tag */}
-          <div className="large-card-tag">
-            {resolvedTitle}
-          </div>
-          
-          {/* Message with clean background */}
-          <div className="large-card-message">
-            <div className="clean-text-area">
-              {resolvedMessage}
-            </div>
-          </div>
-          
-          {/* Action Buttons */}
-          <div className="large-card-actions">
-            <button 
-              className="large-action-button replay-large-button"
-              onClick={onStartOver ?? handleStartOver}
-            >
-              🔄 Start Over
-            </button>
-            <button 
-              className="large-action-button support-large-button"
-              onClick={handleGiveAnother}
-            >
-              📝 Give Me Another
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Treasure Card */}
+      <ActionRevealCard
+        message={message}
+        action={action}
+        actionType={actionType}
+        onStartOver={onStartOver}
+        onTryAnother={onTryAnother}
+        showCard={showTreasureCard}
+        isEmerging={treasureCardEmerging}
+        isFullyRevealed={treasureCardFullyRevealed}
+        isStatic={treasureCardStatic}
+      />
 
       {/* Interaction Hint */}
       {canClick && !isAnimating && !messageVisible && (

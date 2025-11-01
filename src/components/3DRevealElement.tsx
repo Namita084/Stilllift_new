@@ -129,6 +129,11 @@ export default function RevealElement({
             onPlayNarration={handleCustomNarration}
             mood={mood ?? undefined}
             context={context ?? undefined}
+            message={message ?? ''}
+            action={action ?? ''}
+            actionType={actionType}
+            onStartOver={onStartOver}
+            onTryAnother={onTryAnother}
           />
         );
       
@@ -142,6 +147,11 @@ export default function RevealElement({
             onPlayNarration={handleCustomNarration}
             mood={mood ?? undefined}
             context={context ?? undefined}
+            message={message ?? ''}
+            action={action ?? ''}
+            actionType={actionType}
+            onStartOver={onStartOver}
+            onTryAnother={onTryAnother}
           />
         );
       
@@ -190,7 +200,7 @@ export default function RevealElement({
             animationSpeed={animationSpeed}
             message={message ?? ''}
             action={action ?? ''}
-            actionType={actionType as 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE'}
+            actionType={actionType as 'ACTION' | 'REPEAT' | 'VISUALIZE'}
             onStartOver={onStartOver}
             onTryAnother={onTryAnother}
             onPlayNarration={handleCustomNarration}
@@ -208,12 +218,13 @@ export default function RevealElement({
             animationSpeed={animationSpeed}
             message={message ?? ''}
             action={action ?? ''}
-            actionType={actionType as 'ACTION' | 'REPEAT/RECITE' | 'VISUALIZE'}
+            actionType={actionType as 'ACTION' | 'REPEAT' | 'VISUALIZE'}
             onStartOver={onStartOver}
             onTryAnother={onTryAnother}
             mood={mood ?? undefined}
             onPlayNarration={handleCustomNarration}
             context={context ?? undefined}
+            audioIndex={audioIndex}
           />
         );
       
@@ -257,6 +268,11 @@ export default function RevealElement({
             onPlayNarration={handleCustomNarration}
             mood={mood ?? undefined}
             context={context ?? undefined}
+            message={message ?? ''}
+            action={action ?? ''}
+            actionType={actionType}
+            onStartOver={onStartOver}
+            onTryAnother={onTryAnother}
           />
         );
       
