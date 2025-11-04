@@ -19,7 +19,7 @@ interface EnvelopeProps {
   // Content coming from the centralized library
   message?: string; // full text to display
   action?: string;  // same as message in our mapping
-  actionType?: string; // 'ACTION' | 'REPEAT' | 'VISUALIZE'
+  actionType?: string; // 'ACTION' | 'REPEAT' | 'VISUALIZE' | 'BREATHE' | 'LISTEN'
   onStartOver?: () => void;
   onTryAnother?: () => void;
   mood?: string;
@@ -33,6 +33,8 @@ const actionTypeToTitle = (actionType?: string): string => {
   if (upper.includes('VISUAL')) return '🌈 Visualize This';
   if (upper.includes('RECITE') || upper.includes('REPEAT')) return '🗣️ Repeat Gently';
   if (upper.includes('ACTION')) return '🧭 Gentle Action';
+  if (upper.includes('BREATHE')) return '🌬️ Breathe Deeply';
+  if (upper.includes('LISTEN')) return '👂 Listen Mindfully';
   return '💌 A Note for You';
 };
 

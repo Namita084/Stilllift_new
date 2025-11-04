@@ -9,7 +9,7 @@ interface AutoFlipProps {
   animationSpeed: 'rich' | 'quick' | 'gentle' | 'instant';
   message?: string;
   action?: string;
-  actionType?: 'ACTION' | 'REPEAT' | 'VISUALIZE';
+  actionType?: 'ACTION' | 'REPEAT' | 'VISUALIZE' | 'BREATHE' | 'LISTEN';
   onStartOver?: () => void;
   onTryAnother?: () => void;
   onPlayNarration?: (
@@ -161,9 +161,11 @@ export default function AutoFlip({
 
   const getTagColor = (tag: string) => {
     switch (tag) {
-      case 'VISUALIZE': return '#10B981'; // Green
+      case 'VISUALIZE': return '#8B5CF6'; // Purple
       case 'ACTION': return '#3B82F6'; // Blue
       case 'REPEAT': return '#10B981'; // Green
+      case 'BREATHE': return '#F59E0B'; // Amber/Orange
+      case 'LISTEN': return '#EC4899'; // Pink
       default: return accentColor;
     }
   };

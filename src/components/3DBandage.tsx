@@ -46,6 +46,8 @@ const prescriptionMessages = [
 const mapPrescriptionTypeToActionType = (type: string): string => {
   if (type.includes('VISUALIZE')) return 'VISUALIZE';
   if (type.includes('REPEAT')) return 'REPEAT';
+  if (type.includes('BREATHE')) return 'BREATHE';
+  if (type.includes('LISTEN')) return 'LISTEN';
   return 'ACTION';
 };
 

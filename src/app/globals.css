@@ -22,13 +22,26 @@
     box-sizing: border-box;
 }
 
+html {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+}
+
+html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    position: relative;
+}
+
 :root {
     /* Enterprise Color Palette */
     --primary-blue: #004851;
     --primary-blue-dark: #003A40;
     --primary-blue-light: #006B7A;
     --accent-secondary: #1E40AF;
-    --off-white: #FAFAF9;
+    --off-white: #E6EBF2;
     --pure-white: #FFFFFF;
     --text-dark: #111827;
     --text-light: #FFFFFF;
@@ -57,9 +70,13 @@
     --glass-card-shadow: 0 8px 32px rgba(114, 160, 193, 0.15);
     
     /* Dark Mode Colors */
-    --dark-bg: #0F172A;
-    --dark-card-bg: rgba(30, 41, 59, 0.95);
+    --dark-bg: #0F172A; /* slate-900 - Deep blue-gray background */
+    --dark-card-bg: #1E293B; /* slate-800 - Card backgrounds */
+    --dark-card-hover: #334155; /* slate-700 - Hover/Active states */
     --dark-card-border: rgba(148, 163, 184, 0.1);
+    --dark-text-primary: #F8FAFC; /* slate-50 - Primary text */
+    --dark-text-secondary: #CBD5E1; /* slate-300 - Secondary text */
+    --dark-accent-gradient: linear-gradient(90deg, #60A5FA, #A78BFA); /* Blue-to-violet gradient */
     
     /* Typography */
     --font-heading: var(--font-inter), 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -87,18 +104,18 @@
 
 /* Dark mode colors - FIXED */
 .dark-mode {
-    --card-bg: rgba(30, 41, 59, 0.95);
-    --card-bg-strong: rgba(30, 41, 59, 0.98);
+    --card-bg: var(--dark-card-bg); /* #1E293B */
+    --card-bg-strong: var(--dark-card-bg); /* #1E293B */
     --card-border: rgba(148, 163, 184, 0.1);
     --card-border-strong: rgba(148, 163, 184, 0.2);
     --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
     --button-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
     --button-shadow-hover: 0 6px 10px -2px rgba(0, 0, 0, 0.2);
     --button-border: 1px solid rgba(148, 163, 184, 0.2);
-    --glass-card-bg: rgba(30, 41, 59, 0.85);
+    --glass-card-bg: var(--dark-card-bg); /* #1E293B */
     --glass-card-border: rgba(148, 163, 184, 0.2);
     background: var(--dark-bg) !important;
-    color: var(--text-light) !important;
+    color: var(--dark-text-primary) !important;
 }
 
 /* Ensure dark mode text is always visible */
@@ -110,7 +127,7 @@
 .dark-mode .glass-btn,
 .dark-mode .action-btn,
 .dark-mode .back-btn {
-    color: var(--text-light) !important;
+    color: var(--dark-text-primary) !important;
 }
 
 /* Fix white text on white background issues */
@@ -128,7 +145,7 @@
 .dark-mode .mood-btn .mood-text,
 .dark-mode .experience-btn .experience-text,
 .dark-mode .experience-btn .experience-subtitle {
-    color: var(--text-light) !important;
+    color: var(--dark-text-primary) !important;
 }
 
 /* Screenless mode */
@@ -153,6 +170,9 @@ body {
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    position: relative;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
@@ -202,6 +222,14 @@ body.dark-mode {
 }
 
 /* ALL 3D COMPONENTS DARK MODE FIXES */
+
+/* Treasure Chest Container - Center Alignment */
+.treasure-chest-container {
+    margin: 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
 
 /* Container backgrounds for all 3D components */
 .dark-mode .balloon-container,
@@ -585,8 +613,11 @@ body.dark-mode {
     background: transparent;
     border-bottom: none;
     padding: 1rem 0;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
     z-index: 100;
     transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease;
 }
@@ -624,6 +655,10 @@ body.dark-mode {
     .header-content {
         padding: 0 1rem;
         min-height: 56px;
+    }
+    
+    main {
+        padding-top: 88px; /* Account for fixed header on mobile (56px + 32px padding) */
     }
 }
 
@@ -822,6 +857,10 @@ main {
     flex-direction: column;
     position: relative;
     z-index: 1;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    padding-top: 92px; /* Account for fixed header (60px min-height + 32px padding) */
 }
 
 .screen {
@@ -829,6 +868,10 @@ main {
     flex: 1;
     padding: var(--spacing-lg) var(--spacing-sm);
     min-height: calc(100vh - 200px);
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    box-sizing: border-box;
 }
 
 .screen.active {
@@ -871,11 +914,13 @@ main {
     max-width: 800px;
     margin: 0 auto;
     width: 100%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     min-height: 60vh;
     padding: 0 1.5rem;
+    box-sizing: border-box;
 }
 
 /* Mood question */
@@ -957,7 +1002,7 @@ main {
 
 .mood-text {
     font-family: var(--font-heading);
-    font-size: 1.125rem;
+    font-size: 0.95rem;
     font-weight: 500;
     color: var(--text-dark);
     letter-spacing: -0.025em;
@@ -986,7 +1031,7 @@ main {
 }
 
 .dark-mode .context-question h2 {
-    color: var(--text-light);
+    color: var(--dark-text-primary);
 }
 
 /* Context buttons */
@@ -1041,7 +1086,7 @@ main {
 
 .context-text {
     font-family: var(--font-heading);
-    font-size: 1.125rem;
+    font-size: 0.95rem;
     font-weight: 500;
     color: var(--text-dark);
     display: block;
@@ -1722,7 +1767,9 @@ main {
     padding: 0;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    display: flex;
     align-items: flex-start;
+    min-height: auto;
 }
 
 .emergency-card .emergency-text {
@@ -1803,13 +1850,18 @@ main {
 
 /* Dark Mode Footer */
 .dark-mode .footer-card {
-    background: var(--dark-glass-bg);
+    background: var(--dark-card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: none;
 }
 
 .dark-mode .support-card .support-text,
-.dark-mode .emergency-card .emergency-text,
 .dark-mode .adsense-card p {
     color: var(--text-light);
+}
+
+.dark-mode .emergency-card .emergency-text {
+    color: var(--text-muted);
 }
 
 .dark-mode .helpline-number {
@@ -1838,9 +1890,9 @@ main {
 }
 
 .mood-buttons {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 0.75rem;
-    max-width: 400px;
+    max-width: 100%;
 }
 
 .mood-btn {
@@ -1876,6 +1928,8 @@ main {
 
 .container {
     padding: 0 1rem;
+    box-sizing: border-box;
+    max-width: 100%;
 }
 
 .header-content {
@@ -4780,12 +4834,10 @@ a:focus {
 .instructions-section {
     text-align: center;
     margin-top: 2rem;
-    padding: 1.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 15px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
@@ -4799,8 +4851,8 @@ a:focus {
 }
 
 .dark-mode .instructions-section {
-    background: rgba(30, 41, 59, 0.1);
-    border-color: rgba(148, 163, 184, 0.2);
+    background: transparent;
+    border: none;
 }
 
 .dark-mode .instructions-section h3 {
@@ -4929,47 +4981,30 @@ a:focus {
     gap: 3rem;
     margin-bottom: 2rem;
     max-width: 1200px;
+    width: 100%;
+    max-width: 100%;
     margin-left: auto;
     margin-right: auto;
     padding: 0 1rem;
+    box-sizing: border-box;
 }
 
 /* Instructions Section - Modern Ethereal Design */
 .instructions-section {
     text-align: center;
-    margin-bottom: 5rem;
-    padding: 3rem 2rem;
-    background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%),
-        radial-gradient(ellipse at center, rgba(116, 179, 206, 0.1) 0%, transparent 70%);
-    border-radius: 2rem;
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    margin-bottom: 3rem;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
     max-width: 800px;
     margin-left: auto;
     margin-right: auto;
     position: relative;
-    overflow: hidden;
-    animation: etherealFloat 8s ease-in-out infinite;
 }
 
 .instructions-section::before {
-    content: '';
-    position: absolute;
-    top: -100%;
-    left: -100%;
-    width: 300%;
-    height: 300%;
-    background: 
-        radial-gradient(circle at 30% 20%, rgba(173, 216, 230, 0.15) 0%, transparent 30%),
-        radial-gradient(circle at 70% 80%, rgba(221, 160, 221, 0.1) 0%, transparent 30%),
-        radial-gradient(circle at 50% 50%, rgba(255, 182, 193, 0.08) 0%, transparent 40%);
-    animation: cosmicRotate 30s linear infinite;
-    pointer-events: none;
+    display: none;
 }
 
 @keyframes etherealFloat {
@@ -4984,7 +5019,7 @@ a:focus {
 
 .instruction-text {
     font-family: var(--font-heading);
-    font-size: 2.2rem;
+    font-size: 2.5rem;
     font-weight: 800;
     background: linear-gradient(135deg, var(--text-dark) 0%, #4A90A4 50%, #6B73FF 100%);
     -webkit-background-clip: text;
@@ -4999,7 +5034,7 @@ a:focus {
 
 .instruction-subtext {
     font-family: var(--font-body);
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 400;
     color: var(--text-muted);
     margin: 0;
@@ -5029,7 +5064,7 @@ a:focus {
 }
 
 .question-header h2 {
-    font-size: 1.75rem !important;
+    font-size: 1.5rem !important;
     font-weight: 600 !important;
     color: var(--text-dark) !important;
     margin: 0;
@@ -5037,7 +5072,7 @@ a:focus {
 }
 
 .dark-mode .question-header h2 {
-    color: var(--text-light) !important;
+    color: var(--dark-text-primary) !important;
 }
 
 /* Mood Section - Compact Ethereal Cards */
@@ -5055,12 +5090,10 @@ a:focus {
     min-height: 100px;
     padding: 1.5rem 1rem;
     position: relative;
-    background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%),
-        radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 2px solid rgba(148, 163, 184, 0.2);
     border-radius: 1.5rem;
     transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     display: flex;
@@ -5073,9 +5106,12 @@ a:focus {
     animation: moodCardFloat 6s ease-in-out infinite;
     box-shadow: 
         0 15px 30px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4),
-        0 0 20px rgba(255, 255, 255, 0.1);
+        0 1px 3px rgba(0, 0, 0, 0.05);
     overflow: hidden;
+}
+
+.dark-mode .mood-section .mood-btn {
+    background: var(--dark-card-bg); /* #1E293B */
 }
 
 .mood-section .mood-btn::before {
@@ -5085,7 +5121,7 @@ a:focus {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    background: transparent;
     animation: cardShimmer 8s ease-in-out infinite;
     pointer-events: none;
 }
@@ -5104,9 +5140,8 @@ a:focus {
     transform: translateY(-15px) rotateX(5deg) scale(1.02);
     box-shadow: 
         0 30px 60px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.5),
-        0 0 40px rgba(116, 179, 206, 0.2);
-    border-color: rgba(255, 255, 255, 0.5);
+        0 1px 3px rgba(0, 0, 0, 0.05);
+    border-color: rgba(148, 163, 184, 0.3);
     animation-play-state: paused;
 }
 
@@ -5114,18 +5149,20 @@ a:focus {
     transform: translateY(-8px) scale(1.05);
     box-shadow: 
         0 25px 50px rgba(0, 72, 81, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.6),
-        0 0 50px rgba(0, 72, 81, 0.4);
+        0 1px 3px rgba(0, 0, 0, 0.05);
     border: 3px solid var(--primary-blue);
-    background: 
-        linear-gradient(135deg, rgba(0, 72, 81, 0.2) 0%, rgba(0, 72, 81, 0.1) 100%),
-        radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    background: rgba(255, 255, 255, 0.5);
     animation: selectedPulse 2s ease-in-out infinite;
 }
 
 @keyframes selectedPulse {
     0%, 100% { box-shadow: 0 25px 50px rgba(0, 72, 81, 0.3), 0 0 50px rgba(0, 72, 81, 0.4); }
     50% { box-shadow: 0 30px 60px rgba(0, 72, 81, 0.4), 0 0 60px rgba(0, 72, 81, 0.6); }
+}
+
+@keyframes selectedPulseDark {
+    0%, 100% { box-shadow: 0 25px 50px rgba(0, 72, 81, 0.5), 0 0 60px rgba(0, 72, 81, 0.6), 0 0 80px rgba(0, 72, 81, 0.4); }
+    50% { box-shadow: 0 30px 60px rgba(0, 72, 81, 0.6), 0 0 80px rgba(0, 72, 81, 0.8), 0 0 100px rgba(0, 72, 81, 0.5); }
 }
 
 /* Context Section - Compact Ethereal Cards */
@@ -5143,12 +5180,10 @@ a:focus {
     min-height: 80px;
     padding: 1.25rem 1.5rem;
     position: relative;
-    background: 
-        linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%),
-        radial-gradient(ellipse at center, rgba(116, 179, 206, 0.08) 0%, transparent 70%);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 2px solid rgba(148, 163, 184, 0.2);
     border-radius: 1.5rem;
     transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     display: flex;
@@ -5160,9 +5195,12 @@ a:focus {
     animation: contextCardFloat 7s ease-in-out infinite;
     box-shadow: 
         0 15px 30px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4),
-        0 0 20px rgba(255, 255, 255, 0.1);
+        0 1px 3px rgba(0, 0, 0, 0.05);
     overflow: hidden;
+}
+
+.dark-mode .context-section .context-btn {
+    background: var(--dark-card-bg); /* #1E293B */
 }
 
 .context-section .context-btn::before {
@@ -5172,9 +5210,7 @@ a:focus {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: 
-        radial-gradient(ellipse at 30% 30%, rgba(173, 216, 230, 0.1) 0%, transparent 50%),
-        radial-gradient(ellipse at 70% 70%, rgba(221, 160, 221, 0.08) 0%, transparent 50%);
+    background: transparent;
     animation: contextShimmer 10s ease-in-out infinite;
     pointer-events: none;
 }
@@ -5193,9 +5229,8 @@ a:focus {
     transform: translateY(-12px) rotateY(3deg) scale(1.02);
     box-shadow: 
         0 30px 60px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.5),
-        0 0 40px rgba(116, 179, 206, 0.2);
-    border-color: rgba(255, 255, 255, 0.5);
+        0 1px 3px rgba(0, 0, 0, 0.05);
+    border-color: rgba(148, 163, 184, 0.3);
     animation-play-state: paused;
 }
 
@@ -5203,12 +5238,9 @@ a:focus {
     transform: translateY(-8px) scale(1.03);
     box-shadow: 
         0 25px 50px rgba(0, 72, 81, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.6),
-        0 0 50px rgba(0, 72, 81, 0.4);
+        0 1px 3px rgba(0, 0, 0, 0.05);
     border: 3px solid var(--primary-blue);
-    background: 
-        linear-gradient(135deg, rgba(0, 72, 81, 0.2) 0%, rgba(0, 72, 81, 0.1) 100%),
-        radial-gradient(ellipse at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+    background: rgba(255, 255, 255, 0.5);
     animation: selectedPulse 2s ease-in-out infinite;
 }
 
@@ -5221,43 +5253,34 @@ a:focus {
 
 /* Dark Mode Adjustments for Ethereal Design */
 .dark-mode .instructions-section {
-    background: 
-        linear-gradient(135deg, rgba(30, 41, 59, 0.3) 0%, rgba(30, 41, 59, 0.1) 100%),
-        radial-gradient(ellipse at center, rgba(116, 179, 206, 0.1) 0%, transparent 70%);
-    border-color: rgba(148, 163, 184, 0.3);
-    box-shadow: 
-        0 25px 50px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(148, 163, 184, 0.2);
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 .dark-mode .instructions-section::before {
-    background: 
-        radial-gradient(circle at 30% 20%, rgba(173, 216, 230, 0.08) 0%, transparent 30%),
-        radial-gradient(circle at 70% 80%, rgba(221, 160, 221, 0.06) 0%, transparent 30%),
-        radial-gradient(circle at 50% 50%, rgba(255, 182, 193, 0.04) 0%, transparent 40%);
+    display: none;
 }
 
 .dark-mode .instruction-text {
-    background: linear-gradient(135deg, var(--text-light) 0%, #74B3CE 50%, #A0A8FF 100%);
+    background: var(--dark-accent-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .dark-mode .instruction-subtext {
-    color: rgba(148, 163, 184, 0.8);
+    color: var(--dark-text-secondary);
+    opacity: 0.9;
 }
 
 .dark-mode .mood-section .mood-btn,
 .dark-mode .context-section .context-btn {
-    background: 
-        linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(30, 41, 59, 0.2) 100%),
-        radial-gradient(circle at center, rgba(148, 163, 184, 0.1) 0%, transparent 70%);
+    background: var(--dark-card-bg); /* #1E293B */
     border-color: rgba(148, 163, 184, 0.3);
     box-shadow: 
         0 20px 40px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(148, 163, 184, 0.3),
-        0 0 30px rgba(148, 163, 184, 0.1);
+        0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .dark-mode .mood-section .mood-btn::before,
@@ -5267,33 +5290,56 @@ a:focus {
 
 .dark-mode .mood-text,
 .dark-mode .context-text {
-    color: var(--text-light) !important;
+    color: var(--dark-text-primary) !important;
 }
 
 .dark-mode .mood-section .mood-btn:hover,
 .dark-mode .context-section .context-btn:hover {
+    background: var(--dark-card-hover); /* #334155 */
     box-shadow: 
         0 30px 60px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(148, 163, 184, 0.4),
-        0 0 40px rgba(116, 179, 206, 0.2);
-    border-color: rgba(148, 163, 184, 0.5);
+        0 1px 3px rgba(0, 0, 0, 0.05);
+    border-color: rgba(148, 163, 184, 0.4);
 }
 
-.dark-mode .mood-section .mood-btn.selected,
-.dark-mode .context-section .context-btn.selected {
-    background: 
-        linear-gradient(135deg, rgba(0, 72, 81, 0.3) 0%, rgba(0, 72, 81, 0.2) 100%),
-        radial-gradient(circle at center, rgba(148, 163, 184, 0.2) 0%, transparent 70%);
+.dark-mode .mood-section .mood-btn.selected {
+    transform: translateY(-8px) scale(1.05) !important;
+    background: var(--dark-card-hover) !important; /* #334155 */
+    border: 3px solid var(--primary-blue) !important;
     box-shadow: 
-        0 25px 50px rgba(0, 72, 81, 0.4),
-        inset 0 1px 0 rgba(148, 163, 184, 0.4),
-        0 0 50px rgba(0, 72, 81, 0.5);
+        0 25px 50px rgba(0, 72, 81, 0.5),
+        0 0 60px rgba(0, 72, 81, 0.6),
+        0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    animation: selectedPulseDark 2s ease-in-out infinite !important;
+}
+
+.dark-mode .context-section .context-btn.selected {
+    transform: translateY(-8px) scale(1.03) !important;
+    background: var(--dark-card-hover) !important; /* #334155 */
+    border: 3px solid var(--primary-blue) !important;
+    box-shadow: 
+        0 25px 50px rgba(0, 72, 81, 0.5),
+        0 0 60px rgba(0, 72, 81, 0.6),
+        0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    animation: selectedPulseDark 2s ease-in-out infinite !important;
+}
+
+.dark-mode .mood-section .mood-btn.selected:hover,
+.dark-mode .context-section .context-btn.selected:hover {
+    transform: translateY(-8px) scale(1.05) !important;
+    background: var(--dark-card-hover) !important;
+    border: 3px solid var(--primary-blue) !important;
+    box-shadow: 
+        0 25px 50px rgba(0, 72, 81, 0.5),
+        0 0 60px rgba(0, 72, 81, 0.6),
+        0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    animation: selectedPulseDark 2s ease-in-out infinite !important;
 }
 
 .dark-mode .mood-text,
 .dark-mode .context-text,
 .dark-mode .context-subtitle {
-    color: var(--text-light) !important;
+    color: var(--dark-text-primary) !important;
 }
 
 /* Continue Button */
@@ -5352,7 +5398,7 @@ a:focus {
 }
 
 .dark-mode .experience-header h2 {
-    color: var(--text-light);
+    color: var(--dark-text-primary);
 }
 
 .experience-subtitle {
@@ -5438,12 +5484,42 @@ a:focus {
     opacity: 0.8;
 }
 
+/* Tablet-specific styles */
+@media (min-width: 641px) and (max-width: 1023px) {
+    .mood-section .mood-buttons {
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .mood-section .mood-btn {
+        min-height: 120px;
+        padding: 1.5rem;
+    }
+    
+    .context-section .context-buttons {
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
+    .screen {
+        padding: var(--spacing-lg) 0.5rem;
+    }
+    
+    .container {
+        padding: 0 1rem;
+        max-width: 100%;
+    }
+    
     .main-questions-container {
         grid-template-columns: 1fr;
         gap: 2rem;
         padding: 0 0.5rem;
+        max-width: 100%;
     }
     
     .mood-section .mood-buttons {
@@ -5471,17 +5547,37 @@ a:focus {
         grid-template-columns: 1fr;
     }
     
+    /* Mobile text size adjustments */
+    .instruction-text {
+        font-size: 1.8rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .instruction-subtext {
+        font-size: 0.95rem !important;
+        line-height: 1.4 !important;
+    }
+    
     .question-header h2 {
-        font-size: 1.75rem !important;
+        font-size: 1.3rem !important;
     }
     
     .experience-header h2 {
-        font-size: 1.75rem;
+        font-size: 1.3rem;
+    }
+    
+    .mood-text {
+        font-size: 0.875rem !important;
+    }
+    
+    .context-text {
+        font-size: 0.875rem !important;
     }
     
     .instructions-section {
         margin-bottom: 2rem;
-        padding: 1rem;
+        padding: 0;
     }
     
     .question-header {
@@ -5490,15 +5586,25 @@ a:focus {
 }
 
 @media (max-width: 480px) {
+    .screen {
+        padding: var(--spacing-lg) 0.5rem;
+    }
+    
+    .container {
+        padding: 0 0.75rem;
+        max-width: 100%;
+    }
+    
     .main-questions-container {
         gap: 1.5rem;
         padding: 0 0.25rem;
+        max-width: 100%;
     }
     
     .mood-section .mood-buttons {
         gap: 1rem;
-        grid-template-columns: 1fr;
-        max-width: 400px;
+        grid-template-columns: 1fr 1fr;
+        max-width: 100%;
         margin: 0 auto;
     }
     
@@ -5525,17 +5631,41 @@ a:focus {
         padding: 1rem;
     }
     
+    /* Smaller mobile text size adjustments */
+    .instruction-text {
+        font-size: 1.5rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 0.875rem !important;
+    }
+    
+    .instruction-subtext {
+        font-size: 0.9rem !important;
+        line-height: 1.4 !important;
+    }
+    
     .question-header h2 {
-        font-size: 1.75rem !important;
+        font-size: 1.2rem !important;
     }
     
     .experience-header h2 {
-        font-size: 1.6rem;
+        font-size: 1.2rem;
+    }
+    
+    .mood-text {
+        font-size: 0.85rem !important;
+    }
+    
+    .context-text {
+        font-size: 0.85rem !important;
+    }
+    
+    .context-subtitle {
+        font-size: 0.8rem !important;
     }
     
     .instructions-section {
         margin-bottom: 1.5rem;
-        padding: 0.75rem;
+        padding: 0;
     }
     
     .question-header {

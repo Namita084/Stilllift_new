@@ -71,7 +71,7 @@ export default function MessageCardMovingPage() {
 
   // Function to select a random action
   const selectRandomAction = (mood: string) => {
-    const actions = CONTENT_LIBRARY[mood as Mood]?.moving;
+    const actions = CONTENT_LIBRARY[mood as Mood]?.move;
     if (!actions || actions.length === 0) return null;
 
     const randomIndex = Math.floor(Math.random() * actions.length);
@@ -92,7 +92,7 @@ export default function MessageCardMovingPage() {
             volume: 0.8,
             voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira'],
             mood: mood,
-            context: 'moving',
+            context: 'move',
             audioIndex: action.audioIndex, // Use explicit audioIndex from message
             preferExactIndex: true
           }
@@ -113,7 +113,7 @@ export default function MessageCardMovingPage() {
 
     console.log('Loading message card moving page:', { savedMood, savedContext });
 
-    if (savedContext !== 'moving') {
+    if (savedContext !== 'move') {
       console.log('Wrong context, redirecting to home');
       router.push('/');
       return;
@@ -181,7 +181,7 @@ export default function MessageCardMovingPage() {
           volume: 0.8,
           voiceHintNames: ['Samantha','Google UK English Female','Microsoft Zira'],
           mood: currentMood,
-          context: 'moving',
+          context: 'move',
           audioIndex: selectedAction.audioIndex, // Use explicit audioIndex from message
           preferExactIndex: true
         }

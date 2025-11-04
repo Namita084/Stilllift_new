@@ -7,7 +7,7 @@ export default function Footer() {
           <a href="#" className="stillzone-btn">Visit StillZone</a>
         </div>
         
-        <div className="footer-card emergency-card">
+        <div className="emergency-card">
           <p className="emergency-text">Need emergency support? Call 1800-599-0019</p>
         </div>
         

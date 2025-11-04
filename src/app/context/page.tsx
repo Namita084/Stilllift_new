@@ -86,9 +86,9 @@ export default function ContextPage() {
                 </div>
                 <div className="context-buttons">
                   <button 
-                    className="context-btn glass-card safe" 
-                    onClick={() => handleContextSelection('safe')}
-                    data-context="safe"
+                    className="context-btn glass-card still" 
+                    onClick={() => handleContextSelection('still')}
+                    data-context="still"
                   >
                     <div className="context-content">
                       <span className="context-icon">🪑</span>
@@ -100,9 +100,9 @@ export default function ContextPage() {
 
                   </button>
                   <button 
-                    className="context-btn glass-card moving" 
-                    onClick={() => handleContextSelection('moving')}
-                    data-context="moving"
+                    className="context-btn glass-card move" 
+                    onClick={() => handleContextSelection('move')}
+                    data-context="move"
                   >
                     <div className="context-content">
                       <span className="context-icon">🚶</span>

@@ -200,7 +200,7 @@ export default function RevealElement({
             animationSpeed={animationSpeed}
             message={message ?? ''}
             action={action ?? ''}
-            actionType={actionType as 'ACTION' | 'REPEAT' | 'VISUALIZE'}
+            actionType={actionType as 'ACTION' | 'REPEAT' | 'VISUALIZE' | 'BREATHE' | 'LISTEN'}
             onStartOver={onStartOver}
             onTryAnother={onTryAnother}
             onPlayNarration={handleCustomNarration}
@@ -218,7 +218,7 @@ export default function RevealElement({
             animationSpeed={animationSpeed}
             message={message ?? ''}
             action={action ?? ''}
-            actionType={actionType as 'ACTION' | 'REPEAT' | 'VISUALIZE'}
+            actionType={actionType as 'ACTION' | 'REPEAT' | 'VISUALIZE' | 'BREATHE' | 'LISTEN'}
             onStartOver={onStartOver}
             onTryAnother={onTryAnother}
             mood={mood ?? undefined}
@@ -329,22 +329,11 @@ export default function RevealElement({
 
   const element = renderElement();
 
-  // For portalized elements like playing-card, don't render the wrapper to avoid placeholder boxes
-  if (revealType === 'playing-card') {
-    return (
-      <>
-        {overlay}
-        {element}
-      </>
-    );
-  }
-
+  // Return element directly without wrapper container
   return (
     <>
       {overlay}
-      <div className="reveal-element-container">
-        {element}
-      </div>
+      {element}
     </>
   );
 }

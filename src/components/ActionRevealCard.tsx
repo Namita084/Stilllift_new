@@ -43,8 +43,7 @@ export default function ActionRevealCard({
 
   return (
     <>
-      <div className={`treasure-message-scroll ${isEmerging ? 'emerging' : ''} ${isFullyRevealed || isStatic ? 'fully-revealed' : ''} ${isStatic ? 'static' : ''}`}>
-        <div className="scroll-container">
+      <div className={`scroll-container ${isEmerging ? 'emerging' : ''} ${isFullyRevealed || isStatic ? 'fully-revealed' : ''} ${isStatic ? 'static' : ''}`}>
           <div className="scroll-header">
             <div className="treasure-gems">
               <span className="gem">💎</span>
@@ -55,9 +54,14 @@ export default function ActionRevealCard({
           
           <div className="scroll-content">
             <div className="action-badge" style={{ 
-              backgroundColor: getDisplayActionType(actionType) === 'VISUALIZE' ? '#8B5CF6' : 
-                             (getDisplayActionType(actionType) === 'REPEAT') ? '#10B981' : 
-                              '#3B82F6',
+              backgroundColor: (() => {
+                const displayType = getDisplayActionType(actionType);
+                if (displayType === 'VISUALIZE') return '#8B5CF6'; // Purple
+                if (displayType === 'REPEAT') return '#10B981'; // Green
+                if (displayType === 'BREATHE') return '#F59E0B'; // Amber/Orange
+                if (displayType === 'LISTEN') return '#EC4899'; // Pink
+                return '#3B82F6'; // Blue for ACTION
+              })(),
               color: '#ffffff',
               fontWeight: '600',
               textShadow: 'none'
@@ -92,14 +96,12 @@ export default function ActionRevealCard({
                 className="treasure-btn primary"
                 onClick={handleTryAnotherClick}
               >
-                <span className="btn-icon">🔮</span>
                 Try Another
               </button>
               <button 
                 className="treasure-btn secondary"
                 onClick={onStartOver || handleReplay}
               >
-                <span className="btn-icon">🏠</span>
                 Start Over
               </button>
             </div>
@@ -108,12 +110,11 @@ export default function ActionRevealCard({
           <div className="scroll-footer">
             <div className="golden-border"></div>
           </div>
-        </div>
       </div>
 
       <style jsx>{`
         /* Treasure Message Scroll */
-        .treasure-message-scroll {
+        .scroll-container {
           position: fixed;
           top: 50%;
           left: 50%;
@@ -125,14 +126,19 @@ export default function ActionRevealCard({
           pointer-events: none;
           z-index: 10000;
           isolation: isolate;
+          background: #ffffff;
+          border: 2px solid #e2e8f0;
+          border-radius: 24px;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
+          overflow: hidden;
         }
 
-        .treasure-message-scroll.emerging {
+        .scroll-container.emerging {
           opacity: 1;
           transform: translate(-50%, -50%) scale(0.6) rotateY(15deg);
         }
 
-        .treasure-message-scroll.fully-revealed {
+        .scroll-container.fully-revealed {
           opacity: 1;
           width: 95vw;
           max-width: 600px;
@@ -142,29 +148,17 @@ export default function ActionRevealCard({
           pointer-events: all;
         }
 
-        .treasure-message-scroll.static {
+        .scroll-container.static {
           transition: none !important;
           transform: translate(-50%, -50%) scale(1) rotateY(0deg) !important;
           animation: none !important;
-        }
-
-        .scroll-container {
-          width: 100%;
-          height: 100%;
-          background: #ffffff;
-          border: 2px solid #e2e8f0;
-          border-radius: 16px;
-          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
-          position: relative;
-          overflow: hidden;
-          z-index: 10001;
-          isolation: isolate;
         }
 
         .dark-mode .scroll-container {
           background: var(--card-bg-strong);
           border: var(--card-border-strong);
           box-shadow: var(--card-shadow-lg);
+          border-radius: 24px;
         }
 
         .dark-mode .scroll-container h2,
@@ -172,14 +166,6 @@ export default function ActionRevealCard({
           color: #ffffff !important;
         }
 
-        .dark-mode .treasure-message-scroll h2,
-        .dark-mode .treasure-message-scroll p,
-        body.dark-mode .treasure-message-scroll h2,
-        body.dark-mode .treasure-message-scroll p,
-        html.dark-mode .treasure-message-scroll h2,
-        html.dark-mode .treasure-message-scroll p {
-          color: #ffffff !important;
-        }
 
         .scroll-container::before {
           content: '';
@@ -304,7 +290,7 @@ export default function ActionRevealCard({
           overflow: hidden;
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 0;
           min-width: 130px;
           justify-content: center;
           text-transform: capitalize;
@@ -326,70 +312,56 @@ export default function ActionRevealCard({
           left: 100%;
         }
 
-        .btn-icon {
-          font-size: 20px;
-          text-shadow: 
-            0 0 8px rgba(255, 255, 255, 0.6),
-            0 0 16px rgba(255, 255, 255, 0.3);
-          filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
-          transition: all 0.3s ease;
-        }
-
-        .treasure-btn:hover .btn-icon {
-          transform: scale(1.1);
-          text-shadow: 
-            0 0 12px rgba(255, 255, 255, 0.8),
-            0 0 24px rgba(255, 255, 255, 0.5);
-        }
-
         .treasure-btn.primary {
-          background: linear-gradient(135deg, #A59A8C 0%, #B8ADA0 50%, #CCC1B4 100%);
-          color: #FDFDFC;
-          border: 1px solid #8B8075;
+          background: linear-gradient(135deg, #006B7A 0%, #005A67 50%, #004851 100%);
+          color: #FFFFFF;
+          border: 1px solid rgba(0, 72, 81, 0.25);
           box-shadow: 
-            0 4px 12px rgba(165, 154, 140, 0.15),
-            inset 0 1px 2px rgba(255, 255, 255, 0.3);
+            0 2px 6px rgba(0, 72, 81, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
         .treasure-btn.primary:hover {
-          background: linear-gradient(135deg, #B8ADA0 0%, #CCC1B4 50%, #DDD2C5 100%);
-          transform: translateY(-1px) scale(1.005);
+          background: linear-gradient(135deg, #005A67 0%, #006B7A 50%, #005A67 100%);
+          transform: translateY(-1px);
           box-shadow: 
-            0 6px 16px rgba(165, 154, 140, 0.2),
-            inset 0 1px 2px rgba(255, 255, 255, 0.35);
+            0 3px 10px rgba(0, 72, 81, 0.18),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+          border-color: rgba(0, 72, 81, 0.35);
         }
 
         .dark-mode .treasure-btn.primary {
-          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+          background: linear-gradient(135deg, #006B7A 0%, #005A67 50%, #004851 100%);
           color: #ffffff;
-          border: 1px solid #2563eb;
+          border: 1px solid rgba(0, 107, 122, 0.3);
           box-shadow: 
-            0 4px 12px rgba(59, 130, 246, 0.3),
-            inset 0 1px 2px rgba(255, 255, 255, 0.2);
+            0 2px 6px rgba(0, 72, 81, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         .dark-mode .treasure-btn.primary:hover {
-          background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
-          transform: translateY(-1px) scale(1.005);
+          background: linear-gradient(135deg, #005A67 0%, #006B7A 50%, #005A67 100%);
+          transform: translateY(-1px);
           box-shadow: 
-            0 6px 16px rgba(59, 130, 246, 0.4),
-            inset 0 1px 2px rgba(255, 255, 255, 0.25);
+            0 3px 10px rgba(0, 72, 81, 0.25),
+            inset 0 1px 0 rgba(255, 255, 255, 0.12);
+          border-color: rgba(0, 107, 122, 0.4);
         }
 
         .treasure-btn.secondary {
-          background: linear-gradient(135deg, #FAFAF8 0%, #F1F0ED 50%, #EDEAE5 100%);
-          color: #4A453F;
-          border: 1px solid #C5BDB1;
+          background: linear-gradient(135deg, #E6EBF2 0%, #D1DAE5 50%, #CBD5E1 100%);
+          color: #004851;
+          border: 1px solid #94A3B8;
           box-shadow: 
-            0 4px 12px rgba(197, 189, 177, 0.1),
+            0 4px 12px rgba(0, 72, 81, 0.1),
             inset 0 1px 2px rgba(255, 255, 255, 0.5);
         }
 
         .treasure-btn.secondary:hover {
-          background: linear-gradient(135deg, #F1F0ED 0%, #EDEAE5 50%, #E8E4DF 100%);
+          background: linear-gradient(135deg, #D1DAE5 0%, #CBD5E1 50%, #C4D1E0 100%);
           transform: translateY(-1px) scale(1.005);
           box-shadow: 
-            0 6px 16px rgba(197, 189, 177, 0.15),
+            0 6px 16px rgba(0, 72, 81, 0.15),
             inset 0 1px 2px rgba(255, 255, 255, 0.6);
         }
 

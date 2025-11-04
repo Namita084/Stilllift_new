@@ -15,7 +15,7 @@ import '@/components/3DComponents.css';
 
 interface MicroHabitData {
   action: string;
-  actionType: 'ACTION' | 'REPEAT' | 'VISUALIZE';
+  actionType: 'ACTION' | 'REPEAT' | 'VISUALIZE' | 'BREATHE' | 'LISTEN';
   message: string;
   revealToken: string;
   revealType: string;
@@ -48,6 +48,7 @@ export default function Home() {
   const prevScreenlessModeRef = useRef(screenlessMode);
   const hasInstantRevealRef = useRef(false);
   const hasTrackedRevealRef = useRef(false);
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     const wasEnabled = prevAudioEnabled.current;
@@ -82,22 +83,71 @@ export default function Home() {
     }
   }, [showReveal, audioEnabled, playHomepageAudio]);
 
+  const moodSectionRef = useRef<HTMLDivElement>(null);
+  const contextSectionRef = useRef<HTMLDivElement>(null);
+  const moodButtonsRef = useRef<HTMLDivElement>(null);
+  const contextButtonsRef = useRef<HTMLDivElement>(null);
+
+  // Check if device is mobile or tablet
+  const isMobileOrTablet = () => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth <= 768;
+  };
+
   const handleMoodSelection = (mood: string) => {
-    setSelectedMood(mood);
-    localStorage.setItem('currentMood', mood);
-    // Track mood selection
-    trackMoodSelected(mood);
+    // Toggle behavior: if clicking the same mood, deselect it
+    if (selectedMood === mood) {
+      setSelectedMood(null);
+      localStorage.removeItem('currentMood');
+    } else {
+      // Otherwise, select the new mood
+      setSelectedMood(mood);
+      localStorage.setItem('currentMood', mood);
+      // Track mood selection
+      trackMoodSelected(mood);
+      
+      // Scroll to context section on mobile/tablet
+      if (isMobileOrTablet() && contextSectionRef.current) {
+        setTimeout(() => {
+          contextSectionRef.current?.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }, 100);
+      }
+    }
   };
 
   const handleContextSelection = (context: string) => {
-    setSelectedContext(context);
-    localStorage.setItem('currentContext', context);
-    // Track context selection
-    trackContextSelected(context);
+    // Toggle behavior: if clicking the same context, deselect it
+    if (selectedContext === context) {
+      setSelectedContext(null);
+      localStorage.removeItem('currentContext');
+    } else {
+      // Otherwise, select the new context
+      setSelectedContext(context);
+      localStorage.setItem('currentContext', context);
+      // Track context selection
+      trackContextSelected(context);
+      
+      // Scroll back to mood section on mobile/tablet (vice versa)
+      if (isMobileOrTablet() && moodSectionRef.current) {
+        setTimeout(() => {
+          moodSectionRef.current?.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }, 100);
+      }
+    }
   };
 
   // Load saved mood and context on component mount
   useEffect(() => {
+    // Prevent double initialization
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+    
     // Initialize analytics
     initAnalytics();
     
@@ -125,6 +175,57 @@ export default function Home() {
     }
   }, [selectedMood, selectedContext]);
 
+  // Handle clicks outside cards to deselect
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Don't deselect if reveal is showing
+      if (showReveal) return;
+
+      const target = event.target as HTMLElement;
+      
+      // Check if click is outside mood buttons
+      if (
+        moodButtonsRef.current &&
+        !moodButtonsRef.current.contains(target) &&
+        selectedMood
+      ) {
+        // Check if click is also outside context buttons
+        if (
+          contextButtonsRef.current &&
+          !contextButtonsRef.current.contains(target)
+        ) {
+          setSelectedMood(null);
+          localStorage.removeItem('currentMood');
+        }
+      }
+      
+      // Check if click is outside context buttons
+      if (
+        contextButtonsRef.current &&
+        !contextButtonsRef.current.contains(target) &&
+        selectedContext
+      ) {
+        // Check if click is also outside mood buttons
+        if (
+          moodButtonsRef.current &&
+          !moodButtonsRef.current.contains(target)
+        ) {
+          setSelectedContext(null);
+          localStorage.removeItem('currentContext');
+        }
+      }
+    };
+
+    // Only add listener if not showing reveal
+    if (!showReveal) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [selectedMood, selectedContext, showReveal]);
+
   // Backend logic: Auto-select micro-habit based on Mood + Context
   const getMicroHabit = (): MicroHabitData | null => {
     if (!selectedMood || !selectedContext) return null;
@@ -134,11 +235,11 @@ export default function Home() {
     if (!contentMessage) return null;
 
     // Map content to micro-habit format with appropriate styling
-    const getActionType = (mood: string, context: string): 'ACTION' | 'REPEAT' | 'VISUALIZE' => {
-      if (mood === 'good' && context === 'safe') return 'VISUALIZE';
-      if (mood === 'good' && (context === 'moving' || context === 'focussed')) return 'ACTION';
-      if (mood === 'okay' && context === 'safe') return 'ACTION';
-      if (mood === 'okay' && context === 'moving') return 'REPEAT';
+    const getActionType = (mood: string, context: string): 'ACTION' | 'REPEAT' | 'VISUALIZE' | 'BREATHE' | 'LISTEN' => {
+      if (mood === 'good' && context === 'still') return 'VISUALIZE';
+      if (mood === 'good' && (context === 'move' || context === 'focussed')) return 'ACTION';
+      if (mood === 'okay' && context === 'still') return 'ACTION';
+      if (mood === 'okay' && context === 'move') return 'REPEAT';
       if (mood === 'okay' && context === 'focussed') return 'VISUALIZE';
       if (mood === 'bad') return 'REPEAT';
       if (mood === 'awful') return 'ACTION';
@@ -146,8 +247,8 @@ export default function Home() {
     };
 
     const getRevealType = (mood: string, context: string): string => {
-      // Card experience only for moving contexts; safe context uses mood-specific tokens
-      if (context === 'moving' || context === 'focussed') {
+      // Card experience only for moving contexts; still context uses mood-specific tokens
+      if (context === 'move' || context === 'focussed') {
         return 'playing-card';
       }
       // Still & Safe Place
@@ -159,8 +260,8 @@ export default function Home() {
     };
 
   const getRevealToken = (mood: string, context: string): string => {
-    // Card glyph for moving/focussed; emoji tokens for safe context per mood
-    if (context === 'moving' || context === 'focussed') {
+    // Card glyph for move/focussed; emoji tokens for still context per mood
+    if (context === 'move' || context === 'focussed') {
       return '🎴';
     }
     if (mood === 'good') return '💎'; // treasure chest theme
@@ -173,21 +274,23 @@ export default function Home() {
     const getAccentColor = (actionType: string): string => {
       if (actionType === 'VISUALIZE') return '#8B5CF6'; // Purple
       if (actionType === 'REPEAT') return '#10B981'; // Green
+      if (actionType === 'BREATHE') return '#F59E0B'; // Amber/Orange
+      if (actionType === 'LISTEN') return '#EC4899'; // Pink
       return '#3B82F6'; // Blue for ACTION
     };
 
     const getAnimationSpeed = (mood: string, context: string): 'rich' | 'quick' | 'gentle' | 'instant' => {
-      if (mood === 'good' && context === 'safe') return 'rich';
-      if (mood === 'good' && context === 'moving') return 'quick';
+      if (mood === 'good' && context === 'still') return 'rich';
+      if (mood === 'good' && context === 'move') return 'quick';
       if (mood === 'good' && context === 'focussed') return 'instant';
-      if (mood === 'okay' && context === 'safe') return 'rich';
-      if (mood === 'okay' && context === 'moving') return 'quick';
+      if (mood === 'okay' && context === 'still') return 'rich';
+      if (mood === 'okay' && context === 'move') return 'quick';
       if (mood === 'okay' && context === 'focussed') return 'gentle';
-      if (mood === 'bad' && context === 'safe') return 'rich';
-      if (mood === 'bad' && context === 'moving') return 'quick';
+      if (mood === 'bad' && context === 'still') return 'rich';
+      if (mood === 'bad' && context === 'move') return 'quick';
       if (mood === 'bad' && context === 'focussed') return 'instant';
-      if (mood === 'awful' && context === 'safe') return 'gentle';
-      if (mood === 'awful' && (context === 'moving' || context === 'focussed')) return 'instant';
+      if (mood === 'awful' && context === 'still') return 'gentle';
+      if (mood === 'awful' && (context === 'move' || context === 'focussed')) return 'instant';
       return 'rich';
     };
 
@@ -202,7 +305,7 @@ export default function Home() {
 
     return {
       action: contentMessage.message,
-      actionType: contentMessage.actionType as 'ACTION' | 'REPEAT' | 'VISUALIZE',
+      actionType: contentMessage.actionType as 'ACTION' | 'REPEAT' | 'VISUALIZE' | 'BREATHE' | 'LISTEN',
       message: contentMessage.message,
       revealToken,
       revealType,
@@ -269,7 +372,7 @@ export default function Home() {
     const wasScreenless = prevScreenlessModeRef.current;
     prevScreenlessModeRef.current = screenlessMode;
 
-    if (wasScreenless && !screenlessMode && selectedContext === 'safe') {
+    if (wasScreenless && !screenlessMode && selectedContext === 'still') {
       revealImmediately();
     }
   }, [screenlessMode, selectedContext, revealImmediately]);
@@ -489,21 +592,21 @@ export default function Home() {
                 {/* Instructions */}
                 <div className="instructions-section">
                   <p className="instruction-text">
-                    Select both your mood and current situation to continue
+                    Let&apos;s tune in to how you&apos;re feeling.
                   </p>
                   <p className="instruction-subtext">
-                    We&apos;ll automatically create a personalized experience just for you
+                    Select your mood and current situation — we&apos;ll craft a short, personalized moment to help you feel centered and ready.
                   </p>
                 </div>
 
                 {/* Main Questions Section */}
                 <div className="main-questions-container">
                   {/* Mood Question */}
-                  <div className="question-section mood-section">
+                  <div className="question-section mood-section" ref={moodSectionRef}>
                     <div className="question-header">
                       <h2 className="font-inter font-semibold">How are you feeling today?</h2>
                     </div>
-                    <div className="mood-buttons">
+                    <div className="mood-buttons" ref={moodButtonsRef}>
                       <button 
                         className={`mood-btn glass-card ${selectedMood === 'good' ? 'selected' : 'good'}`}
                         onClick={() => handleMoodSelection('good')}
@@ -552,15 +655,15 @@ export default function Home() {
                   </div>
 
                   {/* Context Question */}
-                  <div className="question-section context-section">
+                  <div className="question-section context-section" ref={contextSectionRef}>
                     <div className="question-header">
                       <h2 className="font-inter font-semibold">Where are you right now?</h2>
                     </div>
-                    <div className="context-buttons">
+                    <div className="context-buttons" ref={contextButtonsRef}>
                       <button 
-                        className={`context-btn glass-card ${selectedContext === 'safe' ? 'selected' : 'safe'}`}
-                        onClick={() => handleContextSelection('safe')}
-                        data-context="safe"
+                        className={`context-btn glass-card ${selectedContext === 'still' ? 'selected' : 'still'}`}
+                        onClick={() => handleContextSelection('still')}
+                        data-context="still"
                       >
                         <div className="context-content">
                           <span className="context-icon">🪑</span>
@@ -569,9 +672,9 @@ export default function Home() {
 
                       </button>
                       <button 
-                        className={`context-btn glass-card ${selectedContext === 'moving' ? 'selected' : 'moving'}`}
-                        onClick={() => handleContextSelection('moving')}
-                        data-context="moving"
+                        className={`context-btn glass-card ${selectedContext === 'move' ? 'selected' : 'move'}`}
+                        onClick={() => handleContextSelection('move')}
+                        data-context="move"
                       >
                         <div className="context-content">
                           <span className="context-icon">🚶</span>
@@ -601,7 +704,7 @@ export default function Home() {
                 {/* Reveal Experience */}
                 <div className="reveal-container">
                   {selectedMicroHabit?.revealType !== 'balloon-pop' && 
-                   !(selectedMicroHabit?.revealType === 'playing-card' && (selectedContext === 'moving' || selectedContext === 'focussed')) && (
+                   !(selectedMicroHabit?.revealType === 'playing-card' && (selectedContext === 'move' || selectedContext === 'focussed')) && (
                     <div className="reveal-header">
                       <h2 className="font-inter font-semibold text-slate-900 dark:text-slate-100">
                         Your Personalized Experience
@@ -609,8 +712,8 @@ export default function Home() {
                       <p className="reveal-subtitle font-inter text-slate-600 dark:text-slate-300">
                         Based on your mood: <span className="font-medium capitalize">{selectedMood}</span> • 
                         Location: <span className="font-medium">
-                          {selectedContext === 'safe' ? 'Still & Safe Place' : 
-                           selectedContext === 'moving' ? 'On the Move, but Safe' : 
+                          {selectedContext === 'still' ? 'Still & Safe Place' : 
+                           selectedContext === 'move' ? 'On the Move, but Safe' : 
                            'On the Move and Focussed'}
                         </span>
                       </p>

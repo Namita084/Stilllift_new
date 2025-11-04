@@ -71,8 +71,8 @@ export default function TreasureChest({
   };
 
   const selectRandomForGoodSafe = useCallback(() => {
-    if (mood === 'good' && context === 'safe') {
-      const actions = CONTENT_LIBRARY['good' as Mood]?.['safe'];
+    if (mood === 'good' && context === 'still') {
+      const actions = CONTENT_LIBRARY['good' as Mood]?.['still'];
       if (actions && actions.length > 0) {
         let randomIndex = Math.floor(Math.random() * actions.length);
         if (actions.length > 1 && previousIndexRef.current === randomIndex) {
@@ -442,11 +442,15 @@ export default function TreasureChest({
           }
 
           .chest-hint {
-            bottom: -60px;
+            bottom: -80px;
             left: 50%;
             transform: translateX(-50%);
             width: 90%;
             max-width: 300px;
+          }
+
+          .interaction-hint {
+            bottom: -80px !important;
           }
 
           .hint-text {
@@ -510,9 +514,13 @@ export default function TreasureChest({
           }
 
           .chest-hint {
-            bottom: -50px;
+            bottom: -70px;
             width: 95%;
             max-width: 280px;
+          }
+
+          .interaction-hint {
+            bottom: -70px !important;
           }
 
           .hint-text {
@@ -741,7 +749,7 @@ export default function TreasureChest({
         /* Interaction Hint */
         .interaction-hint {
           position: absolute;
-          bottom: -50px;
+          bottom: -80px;
           left: 50%;
           transform: translateX(-50%);
           text-align: center;

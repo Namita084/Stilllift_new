@@ -201,8 +201,8 @@ async function tryPlayAudioFile(
  */
 function mapContextToYourNaming(context: string): string {
   switch (context) {
-    case 'safe': return 'Still';
-    case 'moving': return 'Move';
+    case 'still': return 'Still';
+    case 'move': return 'Move';
     case 'focussed': return 'Focussed';
     default: return context;
   }

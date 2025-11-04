@@ -15,8 +15,8 @@ The content system is centralized in `src/lib/content.ts` and provides a structu
 - `awful` - User is feeling very negative
 
 ### Contexts
-- `safe` - User is in a safe, stationary place
-- `moving` - User is on the move but safe
+- `still` - User is in a safe, stationary place
+- `move` - User is on the move but safe
 - `focussed` - User is on the move and focused
 
 ### Content Structure
@@ -25,7 +25,7 @@ Each message has the following structure:
 
 ```typescript
 interface ContentMessage {
-  actionType: 'VISUALIZE' | 'ACTION' | 'REPEAT';  // Required: Primary classification of activity type
+  actionType: 'VISUALIZE' | 'ACTION' | 'REPEAT' | 'BREATHE' | 'LISTEN';  // Required: Primary classification of activity type
   message: string;         // The actual message content
   displayTime: number;     // How long to show the message (seconds)
   audioIndex: number;     // Required: Index of the pre-recorded audio file (1-indexed, matches array position)
@@ -48,8 +48,8 @@ interface ContentMessage {
   - `audioIndex: 12` → Looks for `/Audio/Mood_Bad_Context_Focussed_Audio_12.mp3`
 
 - **Context Mapping**: 
-  - `safe` → `Still` in filename
-  - `moving` → `Move` in filename  
+  - `still` → `Still` in filename
+  - `move` → `Move` in filename  
   - `focussed` → `Focussed` in filename
 
 - **How It's Used**:
@@ -72,7 +72,7 @@ interface ContentMessage {
 Example:
 ```typescript
 good: {
-  safe: [
+  still: [
     {
       actionType: "VISUALIZE",
       message: "Close your eyes and imagine a peaceful place. Take 3 deep breaths and feel the calm wash over you.",
@@ -101,7 +101,7 @@ React hooks that automatically re-compute when mood/context changes. These are u
 
 **Parameters**:
 - `mood`: Mood value (`'good' | 'okay' | 'bad' | 'awful'`)
-- `context`: Context value (`'safe' | 'moving' | 'focussed'`)
+- `context`: Context value (`'still' | 'move' | 'focussed'`)
 - `count?`: Optional number of messages to return (default: 3)
 - `shuffle?`: Optional boolean to shuffle messages (default: true)
 
@@ -308,7 +308,7 @@ if (!isValid) {
 // In src/lib/content.ts, add to the CONTENT_LIBRARY:
 
 good: {
-  safe: [
+  still: [
     // ... existing messages
     {
       actionType: "ACTION",

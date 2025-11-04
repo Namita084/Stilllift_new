@@ -12,7 +12,7 @@ import Background from '@/components/Background';
 export default function ContentManagerPage() {
   const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<Mood>('good');
-  const [selectedContext, setContext] = useState<Context>('safe');
+  const [selectedContext, setContext] = useState<Context>('still');
   const [newMessage, setNewMessage] = useState<ContentMessage>({
     actionType: 'ACTION',
     message: '',
@@ -192,12 +192,14 @@ export default function ContentManagerPage() {
                     </label>
                     <select
                       value={newMessage.actionType}
-                      onChange={(e) => setNewMessage(prev => ({ ...prev, actionType: e.target.value as 'VISUALIZE' | 'ACTION' | 'REPEAT' }))}
+                      onChange={(e) => setNewMessage(prev => ({ ...prev, actionType: e.target.value as 'VISUALIZE' | 'ACTION' | 'REPEAT' | 'BREATHE' | 'LISTEN' }))}
                       className="w-full p-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                     >
                       <option value="VISUALIZE">VISUALIZE</option>
                       <option value="ACTION">ACTION</option>
                       <option value="REPEAT">REPEAT</option>
+                      <option value="BREATHE">BREATHE</option>
+                      <option value="LISTEN">LISTEN</option>
                     </select>
                   </div>
 

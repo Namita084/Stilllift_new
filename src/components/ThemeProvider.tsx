@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface ThemeProviderProps {
   children: React.ReactNode;
@@ -8,8 +8,13 @@ interface ThemeProviderProps {
 
 export default function ThemeProvider({ children }: ThemeProviderProps) {
   const [mounted, setMounted] = useState(false);
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
+    // Prevent double initialization
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+    
     setMounted(true);
     
     // Load theme from localStorage

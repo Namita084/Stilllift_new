@@ -11,7 +11,7 @@ interface PlayingCardProps {
   animationSpeed: "rich" | "quick" | "gentle" | "instant";
   message: string;
   action: string;
-  actionType: "ACTION" | "REPEAT" | "VISUALIZE";
+  actionType: "ACTION" | "REPEAT" | "VISUALIZE" | "BREATHE" | "LISTEN";
   onStartOver?: () => void;
   onTryAnother?: () => void;
   mood?: string;
@@ -157,8 +157,8 @@ export default function PlayingCard({
   // Auto-flip after delay using transition-based flip (no keyframes)
   useEffect(() => {
     if (!isRevealed && canClick) {
-      // For moving and focussed contexts, show the action immediately as a simple card (no flip)
-      if (context === 'moving' || context === 'focussed') {
+      // For move and focussed contexts, show the action immediately as a simple card (no flip)
+      if (context === 'move' || context === 'focussed') {
         setCanClick(false);
         setIsFlipped(true);
         setShowMessage(true);
@@ -301,6 +301,10 @@ export default function PlayingCard({
         return "#3B82F6"; // Blue
       case "REPEAT":
         return "#10B981"; // Green
+      case "BREATHE":
+        return "#F59E0B"; // Amber/Orange
+      case "LISTEN":
+        return "#EC4899"; // Pink
       default:
         return accentColor;
     }
@@ -329,14 +333,14 @@ export default function PlayingCard({
 
   // For moving and focussed contexts, reveal quickly at top-level (no conditional hook usage)
   useEffect(() => {
-    if (context !== 'moving' && context !== 'focussed') return;
+    if (context !== 'move' && context !== 'focussed') return;
     const t = setTimeout(() => onReveal(), 80);
     return () => clearTimeout(t);
   }, [context, onReveal]);
 
-  // Show treasure card for moving and focussed contexts
+  // Show treasure card for move and focussed contexts
   useEffect(() => {
-    if (context === 'moving' || context === 'focussed') {
+    if (context === 'move' || context === 'focussed') {
       // Show treasure card after a short delay
       const timer = setTimeout(() => {
         setShowTreasureCard(true);
@@ -353,8 +357,8 @@ export default function PlayingCard({
     }
   }, [context]);
   
-  // Simple, non-flipping card for moving and focussed contexts - show treasure card instead
-  if (context === 'moving' || context === 'focussed') {
+  // Simple, non-flipping card for move and focussed contexts - show treasure card instead
+  if (context === 'move' || context === 'focussed') {
     return (
       <>
         <ActionRevealCard
@@ -382,8 +386,8 @@ export default function PlayingCard({
         style={cardThemeStyle}
         data-speed={animationSpeed}
       >
-        {/* Card Back (shows first) - hidden for moving and focussed contexts to avoid mirrored branding */}
-        {context !== 'moving' && context !== 'focussed' && (
+        {/* Card Back (shows first) - hidden for move and focussed contexts to avoid mirrored branding */}
+        {context !== 'move' && context !== 'focussed' && (
         <div className="card-face card-back">
           <div className="card-back-content">
             <div className="back-pattern">

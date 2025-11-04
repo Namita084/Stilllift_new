@@ -3,8 +3,14 @@ import * as amplitude from '@amplitude/analytics-browser';
 // Initialize Amplitude
 const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY || 'f3173e0e52e9f783511c7e57b800efe1';
 
+let isInitialized = false;
+
 export const initAnalytics = () => {
-  if (typeof window !== 'undefined') {
+  if (typeof window === 'undefined' || isInitialized) {
+    return;
+  }
+
+  try {
     amplitude.init(AMPLITUDE_API_KEY, undefined, {
       defaultTracking: {
         sessions: true,
@@ -13,6 +19,9 @@ export const initAnalytics = () => {
         fileDownloads: false,
       },
     });
+    isInitialized = true;
+  } catch (error) {
+    console.warn('Analytics initialization failed:', error);
   }
 };
 

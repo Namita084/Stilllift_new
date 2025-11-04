@@ -1,13 +1,18 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export function useUserPreferences() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [screenlessMode, setScreenlessMode] = useState(false);
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
+    // Prevent double initialization
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+    
     // Load user preferences from localStorage
     const savedTheme = localStorage.getItem('theme');
     const savedAudio = localStorage.getItem('audio');

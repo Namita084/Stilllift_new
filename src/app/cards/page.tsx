@@ -91,13 +91,13 @@ export default function CardsPage() {
     
     // Navigate after animation based on context
     setTimeout(() => {
-      if (savedMood === 'good' && savedContext === 'safe') {
-        // Special case: "good and safe" gets the balloon animation
-        console.log('Navigating to balloon animation for good + safe');
+      if (savedMood === 'good' && savedContext === 'still') {
+        // Special case: "good and still" gets the balloon animation
+        console.log('Navigating to balloon animation for good + still');
         router.push('/message-balloon');
-      } else if (savedContext === 'moving') {
+      } else if (savedContext === 'move') {
         // "On the move but safe" gets smooth card animation
-        console.log('Navigating to card moving page for moving context');
+        console.log('Navigating to card moving page for move context');
         router.push('/message-card-moving');
       } else if (savedContext === 'focussed') {
         // "On the move and focussed" gets focused card animation
