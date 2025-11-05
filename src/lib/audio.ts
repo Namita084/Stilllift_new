@@ -110,33 +110,54 @@ async function tryPlayAudioFile(
 ): Promise<boolean> {
   const candidates: string[] = [];
   
-  // Strategy 1: Mood-Context structured files (your naming pattern) - PRIORITY
+  // Strategy 1: Mood-Context structured files in organized folders - PRIORITY
   if (options?.mood && options?.context) {
-    const moodCapitalized = options.mood.charAt(0).toUpperCase() + options.mood.slice(1);
-    const contextMapped = mapContextToYourNaming(options.context);
-    // audioIndex is optional in PlayTextAudioOptions (for backwards compatibility), 
-    // but required when coming from ContentMessage. Default to 1 if not provided.
-    const primaryIndex = Math.max(1, Math.floor(options.audioIndex ?? 1));
-    const indicesToTry: number[] = [primaryIndex];
+    const folderName = getMoodContextFolder(options.mood, options.context);
+    if (folderName) {
+      // audioIndex is optional in PlayTextAudioOptions (for backwards compatibility), 
+      // but required when coming from ContentMessage. Default to 1 if not provided.
+      const primaryIndex = Math.max(1, Math.floor(options.audioIndex ?? 1));
+      const indicesToTry: number[] = [primaryIndex];
 
-    if (!options?.preferExactIndex && primaryIndex !== 1) {
-      indicesToTry.push(1);
-    }
+      if (!options?.preferExactIndex && primaryIndex !== 1) {
+        indicesToTry.push(1);
+      }
 
-    for (const idx of indicesToTry) {
-      const suffix = `_Audio_${idx}`;
-      candidates.push(
-        `/Audio/Mood_${moodCapitalized}_Context_${contextMapped}${suffix}.mp3`,
-        `/Audio/Mood_${moodCapitalized}_Context_${contextMapped}${suffix}.m4a`,
-        `/Audio/Mood_${moodCapitalized}_Context_${contextMapped}${suffix}.ogg`,
-        `/Audio/Mood_${moodCapitalized}_Context_${contextMapped}${suffix}.wav`
-      );
+      // Map mood and context for file naming
+      const moodCapitalized = options.mood.charAt(0).toUpperCase() + options.mood.slice(1);
+      const contextMapped = mapContextToFileNaming(options.context);
+      
+      // Support multiple naming patterns for flexibility
+      const formats = ['mp3', 'm4a', 'ogg', 'wav'];
+      for (const idx of indicesToTry) {
+        // Format index with zero-padding (01, 02, etc.) and without (1, 2, etc.)
+        const idxPadded = idx.toString().padStart(2, '0');
+        const idxUnpadded = idx.toString();
+        
+        for (const format of formats) {
+          // Try the actual file naming pattern: Mood_{Mood}_Content_{Context}_Audio_{index}.mp3
+          candidates.push(
+            `/still-lift-audio/${folderName}/Mood_${moodCapitalized}_Content_${contextMapped}_Audio_${idxPadded}.${format}`,
+            `/still-lift-audio/${folderName}/Mood_${moodCapitalized}_Content_${contextMapped}_Audio_${idxUnpadded}.${format}`
+          );
+          
+          // Also try simplified patterns for backwards compatibility
+          candidates.push(
+            `/still-lift-audio/${folderName}/Audio_${idxPadded}.${format}`,
+            `/still-lift-audio/${folderName}/Audio_${idxUnpadded}.${format}`,
+            `/still-lift-audio/${folderName}/audio_${idxPadded}.${format}`,
+            `/still-lift-audio/${folderName}/audio_${idxUnpadded}.${format}`,
+            `/still-lift-audio/${folderName}/${idxPadded}.${format}`,
+            `/still-lift-audio/${folderName}/${idxUnpadded}.${format}`
+          );
+        }
+      }
     }
   }
   
   // Strategy 2: Homepage audio (only if no mood/context or explicitly requested)
   if (options?.isHomepage && (!options?.mood || !options?.context)) {
-    candidates.push('/Audio/homepage audio.mp3');
+    candidates.push('/still-lift-audio/homepage audio.mp3');
   }
   
   // Strategy 3: Message-based slugs (original approach)
@@ -148,24 +169,99 @@ async function tryPlayAudioFile(
 
   for (const slug of slugsToTry) {
     candidates.push(
-      `/Audio/${slug}.mp3`,
-      `/Audio/${slug}.m4a`,
-      `/Audio/${slug}.ogg`,
-      `/Audio/${slug}.wav`,
-      `/audio/${slug}.mp3`,
-      `/audio/${slug}.m4a`,
-      `/audio/${slug}.ogg`,
-      `/audio/${slug}.wav`
+      `/still-lift-audio/${slug}.mp3`,
+      `/still-lift-audio/${slug}.m4a`,
+      `/still-lift-audio/${slug}.ogg`,
+      `/still-lift-audio/${slug}.wav`
     );
   }
 
   console.log('[audio] Trying audio candidates:', candidates);
+  console.log('[audio] Looking for audio with options:', { mood: options?.mood, context: options?.context, audioIndex: options?.audioIndex, preferExactIndex: options?.preferExactIndex });
 
   for (const src of candidates) {
     try {
       const audio = new Audio(src);
       
-      // Add error event listeners to catch audio loading/playback errors
+      // Try to load and play audio with fallback strategies
+      // First, try immediate play (works if audio is cached)
+      try {
+        const immediatePlayPromise = audio.play();
+        if (immediatePlayPromise !== undefined) {
+          await immediatePlayPromise;
+          console.log('[audio] ✅ Playing pre-generated file (cached):', src);
+          if (activeAudio && activeAudio !== audio) {
+            activeAudio.pause();
+          }
+          activeAudio = audio;
+          activeAudioIntent = intent;
+          audio.onended = () => {
+            if (activeAudio === audio) {
+              activeAudio = null;
+              activeAudioIntent = null;
+            }
+          };
+          return true;
+        }
+      } catch (immediateError) {
+        // If immediate play fails, try loading first
+        console.log('[audio] Immediate play failed, trying to load:', src);
+      }
+      
+      // If immediate play didn't work, wait for audio to load
+      try {
+        await new Promise<void>((resolve, reject) => {
+          let timeoutId: NodeJS.Timeout | null = null;
+          let resolved = false;
+          
+          const cleanup = () => {
+            if (resolved) return;
+            audio.removeEventListener('canplaythrough', onCanPlay);
+            audio.removeEventListener('canplay', onCanPlay);
+            audio.removeEventListener('loadeddata', onCanPlay);
+            audio.removeEventListener('error', onError);
+            if (timeoutId) clearTimeout(timeoutId);
+          };
+          
+          const onCanPlay = () => {
+            if (resolved) return;
+            resolved = true;
+            cleanup();
+            resolve();
+          };
+          
+          const onError = (e: Event) => {
+            if (resolved) return;
+            resolved = true;
+            cleanup();
+            const error = e instanceof Error ? e : new Error('Audio load failed');
+            reject(error);
+          };
+          
+          // Try multiple events for better browser compatibility
+          audio.addEventListener('canplaythrough', onCanPlay, { once: true });
+          audio.addEventListener('canplay', onCanPlay, { once: true });
+          audio.addEventListener('loadeddata', onCanPlay, { once: true });
+          audio.addEventListener('error', onError, { once: true });
+          
+          // Set a shorter timeout for loading (2 seconds)
+          timeoutId = setTimeout(() => {
+            if (!resolved) {
+              resolved = true;
+              cleanup();
+              // Don't reject - try to play anyway
+              resolve();
+            }
+          }, 2000);
+          
+          // Start loading the audio
+          audio.load();
+        });
+      } catch (loadError) {
+        console.log('[audio] Audio load had issues, trying to play anyway:', src);
+      }
+      
+      // Try to play after loading (or even if loading had issues)
       const playPromise = audio.play();
       
       if (playPromise !== undefined) {
@@ -187,7 +283,7 @@ async function tryPlayAudioFile(
     } catch (err) {
       // Handle different types of errors
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      console.log('[audio] ❌ Failed to play:', src, errorMessage);
+      console.log('[audio] ❌ Failed to load/play:', src, errorMessage);
       continue;
     }
   }
@@ -197,14 +293,35 @@ async function tryPlayAudioFile(
 }
 
 /**
- * Map your app's context names to your audio file naming convention
+ * Map mood and context to folder path
  */
-function mapContextToYourNaming(context: string): string {
-  switch (context) {
+function getMoodContextFolder(mood: string, context: string): string | null {
+  const moodLower = mood.toLowerCase();
+  const contextLower = context.toLowerCase();
+  
+  // Map context names
+  let contextMapped: string;
+  switch (contextLower) {
+    case 'still': contextMapped = 'still'; break;
+    case 'move': contextMapped = 'move'; break;
+    case 'focused': contextMapped = 'focused'; break; // Note: folder uses "focused", not "focused"
+    default: contextMapped = contextLower;
+  }
+  
+  // Build folder name: mood-context
+  const folderName = `${moodLower}-${contextMapped}`;
+  return folderName;
+}
+
+/**
+ * Map context to file naming convention (capitalized for Content_{Context} in filename)
+ */
+function mapContextToFileNaming(context: string): string {
+  switch (context.toLowerCase()) {
     case 'still': return 'Still';
     case 'move': return 'Move';
-    case 'focussed': return 'Focussed';
-    default: return context;
+    case 'focused': return 'Focused'; // Note: file uses "Focused", not "focused"
+    default: return context.charAt(0).toUpperCase() + context.slice(1);
   }
 }
 
@@ -284,14 +401,12 @@ export async function playMessageAudio(
     const played = await tryPlayAudioFile(title, message, options, intent);
     if (played) return;
 
-    // Fallback to TTS
-    const fullText = title && title.trim().length > 0 ? `${title}. ${message}` : message;
-    speakWithTts(fullText, options, intent);
+    // No TTS fallback - if audio file not found, silently fail
+    console.warn('[audio] Audio file not found and TTS fallback disabled. No audio will play.');
   } catch (error) {
     console.error('[audio] Error in playMessageAudio:', error);
-    // Still try TTS as fallback even if there's an error
-    const fullText = title && title.trim().length > 0 ? `${title}. ${message}` : message;
-    speakWithTts(fullText, options, intent);
+    // No TTS fallback - silently fail if there's an error
+    console.warn('[audio] Audio playback failed and TTS fallback disabled. No audio will play.');
   }
 }
 

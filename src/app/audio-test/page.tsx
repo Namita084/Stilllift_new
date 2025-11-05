@@ -78,7 +78,7 @@ export default function AudioTestPage() {
       name: "Mood-Context: Focused (Matches Display)",
       title: "ACTION",
       message: "ACTION: Concentrate on your breathing",
-      options: { mood: "Good", context: "focussed" },
+      options: { mood: "Good", context: "focused" },
     },
     {
       name: "Treasure Chest Audio",
@@ -90,7 +90,7 @@ export default function AudioTestPage() {
       name: "Mood-Context + Homepage (Should use Mood-Context)",
       title: "ACTION",
       message: "ACTION: Concentrate on your breathing",
-      options: { mood: "Good", context: "focussed", isHomepage: true },
+      options: { mood: "Good", context: "focused", isHomepage: true },
     },
     {
       name: "TTS Fallback (No File)",
@@ -223,7 +223,7 @@ export default function AudioTestPage() {
                   <option value="">None</option>
                   <option value="safe">Safe/Still</option>
                   <option value="moving">Moving</option>
-                  <option value="focussed">Focused</option>
+                  <option value="focused">Focused</option>
                 </select>
               </div>
               <div className="flex items-center space-x-2">
@@ -321,7 +321,7 @@ export default function AudioTestPage() {
               </div>
               <div className="flex justify-between items-center p-2 bg-blue-50 rounded">
                 <span className="font-medium">
-                  Mood_Good_Context_Focussed_Audio_1.mp3
+                  Mood_Good_Context_focused_Audio_1.mp3
                 </span>
                 <span className="text-sm text-gray-600">Focused context</span>
               </div>

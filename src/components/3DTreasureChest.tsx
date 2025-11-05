@@ -28,6 +28,7 @@ interface TreasureChestProps {
   ) => void;
   mood?: string;
   context?: string;
+  audioIndex?: number;
 }
 
 export default function TreasureChest({ 
@@ -42,6 +43,7 @@ export default function TreasureChest({
   onPlayNarration,
   mood,
   context,
+  audioIndex,
 }: TreasureChestProps) {
   const [isOpening, setIsOpening] = useState(false);
   const [isOpened, setIsOpened] = useState(false);
@@ -82,7 +84,7 @@ export default function TreasureChest({
         const picked = actions[randomIndex];
         setOverrideMessage(picked.message);
         setOverrideActionType(picked.actionType || 'ACTION');
-        setSelectedAudioIndex(randomIndex + 1);
+        setSelectedAudioIndex(picked.audioIndex);
       }
       return true;
     }
@@ -114,7 +116,8 @@ export default function TreasureChest({
       // For other combos, clear overrides so props flow through
       setOverrideMessage(null);
       setOverrideActionType(null);
-      setSelectedAudioIndex(null);
+      // Use audioIndex prop if available, otherwise null
+      setSelectedAudioIndex(audioIndex ?? null);
     }
 
     const duration = getAnimationDuration();
@@ -172,7 +175,7 @@ export default function TreasureChest({
       setTreasureCardStatic(true);
     }, duration * 1.9);
     
-  }, [canClick, isOpening, onReveal, animationSpeed, mood, context, selectRandomForGoodSafe]);
+  }, [canClick, isOpening, onReveal, animationSpeed, mood, context, selectRandomForGoodSafe, audioIndex]);
 
   useEffect(() => {
     if (!hasAnnouncedReveal.current && (showMessage || messageStaysPermanent)) {

@@ -157,13 +157,13 @@ export default function PlayingCard({
   // Auto-flip after delay using transition-based flip (no keyframes)
   useEffect(() => {
     if (!isRevealed && canClick) {
-      // For move and focussed contexts, show the action immediately as a simple card (no flip)
-      if (context === 'move' || context === 'focussed') {
+      // For move and focused contexts, show the action immediately as a simple card (no flip)
+      if (context === 'move' || context === 'focused') {
         setCanClick(false);
         setIsFlipped(true);
         setShowMessage(true);
         setIsExpanded(true);
-        // Show treasure card for moving/focussed contexts
+        // Show treasure card for moving/focused contexts
         setShowTreasureCard(true);
         setTreasureCardEmerging(true);
         setTimeout(() => {
@@ -245,14 +245,34 @@ export default function PlayingCard({
     const currentData = messages[currentMessage];
     if (!currentData) return;
 
-    onPlayNarration(
-      currentData.message,
-      currentData.tag,
-      mood ?? null,
-      context ?? null,
-      audioIndex ?? null,
-      audioIndex !== undefined && audioIndex !== null
-    );
+    // Only play audio if audioIndex is provided and valid
+    // This prevents TTS fallback from being triggered
+    if (audioIndex === null || audioIndex === undefined) {
+      console.warn('[PlayingCard] Skipping audio playback - audioIndex is missing', { audioIndex, mood, context, message: currentData.message });
+      return;
+    }
+
+    // Small delay to ensure all props are ready and component is fully mounted
+    const timeoutId = setTimeout(() => {
+      console.log('[PlayingCard] Triggering audio playback', { 
+        audioIndex, 
+        mood, 
+        context, 
+        message: currentData.message,
+        actionType: currentData.tag 
+      });
+      
+      onPlayNarration(
+        currentData.message,
+        currentData.tag,
+        mood ?? null,
+        context ?? null,
+        audioIndex,
+        true // preferExactIndex - always use exact index when provided
+      );
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [showMessage, onPlayNarration, messages, currentMessage, mood, context, audioIndex]);
 
   const handleStartOver = () => {
@@ -331,16 +351,16 @@ export default function PlayingCard({
     } as React.CSSProperties;
   }, [cardAnimationDuration, palette]);
 
-  // For moving and focussed contexts, reveal quickly at top-level (no conditional hook usage)
+  // For moving and focused contexts, reveal quickly at top-level (no conditional hook usage)
   useEffect(() => {
-    if (context !== 'move' && context !== 'focussed') return;
+    if (context !== 'move' && context !== 'focused') return;
     const t = setTimeout(() => onReveal(), 80);
     return () => clearTimeout(t);
   }, [context, onReveal]);
 
-  // Show treasure card for move and focussed contexts
+  // Show treasure card for move and focused contexts
   useEffect(() => {
-    if (context === 'move' || context === 'focussed') {
+    if (context === 'move' || context === 'focused') {
       // Show treasure card after a short delay
       const timer = setTimeout(() => {
         setShowTreasureCard(true);
@@ -357,8 +377,8 @@ export default function PlayingCard({
     }
   }, [context]);
   
-  // Simple, non-flipping card for move and focussed contexts - show treasure card instead
-  if (context === 'move' || context === 'focussed') {
+  // Simple, non-flipping card for move and focused contexts - show treasure card instead
+  if (context === 'move' || context === 'focused') {
     return (
       <>
         <ActionRevealCard
@@ -386,8 +406,8 @@ export default function PlayingCard({
         style={cardThemeStyle}
         data-speed={animationSpeed}
       >
-        {/* Card Back (shows first) - hidden for move and focussed contexts to avoid mirrored branding */}
-        {context !== 'move' && context !== 'focussed' && (
+        {/* Card Back (shows first) - hidden for move and focused contexts to avoid mirrored branding */}
+        {context !== 'move' && context !== 'focused' && (
         <div className="card-face card-back">
           <div className="card-back-content">
             <div className="back-pattern">

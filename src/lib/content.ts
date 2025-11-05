@@ -5,7 +5,7 @@ export interface ContentMessage {
   actionType: 'VISUALIZE' | 'ACTION' | 'REPEAT' | 'BREATHE' | 'LISTEN';
   message: string;
   displayTime: number; // Time in seconds to display the message
-  audioIndex: number; // Required: Index of the pre-recorded audio file (1-indexed, matches array position)
+  audioIndex: number; // Required: Index of the pre-recorded audio file (1-indexed, matches array position). Single digits map to zero-padded files: 1→01, 2→02, ..., 9→09, 10→10, etc.
 }
 
 export interface MoodContextContent {
@@ -18,7 +18,7 @@ export interface ContentLibrary {
 
 // Define the available moods and contexts
 export const MOODS = ['good', 'okay', 'bad', 'awful'] as const;
-export const CONTEXTS = ['still', 'move', 'focussed'] as const;
+export const CONTEXTS = ['still', 'move', 'focused'] as const;
 
 export type Mood = typeof MOODS[number];
 export type Context = typeof CONTEXTS[number];
@@ -210,7 +210,7 @@ export const CONTENT_LIBRARY: ContentLibrary = {
         audioIndex: 15
       }
     ],
-    focussed: [
+    focused: [
       {
         actionType: "ACTION",
         message: "Listen to upbeat instrumental music",
@@ -488,7 +488,7 @@ export const CONTENT_LIBRARY: ContentLibrary = {
         audioIndex: 15
       }
     ],
-    focussed: [
+    focused: [
       {
         actionType: "BREATHE",
         message: "Attentional breath: Inhale 4s, exhale 4s × 12 to stabilise focus",
@@ -766,7 +766,7 @@ export const CONTENT_LIBRARY: ContentLibrary = {
         audioIndex: 15
       }
     ],
-    focussed: [
+    focused: [
       {
         actionType: "BREATHE",
         message: "Paced breathing for focus: In 4s, out 6s × 12",
@@ -1044,7 +1044,7 @@ export const CONTENT_LIBRARY: ContentLibrary = {
         audioIndex: 15
       }
     ],
-    focussed: [
+    focused: [
       {
         actionType: "BREATHE",
         message: "Anchor to your breath: inhale for 3 seconds, exhale for 6 seconds × 12; stay aware of your task",
@@ -1140,14 +1140,58 @@ export const CONTENT_LIBRARY: ContentLibrary = {
 };
 
 // Utility functions for content management
-export function getRandomMessage(mood: Mood, context: Context): ContentMessage | null {
+export function getRandomMessage(mood: Mood, context: Context, excludeMessage?: ContentMessage | null): ContentMessage | null {
   const messages = CONTENT_LIBRARY[mood]?.[context];
   if (!messages || messages.length === 0) {
     return null;
   }
   
-  const randomIndex = Math.floor(Math.random() * messages.length);
-  return messages[randomIndex];
+  // If we need to exclude a message, filter it out
+  let availableMessages = messages;
+  if (excludeMessage) {
+    availableMessages = messages.filter(msg => {
+      // Exclude if both message text AND audioIndex match (meaning it's the same message)
+      const isSameMessage = msg.message === excludeMessage.message && msg.audioIndex === excludeMessage.audioIndex;
+      return !isSameMessage;
+    });
+    
+    // Log for debugging
+    if (availableMessages.length === 0) {
+      console.warn('[content] All messages were excluded, but there are no other messages available. This should not happen unless there\'s only 1 message total.');
+      // If there's literally only 1 message in the entire array, we can't avoid showing it
+      // But we'll still filter to show that we tried
+      availableMessages = messages;
+    } else if (availableMessages.length === messages.length) {
+      console.warn('[content] Exclusion filter did not remove any messages. Previous message may not match any current messages.');
+    }
+  }
+  
+  // If after filtering we have messages available, select randomly from them
+  if (availableMessages.length > 0) {
+    const randomIndex = Math.floor(Math.random() * availableMessages.length);
+    const selected = availableMessages[randomIndex];
+    
+    // Double-check that we didn't accidentally select the excluded message
+    if (excludeMessage && selected.message === excludeMessage.message && selected.audioIndex === excludeMessage.audioIndex) {
+      console.error('[content] ERROR: Selected the same message that should have been excluded!', {
+        selected: selected.message,
+        excluded: excludeMessage.message
+      });
+      // Try to find a different one
+      const otherMessages = availableMessages.filter(msg => 
+        msg.message !== excludeMessage.message || msg.audioIndex !== excludeMessage.audioIndex
+      );
+      if (otherMessages.length > 0) {
+        const fallbackIndex = Math.floor(Math.random() * otherMessages.length);
+        return otherMessages[fallbackIndex];
+      }
+    }
+    
+    return selected;
+  }
+  
+  // Fallback: if somehow no messages are available, return null
+  return null;
 }
 
 export function getAllMessages(mood: Mood, context: Context): ContentMessage[] {

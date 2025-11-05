@@ -13,7 +13,7 @@
 
 3. **That's it!** The analytics are already integrated and will track:
    - Mood selections (good, okay, bad, awful)
-   - Context selections (safe, moving, focussed)
+   - Context selections (safe, moving, focused)
    - Mood-context combinations
    - Micro-habit reveals
    - User actions (start over, try another)
@@ -38,7 +38,7 @@
 
 In your Amplitude dashboard, you'll see:
 - **Most popular moods** (good, okay, bad, awful)
-- **Most common contexts** (safe, moving, focussed)
+- **Most common contexts** (safe, moving, focused)
 - **Popular combinations** (e.g., bad_safe, good_moving)
 - **User flow patterns** and drop-off points
 

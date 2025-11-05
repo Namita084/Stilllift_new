@@ -69,8 +69,8 @@ export default function RevealElement({
     onReveal();
   };
 
-  // Avoid dimming overlay for treasure-chest and playing-card so the screen doesn't get dull
-  const shouldShowOverlay = isRevealed && isMounted && !['treasure-chest', 'playing-card'].includes(revealType);
+  // Avoid dimming overlay for treasure-chest, playing-card, balloon, envelope, and bandage so the screen doesn't get dull
+  const shouldShowOverlay = isRevealed && isMounted && !['treasure-chest', 'playing-card', 'balloon', 'balloon-pop', 'envelope', 'bandage'].includes(revealType);
   const overlay = shouldShowOverlay
     ? createPortal(
         <div className="reveal-overlay" aria-hidden="true" />,
@@ -116,6 +116,7 @@ export default function RevealElement({
             onPlayNarration={handleCustomNarration}
             mood={mood ?? undefined}
             context={context ?? undefined}
+            audioIndex={audioIndex}
           />
         );
       
@@ -134,6 +135,7 @@ export default function RevealElement({
             actionType={actionType}
             onStartOver={onStartOver}
             onTryAnother={onTryAnother}
+            audioIndex={audioIndex}
           />
         );
       
@@ -152,6 +154,7 @@ export default function RevealElement({
             actionType={actionType}
             onStartOver={onStartOver}
             onTryAnother={onTryAnother}
+            audioIndex={audioIndex}
           />
         );
       

@@ -9,7 +9,7 @@ import Background from '@/components/Background';
 import RevealElement from '@/components/3DRevealElement';
 import TextBackButton from '@/components/TextBackButton';
 import { initAnalytics, trackMoodSelected, trackContextSelected, trackMoodContextCombination, trackMicroHabitRevealed, trackUserAction } from '@/lib/analytics';
-import { getRandomMessage, type Mood, type Context } from '@/lib/content';
+import { getRandomMessage, type Mood, type Context, type ContentMessage } from '@/lib/content';
 import { useAudioController } from '@/context/AudioControllerContext';
 import '@/components/3DComponents.css';
 
@@ -227,20 +227,21 @@ export default function Home() {
   }, [selectedMood, selectedContext, showReveal]);
 
   // Backend logic: Auto-select micro-habit based on Mood + Context
-  const getMicroHabit = (): MicroHabitData | null => {
+  const getMicroHabit = (excludeMessage?: ContentMessage | null): MicroHabitData | null => {
     if (!selectedMood || !selectedContext) return null;
 
     // Always use local content library for all mood-context combinations
-    const contentMessage = getRandomMessage(selectedMood as Mood, selectedContext as Context);
+    // Pass excludeMessage to prevent showing the same message twice
+    const contentMessage = getRandomMessage(selectedMood as Mood, selectedContext as Context, excludeMessage);
     if (!contentMessage) return null;
 
     // Map content to micro-habit format with appropriate styling
     const getActionType = (mood: string, context: string): 'ACTION' | 'REPEAT' | 'VISUALIZE' | 'BREATHE' | 'LISTEN' => {
       if (mood === 'good' && context === 'still') return 'VISUALIZE';
-      if (mood === 'good' && (context === 'move' || context === 'focussed')) return 'ACTION';
+      if (mood === 'good' && (context === 'move' || context === 'focused')) return 'ACTION';
       if (mood === 'okay' && context === 'still') return 'ACTION';
       if (mood === 'okay' && context === 'move') return 'REPEAT';
-      if (mood === 'okay' && context === 'focussed') return 'VISUALIZE';
+      if (mood === 'okay' && context === 'focused') return 'VISUALIZE';
       if (mood === 'bad') return 'REPEAT';
       if (mood === 'awful') return 'ACTION';
       return 'ACTION';
@@ -248,7 +249,7 @@ export default function Home() {
 
     const getRevealType = (mood: string, context: string): string => {
       // Card experience only for moving contexts; still context uses mood-specific tokens
-      if (context === 'move' || context === 'focussed') {
+      if (context === 'move' || context === 'focused') {
         return 'playing-card';
       }
       // Still & Safe Place
@@ -260,8 +261,8 @@ export default function Home() {
     };
 
   const getRevealToken = (mood: string, context: string): string => {
-    // Card glyph for move/focussed; emoji tokens for still context per mood
-    if (context === 'move' || context === 'focussed') {
+    // Card glyph for move/focused; emoji tokens for still context per mood
+    if (context === 'move' || context === 'focused') {
       return '🎴';
     }
     if (mood === 'good') return '💎'; // treasure chest theme
@@ -282,15 +283,15 @@ export default function Home() {
     const getAnimationSpeed = (mood: string, context: string): 'rich' | 'quick' | 'gentle' | 'instant' => {
       if (mood === 'good' && context === 'still') return 'rich';
       if (mood === 'good' && context === 'move') return 'quick';
-      if (mood === 'good' && context === 'focussed') return 'instant';
+      if (mood === 'good' && context === 'focused') return 'instant';
       if (mood === 'okay' && context === 'still') return 'rich';
       if (mood === 'okay' && context === 'move') return 'quick';
-      if (mood === 'okay' && context === 'focussed') return 'gentle';
+      if (mood === 'okay' && context === 'focused') return 'gentle';
       if (mood === 'bad' && context === 'still') return 'rich';
       if (mood === 'bad' && context === 'move') return 'quick';
-      if (mood === 'bad' && context === 'focussed') return 'instant';
+      if (mood === 'bad' && context === 'focused') return 'instant';
       if (mood === 'awful' && context === 'still') return 'gentle';
-      if (mood === 'awful' && (context === 'move' || context === 'focussed')) return 'instant';
+      if (mood === 'awful' && (context === 'move' || context === 'focused')) return 'instant';
       return 'rich';
     };
 
@@ -315,7 +316,70 @@ export default function Home() {
     };
   };
 
-  const selectedMicroHabit = getMicroHabit();
+  // Track when to force a new random selection (for "Try Another" button)
+  const [forceRefresh, setForceRefresh] = useState(0);
+  
+  // Track the previous message to avoid showing the same message twice
+  // Key includes mood+context to reset when switching combinations
+  const previousMessageRef = useRef<ContentMessage | null>(null);
+  const previousMoodContextRef = useRef<string>('');
+  
+  // Reset previous message when mood/context changes
+  useEffect(() => {
+    const currentKey = `${selectedMood || ''}-${selectedContext || ''}`;
+    if (currentKey !== previousMoodContextRef.current) {
+      previousMessageRef.current = null;
+      previousMoodContextRef.current = currentKey;
+    }
+  }, [selectedMood, selectedContext]);
+  
+  // Memoize selectedMicroHabit to prevent random message selection on every render
+  // This ensures display text and audio always match
+  // forceRefresh is included to allow forcing a new selection when "Try Another" is clicked
+  const selectedMicroHabit = useMemo(() => {
+    // Get the previous message before calling getMicroHabit
+    const previousMessage = previousMessageRef.current;
+    
+    // Log for debugging
+    if (previousMessage) {
+      console.log('[page] Getting new message, excluding previous:', {
+        previousMessage: previousMessage.message,
+        previousAudioIndex: previousMessage.audioIndex
+      });
+    }
+    
+    const microHabit = getMicroHabit(previousMessage);
+    
+    // Update the previous message ref after getting a new one
+    if (microHabit) {
+      // Reconstruct the ContentMessage from the microHabit data
+      const currentMessage: ContentMessage = {
+        actionType: microHabit.actionType,
+        message: microHabit.message,
+        displayTime: 0, // Not used for comparison
+        audioIndex: microHabit.audioIndex
+      };
+      
+      // Verify it's different from the previous message
+      if (previousMessage && 
+          currentMessage.message === previousMessage.message && 
+          currentMessage.audioIndex === previousMessage.audioIndex) {
+        console.warn('[page] WARNING: Same message was selected again!', {
+          message: currentMessage.message,
+          audioIndex: currentMessage.audioIndex
+        });
+      } else {
+        console.log('[page] New message selected:', {
+          message: currentMessage.message,
+          audioIndex: currentMessage.audioIndex
+        });
+      }
+      
+      previousMessageRef.current = currentMessage;
+    }
+    
+    return microHabit;
+  }, [selectedMood, selectedContext, forceRefresh]);
 
   const taskAudioPayload = useMemo(() => {
     if (!selectedMicroHabit) return null;
@@ -473,6 +537,26 @@ export default function Home() {
     // Stop any playing task audio
     stopTaskAudio();
 
+    // IMPORTANT: Ensure previousMessageRef is set to the current message BEFORE triggering refresh
+    // This ensures the current message will be excluded from the next selection
+    if (selectedMicroHabit) {
+      const currentMessage: ContentMessage = {
+        actionType: selectedMicroHabit.actionType,
+        message: selectedMicroHabit.message,
+        displayTime: 0,
+        audioIndex: selectedMicroHabit.audioIndex
+      };
+      previousMessageRef.current = currentMessage;
+      console.log('[page] Try Another clicked - setting previous message to exclude:', {
+        message: currentMessage.message,
+        audioIndex: currentMessage.audioIndex
+      });
+    }
+
+    // Force a new random message selection by incrementing forceRefresh
+    // This will cause selectedMicroHabit to recalculate with a new random message
+    setForceRefresh(prev => prev + 1);
+
     // Reset the flip and immediately re-reveal to trigger a new random selection
     setIsRevealed(false);
     hasInstantRevealRef.current = false;
@@ -484,7 +568,7 @@ export default function Home() {
     setTimeout(() => {
       setIsRevealed(true);
     }, 40);
-  }, [selectedMood, selectedContext, stopTaskAudio]);
+  }, [selectedMood, selectedContext, stopTaskAudio, selectedMicroHabit]);
 
   useEffect(() => {
     if (!showReveal || !taskAudioPayload || !selectedMicroHabit) {
@@ -683,13 +767,13 @@ export default function Home() {
 
                       </button>
                       <button 
-                        className={`context-btn glass-card ${selectedContext === 'focussed' ? 'selected' : 'focussed'}`}
-                        onClick={() => handleContextSelection('focussed')}
-                        data-context="focussed"
+                        className={`context-btn glass-card ${selectedContext === 'focused' ? 'selected' : 'focused'}`}
+                        onClick={() => handleContextSelection('focused')}
+                        data-context="focused"
                       >
                         <div className="context-content">
                           <span className="context-icon">🎯</span>
-                          <span className="context-text font-inter font-medium">On the Move and Focussed</span>
+                          <span className="context-text font-inter font-medium">On the Move and focused</span>
                         </div>
 
                       </button>
@@ -704,7 +788,7 @@ export default function Home() {
                 {/* Reveal Experience */}
                 <div className="reveal-container">
                   {selectedMicroHabit?.revealType !== 'balloon-pop' && 
-                   !(selectedMicroHabit?.revealType === 'playing-card' && (selectedContext === 'move' || selectedContext === 'focussed')) && (
+                   !(selectedMicroHabit?.revealType === 'playing-card' && (selectedContext === 'move' || selectedContext === 'focused')) && (
                     <div className="reveal-header">
                       <h2 className="font-inter font-semibold text-slate-900 dark:text-slate-100">
                         Your Personalized Experience
@@ -714,7 +798,7 @@ export default function Home() {
                         Location: <span className="font-medium">
                           {selectedContext === 'still' ? 'Still & Safe Place' : 
                            selectedContext === 'move' ? 'On the Move, but Safe' : 
-                           'On the Move and Focussed'}
+                           'On the Move and focused'}
                         </span>
                       </p>
                     </div>

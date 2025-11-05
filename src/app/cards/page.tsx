@@ -99,10 +99,10 @@ export default function CardsPage() {
         // "On the move but safe" gets smooth card animation
         console.log('Navigating to card moving page for move context');
         router.push('/message-card-moving');
-      } else if (savedContext === 'focussed') {
-        // "On the move and focussed" gets focused card animation
-        console.log('Navigating to card focussed page for focussed context');
-        router.push('/message-card-focussed');
+      } else if (savedContext === 'focused') {
+        // "On the move and focused" gets focused card animation
+        console.log('Navigating to card focused page for focused context');
+        router.push('/message-card-focused');
       } else {
         // All other combinations get the regular message page
         console.log('Navigating to regular message page for', { savedMood, savedContext });

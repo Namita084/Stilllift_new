@@ -17,7 +17,7 @@ The content system is centralized in `src/lib/content.ts` and provides a structu
 ### Contexts
 - `still` - User is in a safe, stationary place
 - `move` - User is on the move but safe
-- `focussed` - User is on the move and focused
+- `focused` - User is on the move and focused
 
 ### Content Structure
 
@@ -36,27 +36,47 @@ interface ContentMessage {
 
 **`audioIndex`** (Required):
 - **Purpose**: Specifies which pre-recorded audio file to play for this message
-- **How It Works**: The system uses this index to locate audio files in the `public/Audio` folder
-- **File Naming Pattern**: Audio files are named using the format:
+- **How It Works**: The system uses this index to locate audio files in organized folders within `public/still-lift-audio`
+- **Folder Structure**: Audio files are organized by mood and context in folders:
   ```
-  Mood_{Mood}_Context_{Context}_Audio_{audioIndex}.mp3
+  public/still-lift-audio/
+    ├── good-still/
+    ├── good-move/
+    ├── good-focused/
+    ├── okay-still/
+    ├── okay-move/
+    ├── okay-focused/
+    ├── bad-still/
+    ├── bad-move/
+    ├── bad-focused/
+    ├── awful-still/
+    ├── awful-move/
+    └── awful-focused/
   ```
   
+- **File Naming Pattern**: Audio files can be named using any of these formats:
+  - `Audio_{audioIndex}.mp3` (e.g., `Audio_1.mp3`, `Audio_5.mp3`)
+  - `audio_{audioIndex}.mp3` (e.g., `audio_1.mp3`, `audio_5.mp3`)
+  - `{audioIndex}.mp3` (e.g., `1.mp3`, `5.mp3`)
+  
+  The system supports multiple formats: `.mp3`, `.m4a`, `.ogg`, `.wav`
+  
 - **Examples**:
-  - `audioIndex: 1` → Looks for `/Audio/Mood_Good_Context_Still_Audio_1.mp3`
-  - `audioIndex: 5` → Looks for `/Audio/Mood_Good_Context_Move_Audio_5.mp3`
-  - `audioIndex: 12` → Looks for `/Audio/Mood_Bad_Context_Focussed_Audio_12.mp3`
+  - `mood: 'good'`, `context: 'still'`, `audioIndex: 1` → Looks for `/still-lift-audio/good-still/Audio_1.mp3` (or other formats)
+  - `mood: 'good'`, `context: 'move'`, `audioIndex: 5` → Looks for `/still-lift-audio/good-move/Audio_5.mp3` (or other formats)
+  - `mood: 'bad'`, `context: 'focused'`, `audioIndex: 12` → Looks for `/still-lift-audio/bad-focused/Audio_12.mp3` (or other formats)
 
 - **Context Mapping**: 
-  - `still` → `Still` in filename
-  - `move` → `Move` in filename  
-  - `focussed` → `Focussed` in filename
+  - `still` → `still` folder
+  - `move` → `move` folder
+  - `focused` → `focused` folder (note: folder uses "focused", not "focused")
 
 - **How It's Used**:
-  1. When a message is displayed and audio is enabled, the system uses the message's `audioIndex` to construct the audio filename
-  2. It constructs the audio filename based on mood, context, and the `audioIndex` value
-  3. If the pre-recorded audio file exists, it plays that file
-  4. If the audio file is not found, the system falls back to Text-to-Speech (TTS)
+  1. When a message is displayed and audio is enabled, the system uses the message's `audioIndex` to locate the audio file
+  2. It constructs the folder path based on mood and context (e.g., `good-still`, `okay-move`)
+  3. It tries multiple file naming patterns in the folder to find the audio file
+  4. If the pre-recorded audio file exists, it plays that file
+  5. If the audio file is not found, the system falls back to Text-to-Speech (TTS)
 
 - **Note**: `audioIndex` is **1-indexed** (starts at 1, not 0) and **must match the message's position in the array** (position 0 = audioIndex 1, position 1 = audioIndex 2, etc.). This ensures each message corresponds to the correct audio file for its mood+context combination.
 
@@ -101,7 +121,7 @@ React hooks that automatically re-compute when mood/context changes. These are u
 
 **Parameters**:
 - `mood`: Mood value (`'good' | 'okay' | 'bad' | 'awful'`)
-- `context`: Context value (`'still' | 'move' | 'focussed'`)
+- `context`: Context value (`'still' | 'move' | 'focused'`)
 - `count?`: Optional number of messages to return (default: 3)
 - `shuffle?`: Optional boolean to shuffle messages (default: true)
 

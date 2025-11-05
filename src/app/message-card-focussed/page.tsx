@@ -16,7 +16,7 @@ interface MessageData {
   actionType?: string;
 }
 
-export default function MessageCardFocussedPage() {
+export default function MessageCardfocusedPage() {
   const router = useRouter();
   const [selectedMessage, setSelectedMessage] = useState<MessageData | null>(null);
   const [showCard, setShowCard] = useState(true);
@@ -61,7 +61,7 @@ export default function MessageCardFocussedPage() {
     const savedMood = localStorage.getItem('currentMood');
     const savedContext = localStorage.getItem('currentContext');
 
-    console.log('Loading message card focussed page:', { savedMessage, savedMood, savedContext });
+    console.log('Loading message card focused page:', { savedMessage, savedMood, savedContext });
 
     if (savedMessage) {
       try {
@@ -148,12 +148,12 @@ export default function MessageCardFocussedPage() {
 
             {/* Action Buttons and Micro Tips */}
             {showActions && (
-              <div className="message-actions-overlay focussed-style">
-                <div className="micro-tips-section focussed">
+              <div className="message-actions-overlay focused-style">
+                <div className="micro-tips-section focused">
                   <h4 className="micro-tips-title">Stay focused and centered:</h4>
                   <div className="micro-tips">
                     {microTips.map((tip, index) => (
-                      <div key={index} className="micro-tip focussed">
+                      <div key={index} className="micro-tip focused">
                         <span className="tip-indicator">▶</span>
                         {tip}
                       </div>
@@ -163,7 +163,7 @@ export default function MessageCardFocussedPage() {
 
                 <div className="audio-section">
                   <button 
-                    className="audio-play-btn glass-btn focussed" 
+                    className="audio-play-btn glass-btn focused" 
                     onClick={playCurrentMessage}
                     aria-label="Play audio"
                   >
@@ -174,13 +174,13 @@ export default function MessageCardFocussedPage() {
 
                 <div className="message-actions">
                   <button 
-                    className="action-btn primary glass-btn neubrutalism-btn focussed"
+                    className="action-btn primary glass-btn neubrutalism-btn focused"
                     onClick={handleGiveMeAnother}
                   >
                     Next Focus
                   </button>
                   <button 
-                    className="action-btn secondary glass-btn neubrutalism-btn focussed"
+                    className="action-btn secondary glass-btn neubrutalism-btn focused"
                     onClick={handleStartOver}
                   >
                     Reset
@@ -210,7 +210,7 @@ export default function MessageCardFocussedPage() {
           animation: slideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
-        .message-actions-overlay.focussed-style {
+        .message-actions-overlay.focused-style {
           animation: focusedSlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
@@ -224,7 +224,7 @@ export default function MessageCardFocussedPage() {
           box-shadow: 0 15px 40px rgba(139, 92, 246, 0.15);
         }
 
-        .micro-tips-section.focussed {
+        .micro-tips-section.focused {
           border-color: rgba(139, 92, 246, 0.3);
           box-shadow: 0 15px 40px rgba(139, 92, 246, 0.2);
         }
@@ -257,7 +257,7 @@ export default function MessageCardFocussedPage() {
           gap: 0.5rem;
         }
 
-        .micro-tip.focussed {
+        .micro-tip.focused {
           border-color: rgba(139, 92, 246, 0.2);
           background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
         }
@@ -289,7 +289,7 @@ export default function MessageCardFocussedPage() {
           backdrop-filter: blur(15px);
         }
 
-        .audio-play-btn.focussed {
+        .audio-play-btn.focused {
           border-color: rgba(139, 92, 246, 0.4);
           background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 245, 255, 0.95) 100%);
         }
@@ -324,25 +324,25 @@ export default function MessageCardFocussedPage() {
           backdrop-filter: blur(20px);
         }
 
-        .action-btn.primary.focussed {
+        .action-btn.primary.focused {
           background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
           color: white;
           border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
-        .action-btn.primary.focussed:hover {
+        .action-btn.primary.focused:hover {
           background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
         }
 
-        .action-btn.secondary.focussed {
+        .action-btn.secondary.focused {
           background: rgba(255, 255, 255, 0.95);
           color: #475569;
           border: 2px solid rgba(139, 92, 246, 0.2);
         }
 
-        .action-btn.secondary.focussed:hover {
+        .action-btn.secondary.focused:hover {
           background: rgba(255, 255, 255, 1);
           border-color: rgba(139, 92, 246, 0.3);
           transform: translateY(-2px);
@@ -382,13 +382,13 @@ export default function MessageCardFocussedPage() {
             color: #f1f5f9;
           }
 
-          .micro-tip.focussed {
+          .micro-tip.focused {
             background: linear-gradient(135deg, #2d1b69 0%, #3730a3 100%);
             color: #e0e7ff;
             border-color: rgba(139, 92, 246, 0.3);
           }
 
-          .audio-play-btn.focussed {
+          .audio-play-btn.focused {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(45, 27, 105, 0.95) 100%);
             color: #f1f5f9;
             border-color: rgba(139, 92, 246, 0.4);
@@ -398,13 +398,13 @@ export default function MessageCardFocussedPage() {
             background: linear-gradient(135deg, rgba(30, 41, 59, 1) 0%, rgba(45, 27, 105, 1) 100%);
           }
 
-          .action-btn.secondary.focussed {
+          .action-btn.secondary.focused {
             background: rgba(30, 41, 59, 0.95);
             color: #f1f5f9;
             border-color: rgba(139, 92, 246, 0.3);
           }
 
-          .action-btn.secondary.focussed:hover {
+          .action-btn.secondary.focused:hover {
             background: rgba(30, 41, 59, 1);
           }
         }

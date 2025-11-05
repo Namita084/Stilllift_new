@@ -78,7 +78,10 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
       setShowTreasureCard(true);
       setTreasureCardEmerging(true);
       setShowMessage(true);
-      setMessageLocked(true);
+      // Delay setting messageLocked slightly to ensure props are ready before triggering audio
+      setTimeout(() => {
+        setMessageLocked(true);
+      }, 50);
     }, duration * 0.6);
     
     // Treasure card fully revealed
@@ -104,7 +107,10 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
   const handleGiveAnother = () => {
     console.log('📝 Getting another message...');
     if (onPlayNarration) {
-      onPlayNarration(BALLOON_MESSAGE_BODY, BALLOON_ACTION_TAG, mood ?? null, context ?? null, audioIndex ?? null, false);
+      // Use actual message and action from props instead of hardcoded values
+      const narrationMessage = action || message || '';
+      const narrationActionType = actionType || 'ACTION';
+      onPlayNarration(narrationMessage, narrationActionType, mood ?? null, context ?? null, audioIndex ?? null, true);
     }
   };
 
@@ -118,8 +124,24 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
 
   useEffect(() => {
     if (!messageLocked || !onPlayNarration) return;
-    onPlayNarration(BALLOON_MESSAGE_BODY, BALLOON_ACTION_TAG, mood ?? null, context ?? null, audioIndex ?? null, false);
-  }, [messageLocked, onPlayNarration, mood, context, audioIndex]);
+    // Use actual message and action from props instead of hardcoded values
+    const narrationMessage = action || message || '';
+    const narrationActionType = actionType || 'ACTION';
+    
+    // Only play audio if we have a valid message and audioIndex
+    // This ensures props are ready before attempting to play audio
+    if (!narrationMessage || narrationMessage.trim() === '') {
+      console.warn('[Balloon] Skipping audio - no message available yet');
+      return;
+    }
+    
+    // Small delay to ensure all props are properly set
+    const timeoutId = setTimeout(() => {
+      onPlayNarration(narrationMessage, narrationActionType, mood ?? null, context ?? null, audioIndex ?? null, true);
+    }, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, [messageLocked, onPlayNarration, mood, context, audioIndex, action, message, actionType]);
 
   useEffect(() => {
     if (!isRevealed || messageLocked || hasAutoRevealed.current) return;
@@ -129,7 +151,10 @@ export default function Balloon({ isRevealed, onReveal, accentColor, animationSp
     setIsPopping(false);
     setShowConfetti(true);
     setShowMessage(true);
-    setMessageLocked(true);
+    // Delay setting messageLocked slightly to ensure props are ready
+    setTimeout(() => {
+      setMessageLocked(true);
+    }, 50);
     setIsHovered(false);
     // Show treasure card
     setShowTreasureCard(true);
