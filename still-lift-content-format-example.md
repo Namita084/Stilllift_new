@@ -1,6 +1,6 @@
-# Content Format Example
+# Still Lift - Content Format Example
 
-Here's how to format your content with the new structure:
+Here's how to format your Still Lift content with the new structure:
 
 ## New Content Structure
 
@@ -49,7 +49,7 @@ good: {
 
 ## How to Add Your Content
 
-1. **Open** `src/lib/content.ts`
+1. **Open** `src/lib/still-lift-content.ts`
 2. **Find** the mood-context combination you want to edit
 3. **Replace** the existing array with your content
 4. **Follow** the format above

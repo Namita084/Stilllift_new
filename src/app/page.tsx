@@ -9,7 +9,7 @@ import Background from '@/components/Background';
 import RevealElement from '@/components/3DRevealElement';
 import TextBackButton from '@/components/TextBackButton';
 import { initAnalytics, trackMoodSelected, trackContextSelected, trackMoodContextCombination, trackMicroHabitRevealed, trackUserAction } from '@/lib/analytics';
-import { getRandomMessage, type Mood, type Context, type ContentMessage } from '@/lib/content';
+import { getRandomMessage, type Mood, type Context, type ContentMessage } from '@/lib/still-lift-content';
 import { useAudioController } from '@/context/AudioControllerContext';
 import '@/components/3DComponents.css';
 

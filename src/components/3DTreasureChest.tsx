@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { CONTENT_LIBRARY, Mood } from '@/lib/content';
+import { CONTENT_LIBRARY, Mood } from '@/lib/still-lift-content';
 import ActionRevealCard from './ActionRevealCard';
 
 const CHEST_ACTION_TYPE = 'ACTION';

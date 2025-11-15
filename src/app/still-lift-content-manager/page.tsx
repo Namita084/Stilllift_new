@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
-import { useContent, useAllMessages } from '@/hooks/useContent';
-import { type Mood, type Context, type ContentMessage, MOODS, CONTEXTS } from '@/lib/content';
+import { useContent, useAllMessages } from '@/hooks/useStillLiftContent';
+import { type Mood, type Context, type ContentMessage, MOODS, CONTEXTS } from '@/lib/still-lift-content';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';

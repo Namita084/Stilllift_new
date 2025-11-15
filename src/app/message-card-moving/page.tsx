@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
 import { playMessageAudio } from '@/lib/audio';
-import { getRandomMessage, CONTENT_LIBRARY, Mood } from '@/lib/content';
+import { getRandomMessage, CONTENT_LIBRARY, Mood } from '@/lib/still-lift-content';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Background from '@/components/Background';

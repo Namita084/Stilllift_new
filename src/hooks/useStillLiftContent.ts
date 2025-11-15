@@ -6,7 +6,7 @@ import {
   type Mood, 
   type Context, 
   type ContentMessage 
-} from '@/lib/content';
+} from '@/lib/still-lift-content';
 
 export interface UseContentOptions {
   mood: Mood | null;

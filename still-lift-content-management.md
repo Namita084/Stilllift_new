@@ -1,10 +1,10 @@
-# Content Management System
+# Still Lift - Content Management System
 
-This document explains how to manage the content library for your mood and context combinations.
+This document explains how to manage the content library for Still Lift mood and context combinations.
 
 ## Overview
 
-The content system is centralized in `src/lib/content.ts` and provides a structured way to manage all the messages that users see based on their selected mood and context.
+The content system is centralized in `src/lib/still-lift-content.ts` and provides a structured way to manage all the messages that users see based on their selected mood and context.
 
 ## Structure
 
@@ -84,7 +84,7 @@ interface ContentMessage {
 
 ### Direct Editing
 
-1. Open `src/lib/content.ts`
+1. Open `src/lib/still-lift-content.ts`
 2. Find the `CONTENT_LIBRARY` object
 3. Navigate to the mood-context combination you want to edit
 4. Add your messages to the array
@@ -112,7 +112,7 @@ good: {
 React hooks that automatically re-compute when mood/context changes. These are used in your React components to access content.
 
 #### `useContent(options)`
-**Location**: `src/hooks/useContent.ts`
+**Location**: `src/hooks/useStillLiftContent.ts`
 
 **What it does**: 
 - Returns filtered, shuffled messages based on mood and context
@@ -155,7 +155,7 @@ const { messages: cardMessages, isLoading, error } = useContent({
 ---
 
 #### `useRandomMessage(mood, context)`
-**Location**: `src/hooks/useContent.ts`
+**Location**: `src/hooks/useStillLiftContent.ts`
 
 **What it does**: Returns a single random message for the given mood+context combination.
 
@@ -178,7 +178,7 @@ const randomMessage = useRandomMessage(
 ---
 
 #### `useRandomMessages(mood, context, count)`
-**Location**: `src/hooks/useContent.ts`
+**Location**: `src/hooks/useStillLiftContent.ts`
 
 **What it does**: Returns multiple random messages (shuffled) for a mood+context combination.
 
@@ -194,7 +194,7 @@ const randomMessage = useRandomMessage(
 ---
 
 #### `useAllMessages(mood, context)`
-**Location**: `src/hooks/useContent.ts`
+**Location**: `src/hooks/useStillLiftContent.ts`
 
 **What it does**: Returns ALL messages for a mood+context combination, in their original order (no shuffling).
 
@@ -218,7 +218,7 @@ const allMessages = useAllMessages(selectedMood, selectedContext);
 Standalone functions (not React hooks) that can be used anywhere in your codebase.
 
 #### `getRandomMessage(mood, context)`
-**Location**: `src/lib/content.ts` (line ~991)
+**Location**: `src/lib/still-lift-content.ts`
 
 **What it does**: Picks one random message from the array for a mood+context combination.
 
@@ -236,7 +236,7 @@ return messages[randomIndex];
 ---
 
 #### `getAllMessages(mood, context)`
-**Location**: `src/lib/content.ts` (line ~1153)
+**Location**: `src/lib/still-lift-content.ts`
 
 **What it does**: Returns the entire array of messages for a mood+context combination, in original order.
 
@@ -252,7 +252,7 @@ return CONTENT_LIBRARY[mood]?.[context] || [];
 ---
 
 #### `getRandomMessages(mood, context, count)`
-**Location**: `src/lib/content.ts` (line ~1157)
+**Location**: `src/lib/still-lift-content.ts`
 
 **What it does**: Returns multiple random messages (shuffled) for a mood+context combination.
 
@@ -273,7 +273,7 @@ return CONTENT_LIBRARY[mood]?.[context] || [];
 ---
 
 #### `validateContentLibrary()`
-**Location**: `src/lib/content.ts` (line ~1167)
+**Location**: `src/lib/still-lift-content.ts`
 
 **What it does**: Validates that your `CONTENT_LIBRARY` is correctly structured and has no errors.
 
@@ -293,7 +293,7 @@ return CONTENT_LIBRARY[mood]?.[context] || [];
 
 **Example Usage**:
 ```typescript
-import { validateContentLibrary } from '@/lib/content';
+import { validateContentLibrary } from '@/lib/still-lift-content';
 
 const { isValid, errors } = validateContentLibrary();
 if (!isValid) {
@@ -325,7 +325,7 @@ if (!isValid) {
 ## Example Content Addition
 
 ```typescript
-// In src/lib/content.ts, add to the CONTENT_LIBRARY:
+// In src/lib/still-lift-content.ts, add to the CONTENT_LIBRARY:
 
 good: {
   still: [
@@ -353,7 +353,7 @@ good: {
 Use the built-in validation function to check your content:
 
 ```typescript
-import { validateContentLibrary } from '@/lib/content';
+import { validateContentLibrary } from '@/lib/still-lift-content';
 
 const { isValid, errors } = validateContentLibrary();
 if (!isValid) {

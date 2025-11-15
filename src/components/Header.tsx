@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import logoStillliftNew from '@/../public/Logo stilllift new.svg';
 import logoStillliftDark from '@/../public/Logo stilllift - dark theme.png';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import { AnimatedThemeToggler } from '@/registry/magicui/animated-theme-toggler';
 
 declare global {
@@ -19,6 +19,10 @@ interface HeaderProps {
   onToggleTheme: () => void;
   onToggleReadAloud: () => void;
   onToggleScreenless: () => void;
+  appName?: 'StillLift' | 'Still Zone';
+  brandColor?: string;
+  showThemeToggle?: boolean;
+  customControls?: ReactNode;
 }
 
 export default function Header({
@@ -27,7 +31,11 @@ export default function Header({
   screenlessMode,
   onToggleTheme,
   onToggleReadAloud,
-  onToggleScreenless
+  onToggleScreenless,
+  appName = 'StillLift',
+  brandColor,
+  showThemeToggle = true,
+  customControls
 }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
 
@@ -39,47 +47,56 @@ export default function Header({
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+  
   return (
     <header className={`glass-header${scrolled ? ' scrolled' : ''}`}>
       <div className="header-content">
-        <div className="logo" aria-label="StillLift">
+        <div className="logo" aria-label={appName}>
           <Image
             src={isDarkMode ? logoStillliftDark : logoStillliftNew}
-            alt="StillLift logo"
+            alt={`${appName} logo`}
             width={48}
             height={48}
             priority
           />
-          <span className="logo-text font-inter">StillLift</span>
+          <span className="logo-text font-inter" style={brandColor ? { color: brandColor } : undefined}>
+            {appName}
+          </span>
         </div>
         <div className="controls" style={{ gap: '0.75rem' }}>
-          <AnimatedThemeToggler isDark={isDarkMode} onToggle={onToggleTheme} ariaLabel="Toggle theme" />
-          <button
-            onClick={() => {
-              // If there's a global play function available, use it to play current audio
-              if (typeof window !== 'undefined' && window.playCurrentActionAudio) {
-                window.playCurrentActionAudio();
-              } else {
-                // Otherwise toggle audio on/off
-                onToggleReadAloud();
-              }
-            }}
-            className={`control-btn glass-control ${audioEnabled ? 'active' : ''}`}
-            aria-label="Read aloud messages"
-          >
-            <span className="control-icon">🔊</span>
-          </button>
-          <button 
-            onClick={onToggleScreenless}
-            className={`control-btn glass-control ${screenlessMode ? 'active' : ''}`}
-            aria-label={screenlessMode ? 'Exit screenless mode' : 'Enter screenless mode'}
-          >
-            <span className="control-icon" aria-hidden="true">
-              {screenlessMode ? '🙈' : '👁️'}
-            </span>
-          </button>
+          {customControls || (
+            <>
+              {showThemeToggle && (
+                <AnimatedThemeToggler isDark={isDarkMode} onToggle={onToggleTheme} ariaLabel="Toggle theme" />
+              )}
+              <button
+                onClick={() => {
+                  // If there's a global play function available, use it to play current audio
+                  if (typeof window !== 'undefined' && window.playCurrentActionAudio) {
+                    window.playCurrentActionAudio();
+                  } else {
+                    // Otherwise toggle audio on/off
+                    onToggleReadAloud();
+                  }
+                }}
+                className={`control-btn glass-control ${audioEnabled ? 'active' : ''}`}
+                aria-label="Read aloud messages"
+              >
+                <span className="control-icon">🔊</span>
+              </button>
+              <button 
+                onClick={onToggleScreenless}
+                className={`control-btn glass-control ${screenlessMode ? 'active' : ''}`}
+                aria-label={screenlessMode ? 'Exit screenless mode' : 'Enter screenless mode'}
+              >
+                <span className="control-icon" aria-hidden="true">
+                  {screenlessMode ? '🙈' : '👁️'}
+                </span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>
   );
-} 
+}
